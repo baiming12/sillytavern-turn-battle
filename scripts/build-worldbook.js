@@ -1,0 +1,9 @@
+import { mkdir, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
+import { CORE_PACK, catalogText } from '../content.js';
+import { generateWriterWorldbook } from '../worldbook.js';
+
+const directory = new URL('../examples/', import.meta.url);
+await mkdir(directory, { recursive: true });
+const starterPack = JSON.parse(await readFile(new URL('基础测试内容包.json', directory), 'utf8'));
+await writeFile(new URL('写卡助手世界书.json', directory), `${JSON.stringify(generateWriterWorldbook(catalogText([CORE_PACK, starterPack])), null, 2)}\n`, 'utf8');

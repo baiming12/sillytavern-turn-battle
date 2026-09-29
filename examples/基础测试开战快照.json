@@ -1,0 +1,83 @@
+{
+  "schema": "turn-battle-request/v1",
+  "scene": "训练场：两名冒险者对抗守卫、刺客和法师",
+  "actors": [
+    {
+      "id": "hero",
+      "name": "测试战士",
+      "side": "ally",
+      "row": "front",
+      "col": 1,
+      "stats": { "patk": 10, "matk": 2, "pdef": 5, "mdef": 3, "speed": 3 },
+      "resources": { "hp": { "current": 60, "max": 60 }, "sp": { "current": 25, "max": 25 }, "mp": { "current": 5, "max": 5 }, "focus": { "current": 8, "max": 8 } },
+      "skills": ["starter-test:wind-first"],
+      "equipment": { "weapon": "starter-test:sword", "outer": "starter-test:coat", "middle": "starter-test:shirt", "underwear": "starter-test:underwear", "legs": "starter-test:trousers", "feet": "starter-test:boots" },
+      "accessories": ["starter-test:ruby-ring", "starter-test:sapphire-ring", "starter-test:guard-charm", "starter-test:swift-charm", "starter-test:focus-charm"],
+      "restraints": [],
+      "statuses": ["starter-test:haste"]
+    },
+    {
+      "id": "ally-mage",
+      "name": "测试法师",
+      "side": "ally",
+      "row": "back",
+      "col": 1,
+      "stats": { "patk": 2, "matk": 11, "pdef": 1, "mdef": 5, "speed": 2 },
+      "resources": { "hp": { "current": 40, "max": 40 }, "sp": { "current": 15, "max": 15 }, "mp": { "current": 30, "max": 30 }, "focus": { "current": 12, "max": 12 } },
+      "skills": ["starter-test:fireball", "starter-test:fire-rain", "starter-test:disarm", "starter-test:focus-drain"],
+      "equipment": { "weapon": "starter-test:staff", "middle": "starter-test:shirt" },
+      "accessories": ["starter-test:sapphire-ring"],
+      "restraints": [],
+      "statuses": []
+    },
+    {
+      "id": "enemy-guard",
+      "name": "训练守卫",
+      "side": "enemy",
+      "row": "front",
+      "col": 1,
+      "stats": { "patk": 8, "matk": 0, "pdef": 4, "mdef": 2, "speed": 2 },
+      "resources": { "hp": { "current": 35, "max": 35 }, "sp": { "current": 15, "max": 15 }, "mp": { "current": 0, "max": 0 }, "focus": { "current": 8, "max": 8 } },
+      "skills": ["starter-test:wind-first"],
+      "equipment": { "weapon": "starter-test:sword", "outer": "starter-test:coat", "legs": "starter-test:trousers" },
+      "accessories": [],
+      "restraints": [],
+      "statuses": [],
+      "items": { "starter-test:healing-potion": 1 },
+      "aiProfile": "starter-test:guard-ai"
+    },
+    {
+      "id": "enemy-rogue",
+      "name": "训练刺客",
+      "side": "enemy",
+      "row": "front",
+      "col": 2,
+      "stats": { "patk": 8, "matk": 0, "pdef": 2, "mdef": 2, "speed": 6 },
+      "resources": { "hp": { "current": 26, "max": 26 }, "sp": { "current": 20, "max": 20 }, "mp": { "current": 0, "max": 0 }, "focus": { "current": 7, "max": 7 } },
+      "skills": ["starter-test:gale-thrust"],
+      "equipment": { "weapon": "starter-test:dagger", "feet": "starter-test:boots" },
+      "accessories": [],
+      "restraints": [],
+      "statuses": [],
+      "items": { "starter-test:lime": 1 },
+      "aiProfile": "starter-test:rogue-ai"
+    },
+    {
+      "id": "enemy-mage",
+      "name": "训练法师",
+      "side": "enemy",
+      "row": "back",
+      "col": 1,
+      "stats": { "patk": 2, "matk": 9, "pdef": 1, "mdef": 4, "speed": 1 },
+      "resources": { "hp": { "current": 24, "max": 24 }, "sp": { "current": 10, "max": 10 }, "mp": { "current": 20, "max": 20 }, "focus": { "current": 10, "max": 10 } },
+      "skills": ["starter-test:fireball"],
+      "equipment": { "weapon": "starter-test:staff", "middle": "starter-test:shirt" },
+      "accessories": [],
+      "restraints": [],
+      "statuses": [],
+      "items": { "starter-test:mana-potion": 1 },
+      "aiProfile": "starter-test:mage-ai"
+    }
+  ],
+  "bag": { "starter-test:healing-potion": 3, "starter-test:mana-potion": 2, "starter-test:lime": 1, "starter-test:rope-item": 1, "starter-test:fire-scroll": 1 }
+}

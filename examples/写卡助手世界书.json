@@ -1,0 +1,159 @@
+{
+  "entries": {
+    "0": {
+      "uid": 0,
+      "comment": "回合战斗格式总则",
+      "key": [],
+      "keysecondary": [],
+      "content": "你正在为“回合战斗”插件编写内容。只在用户要求生成战斗内容包或角色卡战斗适配时输出对应结构化数据。内容包格式版本：turn-battle-pack/v1；开战快照格式版本：turn-battle-request/v1。\n输出必须是纯 JSON，不要 Markdown 代码围栏、解释文字或脚本。所有定义使用“包ID:条目ID”形式的唯一 ID。引用必须指向同批次定义或用户提供的现有目录。技能条件和效果只能使用下列格式指导条目支持的种类。生成后自检 ID、引用、数值范围和装备栏位。",
+      "constant": true,
+      "selective": false,
+      "selectiveLogic": 0,
+      "disable": false,
+      "order": 200,
+      "position": 0,
+      "probability": 100,
+      "useProbability": false,
+      "depth": 4,
+      "excludeRecursion": true,
+      "matchWholeWords": false
+    },
+    "1": {
+      "uid": 1,
+      "comment": "内容包外层结构",
+      "key": [
+        "批量导入",
+        "内容包",
+        "DLC"
+      ],
+      "keysecondary": [],
+      "content": "生成批量导入内容时使用一个 JSON 对象：{\"schema\":\"turn-battle-pack/v1\",\"id\":\"小写包ID\",\"name\":\"内容包名称\",\"version\":\"1.0.0\",\"skills\":[],\"statuses\":[],\"equipment\":[],\"items\":[],\"enemies\":[],\"aiProfiles\":[]}。各数组可一次批量包含多个条目，定义的 id 必须以包ID和冒号开头。装备授予的技能、状态以及道具效果中的状态/装备，全部用 ID 引用。",
+      "constant": false,
+      "selective": false,
+      "selectiveLogic": 0,
+      "disable": false,
+      "order": 170,
+      "position": 0,
+      "probability": 100,
+      "useProbability": false,
+      "depth": 4,
+      "excludeRecursion": true,
+      "matchWholeWords": false
+    },
+    "2": {
+      "uid": 2,
+      "comment": "技能格式",
+      "key": [
+        "技能",
+        "剑法",
+        "法术",
+        "攻击"
+      ],
+      "keysecondary": [],
+      "content": "技能条目示例：{\"id\":\"demo:fireball\",\"name\":\"火球术\",\"tags\":[\"magic\",\"mouth\",\"chant\"],\"cost\":{\"mp\":5},\"target\":{\"side\":\"enemy\",\"row\":\"any\",\"count\":\"single\",\"guard\":false},\"requirements\":[{\"kind\":\"freePart\",\"part\":\"mouth\"},{\"kind\":\"equippedAnyTag\",\"tags\":[\"staff\",\"spellbook\"]}],\"effects\":[{\"kind\":\"damage\",\"damageType\":\"magic\",\"power\":6,\"scale\":1}]}。target.side 用 enemy/ally/self；row 用 front/back/any；count 用 single/all；guard=false 表示无视前排保护。条件：freePart、equippedTag、equippedAnyTag、enemyFrontEmpty、targetEquipped、targetNotEquipped、selfNotEquipped、selfEquipment、targetEquipment、selfNotEquipment、targetNotEquipment、selfStatus、targetStatus、selfNotStatus、targetNotStatus。指定装备使用 equipmentId，指定状态使用 statusId。效果：damage、resource、status、removeStatus、equipRestraint、removeRestraint、disarm、removeEquipment、disableEquipment、infiltrate、actionPoints。disableEquipment 指定 slot 与正整数 duration。概率 chance 为 0–100 数字。",
+      "constant": false,
+      "selective": false,
+      "selectiveLogic": 0,
+      "disable": false,
+      "order": 160,
+      "position": 0,
+      "probability": 100,
+      "useProbability": false,
+      "depth": 4,
+      "excludeRecursion": true,
+      "matchWholeWords": false
+    },
+    "3": {
+      "uid": 3,
+      "comment": "道具与装备格式",
+      "key": [
+        "道具",
+        "装备",
+        "武器",
+        "饰品",
+        "拘束"
+      ],
+      "keysecondary": [],
+      "content": "道具使用与技能相同的 target、requirements、effects 字段；例如石灰粉：{\"id\":\"demo:lime\",\"name\":\"石灰粉\",\"target\":{\"side\":\"enemy\",\"row\":\"front\",\"count\":\"single\",\"guard\":false},\"effects\":[{\"kind\":\"status\",\"statusId\":\"demo:blind\",\"chance\":70}]}。装备示例：{\"id\":\"demo:staff\",\"name\":\"法杖\",\"slot\":\"weapon\",\"tags\":[\"staff\"],\"stats\":{\"matk\":2},\"skills\":[]}。slot 可用 weapon、outer、middle、underwear、legs、feet、accessory、restraint。拘束装备额外设置 parts、statuses、escapeChance、escapeCost；parts 用 hands、feet、mouth、body。法术书属于 weapon，法术卷轴属于 items。",
+      "constant": false,
+      "selective": false,
+      "selectiveLogic": 0,
+      "disable": false,
+      "order": 150,
+      "position": 0,
+      "probability": 100,
+      "useProbability": false,
+      "depth": 4,
+      "excludeRecursion": true,
+      "matchWholeWords": false
+    },
+    "4": {
+      "uid": 4,
+      "comment": "状态与敌人预设格式",
+      "key": [
+        "Buff",
+        "Debuff",
+        "敌人预设",
+        "状态",
+        "AI策略"
+      ],
+      "keysecondary": [],
+      "content": "状态示例：{\"id\":\"demo:blind\",\"name\":\"失明\",\"duration\":2,\"accuracyMod\":-30,\"tags\":[\"debuff\"]}；可用 blockedTags 限制技能标签、stats 修改属性，bonusAp 提供 0–3 点额外行动点。装备也可有 bonusAp。敌人预设是可选默认模板，字段可包含 id、name、stats、resources、skills、equipment、accessories、restraints、statuses、items、aiProfile。AI 策略示例：{\"id\":\"demo:guard-ai\",\"name\":\"守卫\",\"skillPriority\":[\"demo:guard-hit\"],\"itemPriority\":[],\"useItems\":true}。剧情 AI 每场仍要写入完整初始快照，模板不能直接替代本场数值。",
+      "constant": false,
+      "selective": false,
+      "selectiveLogic": 0,
+      "disable": false,
+      "order": 140,
+      "position": 0,
+      "probability": 100,
+      "useProbability": false,
+      "depth": 4,
+      "excludeRecursion": true,
+      "matchWholeWords": false
+    },
+    "5": {
+      "uid": 5,
+      "comment": "角色卡开战快照适配",
+      "key": [
+        "写卡",
+        "角色卡",
+        "开战格式",
+        "战斗变量"
+      ],
+      "keysecondary": [],
+      "content": "如果用户要求你编写角色卡的战斗变量与开战格式：剧情变量名可自由设计，但开战时必须把当前变量映射成 turn-battle-request/v1 的 JSON。外层字段：schema、scene、actors、bag。每名 actor 至少包含 id、name、side(ally/enemy)、row(front/back)、col(从1开始)、stats、resources；resources 中 hp/sp/mp 各为 {\"current\":数值,\"max\":数值}，可另加自定义资源；另可填 skills、equipment、accessories、restraints、statuses、items、aiProfile。玩家方道具数量只在外层 bag 填一次；敌方道具写在各自 actor.items。技能、装备、状态和道具只能引用已启用内容的 ID。开战回复的剧情停在第一项行动前，在末尾输出 HTML 注释标记：<!-- TURN_BATTLE_REQUEST 换行 JSON 换行 -->。",
+      "constant": false,
+      "selective": false,
+      "selectiveLogic": 0,
+      "disable": false,
+      "order": 130,
+      "position": 0,
+      "probability": 100,
+      "useProbability": false,
+      "depth": 4,
+      "excludeRecursion": true,
+      "matchWholeWords": false
+    },
+    "6": {
+      "uid": 6,
+      "comment": "已有内容目录",
+      "key": [
+        "现有内容",
+        "引用目录"
+      ],
+      "keysecondary": [],
+      "content": "写作时可引用的已有内容定义如下。不要使用目录以外且未在同批次创建的 ID：\n基础规则示例包 (core):\n- skills core:unarmed 徒手攻击\n- skills core:sword-strike 剑击\n- skills core:clear-wind-first 拂柳：清风剑法第一式：以轻快剑路拨开敌方防线。\n- skills core:dagger-strike 匕首刺击\n- skills core:shortsword-strike 短剑刺击\n- skills core:staff-strike 法杖敲击\n- skills core:book-strike 法术书拍击\n- skills core:fireball 火球术\n- skills core:fire-rain 火雨术\n- skills core:disarm 除你武器\n- skills core:gale-thrust 疾风刺\n- statuses core:blind 失明\n- statuses core:bound-hands 手部束缚\n- statuses core:gagged 堵嘴\n- equipment core:sword 长剑\n- equipment core:staff 法杖\n- equipment core:spellbook 法术书\n- equipment core:dagger 匕首\n- equipment core:shortsword 短剑\n- equipment core:rope 绳索\n- equipment core:gag 口枷\n- items core:potion 治疗药剂\n- items core:lime 石灰粉\n- items core:rope-item 套绳\n- items core:fire-scroll 火球卷轴\n\n基础战斗测试包 (starter-test):\n- skills starter-test:sword-attack 长剑攻击\n- skills starter-test:dagger-attack 匕首刺击\n- skills starter-test:wind-first 拂柳：清风剑法第一式。\n- skills starter-test:fireball 火球术\n- skills starter-test:fire-rain 火雨术\n- skills starter-test:gale-thrust 疾风刺\n- skills starter-test:disarm 除你武器\n- skills starter-test:focus-drain 削弱专注\n- statuses starter-test:blind 失明\n- statuses starter-test:bound-hands 束手\n- statuses starter-test:gagged 堵嘴\n- statuses starter-test:haste 迅捷\n- equipment starter-test:sword 练习长剑\n- equipment starter-test:dagger 练习匕首\n- equipment starter-test:staff 练习法杖\n- equipment starter-test:spellbook 练习法术书\n- equipment starter-test:coat 皮外衣\n- equipment starter-test:shirt 内衬\n- equipment starter-test:underwear 内衣\n- equipment starter-test:trousers 皮裤\n- equipment starter-test:boots 轻靴\n- equipment starter-test:ruby-ring 红宝石戒指\n- equipment starter-test:sapphire-ring 蓝宝石戒指\n- equipment starter-test:guard-charm 守护护符\n- equipment starter-test:swift-charm 迅捷护符\n- equipment starter-test:focus-charm 专注护符\n- equipment starter-test:rope 绳索\n- equipment starter-test:gag 口枷\n- items starter-test:healing-potion 治疗药剂\n- items starter-test:mana-potion 法力药剂\n- items starter-test:lime 石灰粉\n- items starter-test:rope-item 套绳\n- items starter-test:fire-scroll 火球卷轴\n- enemies starter-test:guard 训练守卫；建议模板 {\"stats\":{\"patk\":8,\"matk\":0,\"pdef\":4,\"mdef\":2,\"speed\":2},\"resources\":{\"hp\":{\"current\":35,\"max\":35},\"sp\":{\"current\":15,\"max\":15},\"mp\":{\"current\":0,\"max\":0},\"focus\":{\"current\":8,\"max\":8}},\"skills\":[\"starter-test:wind-first\"],\"equipment\":{\"weapon\":\"starter-test:sword\",\"outer\":\"starter-test:coat\",\"legs\":\"starter-test:trousers\"},\"aiProfile\":\"starter-test:guard-ai\"}\n- enemies starter-test:mage 训练法师；建议模板 {\"stats\":{\"patk\":2,\"matk\":9,\"pdef\":1,\"mdef\":4,\"speed\":1},\"resources\":{\"hp\":{\"current\":24,\"max\":24},\"sp\":{\"current\":10,\"max\":10},\"mp\":{\"current\":20,\"max\":20},\"focus\":{\"current\":10,\"max\":10}},\"skills\":[\"starter-test:fireball\"],\"equipment\":{\"weapon\":\"starter-test:staff\",\"middle\":\"starter-test:shirt\"},\"aiProfile\":\"starter-test:mage-ai\"}\n- enemies starter-test:rogue 训练刺客；建议模板 {\"stats\":{\"patk\":8,\"matk\":0,\"pdef\":2,\"mdef\":2,\"speed\":6},\"resources\":{\"hp\":{\"current\":26,\"max\":26},\"sp\":{\"current\":20,\"max\":20},\"mp\":{\"current\":0,\"max\":0},\"focus\":{\"current\":7,\"max\":7}},\"skills\":[\"starter-test:gale-thrust\"],\"equipment\":{\"weapon\":\"starter-test:dagger\",\"feet\":\"starter-test:boots\"},\"aiProfile\":\"starter-test:rogue-ai\"}\n- aiProfiles starter-test:guard-ai 守卫 AI\n- aiProfiles starter-test:mage-ai 法师 AI\n- aiProfiles starter-test:rogue-ai 刺客 AI",
+      "constant": false,
+      "selective": false,
+      "selectiveLogic": 0,
+      "disable": false,
+      "order": 120,
+      "position": 0,
+      "probability": 100,
+      "useProbability": false,
+      "depth": 4,
+      "excludeRecursion": true,
+      "matchWholeWords": false
+    }
+  }
+}

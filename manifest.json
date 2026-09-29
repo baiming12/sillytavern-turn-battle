@@ -1,0 +1,9 @@
+{
+  "display_name": "回合战斗",
+  "loading_order": 20,
+  "js": "index.js",
+  "css": "style.css",
+  "author": "Codex",
+  "version": "0.1.0",
+  "auto_update": false
+}
