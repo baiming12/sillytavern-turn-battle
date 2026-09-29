@@ -1,5 +1,5 @@
 import { CORE_PACK, CONTENT_TYPES, PACK_SCHEMA, collectDefinitions, validatePack, validateBattleRequest, parseBattleRequest, catalogText } from './content.js';
-import { createBattle, availableSkills, legalTargets, emptyFrontColumns, executeAction, endAllyPhase, finishBattle, battleReport } from './engine.js';
+import { createBattle, availableSkills, legalTargets, emptyFrontColumns, executeAction, endAllyPhase, finishBattle, battleReport, lootableEnemyItems } from './engine.js';
 import { generateWriterWorldbook, buildStoryPrompt } from './worldbook.js';
 
 const MODULE = 'turn_battle';
@@ -15,6 +15,8 @@ let importData = null;
 let editorType = 'skills';
 let selectedActorId = null;
 let selectedAction = null;
+let selectedTargetId = null;
+let actionMenu = 'skills';
 let previewRequest = null;
 let previewKey = null;
 let previewPacks = null;
@@ -221,21 +223,25 @@ function renderBattle() {
     const defs = collectDefinitions(state.definitions);
     const actor = state.actors.find(x => x.id === selectedActorId && x.side === 'ally' && x.ap > 0 && x.resources.hp.current > 0) || state.actors.find(x => x.side === 'ally' && x.ap > 0 && x.resources.hp.current > 0);
     selectedActorId = actor?.id || null;
-    const actorOptions = state.actors.filter(x => x.side === 'ally' && x.resources.hp.current > 0).map(x => `<option value="${escapeHtml(x.id)}" ${x.id === selectedActorId ? 'selected' : ''}>${escapeHtml(x.name)}（行动点 ${x.ap}）</option>`).join('');
+    const actorOptions = state.actors.filter(x => x.side === 'ally' && x.resources.hp.current > 0 && x.ap > 0).map(x => `<option value="${escapeHtml(x.id)}" ${x.id === selectedActorId ? 'selected' : ''}>${escapeHtml(x.name)}（行动点 ${x.ap}）</option>`).join('');
     let actions = '';
     if (actor && state.status === 'active') {
-        const skills = availableSkills(actor, defs).map(skill => `<option value="skill|${escapeHtml(skill.id)}">技能：${escapeHtml(skill.name)}</option>`).join('');
-        const items = Object.entries(state.bag).filter(([, count]) => count > 0).map(([id, count]) => `<option value="item|${escapeHtml(id)}">道具：${escapeHtml(defs.items.get(id)?.name || id)} ×${count}</option>`).join('');
-        const restraints = (actor.restraints || []).map(x => `<option value="struggle|${escapeHtml(x.instanceId)}">挣扎：${escapeHtml(defs.equipment.get(x.id)?.name || x.id)}</option>`).join('');
-        const drops = state.drops.filter(x => x.zone === actor.side && x.row === actor.row && x.col === actor.col).map(x => `<option value="pickup|${escapeHtml(x.instanceId)}">拾取：${escapeHtml(defs.equipment.get(x.id)?.name || x.id)}</option>`).join('');
-        const choices = `<option value="">选择行动</option>${skills}${items}${restraints}${drops}<option value="rest">休息</option><option value="move">移动</option>`;
+        const choiceButton = (value, label, detail = '') => `<button type="button" class="tb-choice ${selectedAction === value ? 'active' : ''}" data-choice="${escapeHtml(value)}" aria-pressed="${selectedAction === value}"><strong>${escapeHtml(label)}</strong>${detail ? `<small>${escapeHtml(detail)}</small>` : ''}</button>`;
+        const skills = availableSkills(actor, defs).map(skill => choiceButton(`skill|${skill.id}`, skill.name, Object.entries(skill.cost || {}).map(([id, amount]) => `${id} ${amount}`).join(' · ') || '无消耗')).join('');
+        const items = Object.entries(state.bag).filter(([id, count]) => count > 0 && defs.items.has(id)).map(([id, count]) => choiceButton(`item|${id}`, defs.items.get(id).name, `剩余 ${count}`)).join('');
+        const restraints = (actor.restraints || []).map(x => choiceButton(`struggle|${x.instanceId}`, `挣扎：${defs.equipment.get(x.id)?.name || x.id}`)).join('');
+        const drops = state.drops.filter(x => x.zone === actor.side && x.row === actor.row && x.col === actor.col).map(x => choiceButton(`pickup|${x.instanceId}`, `拾取：${defs.equipment.get(x.id)?.name || x.id}`)).join('');
+        const choiceList = actionMenu === 'skills' ? skills || '<p>当前没有可选技能。</p>' : actionMenu === 'items' ? items || '<p>共用背包中没有可用道具。</p>' : actionMenu === 'move' ? '<p>移动消耗 1 次行动。</p>' : `${choiceButton('rest', '休息', '恢复精力与法力')}${restraints}${drops}`;
         const current = selectedAction || '';
         const actionDefinition = current.startsWith('skill|') ? defs.skills.get(current.slice(6)) : current.startsWith('item|') ? defs.items.get(current.slice(5)) : null;
         const targets = actionDefinition ? legalTargets(state, actor, actionDefinition, defs) : [];
-        const targetControl = actionDefinition?.target?.count === 'all' ? `<p>目标：${targets.map(x => escapeHtml(x.name)).join('、') || '无合法目标'}</p>` : actionDefinition ? `<label>目标 <select id="tb-target">${targets.map(x => `<option value="${escapeHtml(x.id)}">${escapeHtml(x.name)}</option>`).join('')}</select></label>` : '';
+        const targetChosen = targets.some(x => x.id === selectedTargetId);
+        const targetControl = actionDefinition?.target?.count === 'all' ? `<p>目标：${targets.map(x => escapeHtml(x.name)).join('、') || '无合法目标'}</p>` : actionDefinition ? `<div><b>选择目标</b><div class="tb-target-grid">${targets.map(x => `<button type="button" class="tb-target-choice ${selectedTargetId === x.id ? 'active' : ''}" data-target-id="${escapeHtml(x.id)}" aria-pressed="${selectedTargetId === x.id}">${escapeHtml(x.name)}<small>HP ${x.resources.hp.current}/${x.resources.hp.max}</small></button>`).join('') || '<p>无合法目标</p>'}</div></div>` : '';
         const landing = actionDefinition?.effects?.some(x => x.kind === 'infiltrate') ? `<label>突入落点 <select id="tb-landing">${emptyFrontColumns(state, actor.side === 'ally' ? 'enemy' : 'ally').map(col => `<option value="${col}">敌方前排 ${col}</option>`).join('')}</select></label>` : '';
         const moves = current === 'move' ? `<label>排 <select id="tb-move-row"><option value="front">前排</option><option value="back">后排</option></select></label><label>位置 <input id="tb-move-col" type="number" min="1" value="1"></label>` : '';
-        actions = `<section class="tb-action-form"><label>行动者 <select id="tb-actor">${actorOptions}</select></label><label>行动 <select id="tb-action">${choices.replace(`value="${escapeHtml(current)}"`, `value="${escapeHtml(current)}" selected`)}</select></label>${targetControl}${landing}${moves}<button data-action="execute" ${actionDefinition && !targets.length ? 'disabled' : ''}>执行行动</button></section>`;
+        const menus = [['skills', '技能'], ['items', '道具'], ['move', '移动'], ['other', '其他']].map(([id, label]) => `<button type="button" data-menu="${id}" class="${actionMenu === id ? 'active' : ''}" aria-pressed="${actionMenu === id}">${label}</button>`).join('');
+        const canExecute = Boolean(current) && (!actionDefinition || (targets.length > 0 && (actionDefinition.target?.count === 'all' || targetChosen)));
+        actions = `<section class="tb-command"><label>行动者 <select id="tb-actor">${actorOptions}</select></label><div class="tb-command-grid">${menus}</div><div class="tb-choice-grid">${choiceList}</div>${targetControl}${landing}${moves}<button data-action="execute" class="tb-execute" ${canExecute ? '' : 'disabled'}>确认行动</button></section>`;
     }
     if (state.status === 'active' && state.phase === 'ally') actions += `<section class="tb-phase-controls">${actor ? '' : '<p>玩家方本阶段已无行动点，请结束阶段让敌方行动。</p>'}<button data-action="end-phase">结束玩家阶段，让敌方行动</button></section>`;
     const combatants = ['ally', 'enemy'].map(side => `<div class="tb-side"><h3>${side === 'ally' ? '玩家方' : '敌方'}</h3>${['front', 'back'].map(row => `<div class="tb-row"><b>${row === 'front' ? '前排' : '后排'}</b>${Array.from({ length: state.limits[`${side}${row === 'front' ? 'Front' : 'Back'}`] }, (_, i) => { const x = state.actors.find(a => (a.zone || a.side) === side && a.row === row && a.col === i + 1 && a.resources.hp.current > 0); return `<div class="tb-slot">${x ? `<strong>${escapeHtml(x.name)}</strong>${resourceBars(x)}<small>AP ${x.ap} · ${(x.statuses || []).map(s => escapeHtml(defs.statuses.get(s.id)?.name || s.id)).join('、')}${(x.restraints || []).map(r => escapeHtml(defs.equipment.get(r.id)?.name || r.id)).join('、')}</small>` : '空位'}</div>`; }).join('')}</div>`).join('')}</div>`).join('');
@@ -243,13 +249,16 @@ function renderBattle() {
     const report = state.status === 'ended'
         ? `<section class="tb-report"><h3>战斗结束：${escapeHtml(state.result)}</h3><button data-action="copy-short">复制简要报告</button><button data-action="copy-full">复制完整报告</button><button data-action="close">返回聊天</button><textarea readonly>${escapeHtml(battleReport(state, false))}</textarea>${renderLoot(state, defs)}<button data-action="sample-preview" class="tb-secondary">重新试玩示例战斗</button></section>`
         : `<section class="tb-end-options"><p>敌方仍有 ${livingEnemies} 名单位未倒下。全部倒下后会自动判定胜利。</p>${interruptPending ? '<p>提前中断会立即结束战斗并生成“中断”报告，即使敌人仍有生命。</p><button data-action="confirm-interrupt">确认中断战斗</button><button data-action="cancel-interrupt" class="tb-secondary">继续战斗</button>' : '<details><summary>提前结束这场战斗</summary><button data-action="request-interrupt" class="tb-secondary">中断并生成报告</button></details>'}</section>`;
-    return `<div class="tb-battle"><h2>${escapeHtml(state.scene || '战斗')} · 第 ${state.round} 轮 · ${state.phase === 'ally' ? '玩家阶段' : '敌方阶段'}</h2><div class="tb-field">${combatants}</div>${actions}<section class="tb-log"><h3>战斗记录</h3>${state.log.slice(-20).map(x => `<div>第${x.round}轮：${escapeHtml(x.text)}</div>`).join('')}</section>${report}</div>`;
+    const roster = state.actors.filter(x => x.side === 'enemy').map(x => `<span>${escapeHtml(x.name)} ${x.resources.hp.current}/${x.resources.hp.max}</span>`).join('');
+    const battlefield = `<details class="tb-battlefield"><summary>查看双方站位与资源</summary><div class="tb-field">${combatants}</div></details>`;
+    const log = `<details class="tb-log"><summary>查看战斗记录</summary>${state.log.slice(-20).map(x => `<div>第${x.round}轮：${escapeHtml(x.text)}</div>`).join('')}</details>`;
+    return `<div class="tb-battle"><h2>${escapeHtml(state.scene || '战斗')} · 第 ${state.round} 轮 · ${state.phase === 'ally' ? '玩家阶段' : '敌方阶段'}</h2>${state.status === 'active' ? `<div class="tb-roster">敌方：${roster}</div>${actions}${report}${battlefield}${log}` : `${report}${battlefield}${log}`}</div>`;
 }
 
 function renderLoot(state, defs) {
-    const enemyItems = state.actors.filter(actor => actor.side === 'enemy').flatMap(actor => Object.entries(actor.items || {}).filter(([, count]) => count > 0).map(([id, count]) => ({ actor, id, count })));
+    const enemyItems = lootableEnemyItems(state);
     if (!state.drops.length && !enemyItems.length) return '<p>没有可拾取物品。</p>';
-    return `<div class="tb-loot"><h4>战后手动拾取</h4>${state.drops.map(drop => `<label><input type="checkbox" class="tb-loot-check" value="${escapeHtml(drop.instanceId)}">${escapeHtml(defs.equipment.get(drop.id)?.name || drop.id)}（${escapeHtml(drop.row)} ${drop.col}）</label>`).join('')}${enemyItems.map(({ actor, id, count }) => `<label><input type="checkbox" class="tb-loot-item-check" data-actor="${escapeHtml(actor.id)}" value="${escapeHtml(id)}">${escapeHtml(actor.name)}的${escapeHtml(defs.items.get(id)?.name || id)} ×${count}</label>`).join('')}<button data-action="settle-loot">确认拾取所选物品</button></div>`;
+    return `<div class="tb-loot"><h4>战后手动拾取</h4><p>可拾取战场掉落武器和已倒下敌人剩余的道具。</p>${state.drops.map(drop => `<label><input type="checkbox" class="tb-loot-check" value="${escapeHtml(drop.instanceId)}">${escapeHtml(defs.equipment.get(drop.id)?.name || drop.id)}（${escapeHtml(drop.row)} ${drop.col}）</label>`).join('')}${enemyItems.map(({ actor, id, count }) => `<label><input type="checkbox" class="tb-loot-item-check" data-actor="${escapeHtml(actor.id)}" value="${escapeHtml(id)}">${escapeHtml(actor.name)}的${escapeHtml(defs.items.get(id)?.name || id)} ×${count}</label>`).join('')}<button data-action="settle-loot">确认拾取所选物品</button></div>`;
 }
 
 function renderPreview() {
@@ -499,6 +508,9 @@ async function handlePanelClick(event) {
     const button = event.target.closest('button');
     if (!button || !panel.contains(button)) return;
     if (button.dataset.tab) { tab = button.dataset.tab; render(); return; }
+    if (button.dataset.menu) { actionMenu = button.dataset.menu; selectedAction = actionMenu === 'move' ? 'move' : null; selectedTargetId = null; render(); return; }
+    if (button.dataset.choice) { selectedAction = button.dataset.choice; selectedTargetId = null; render(); return; }
+    if (button.dataset.targetId) { selectedTargetId = button.dataset.targetId; render(); return; }
     const action = button.dataset.action;
     if (!action) return;
     try {
@@ -532,7 +544,7 @@ async function handlePanelClick(event) {
             if (errors.length) throw new Error(errors.join('；'));
             const state = createBattle(previewRequest, previewPacks || resolveActive().packs, settings().limits);
             await saveRecord(previewKey, { state, messageKey: previewKey });
-            previewRequest = null; previewKey = null; previewPacks = null; interruptPending = false; selectedActorId = null; selectedAction = null; render(); scanBattleButtons();
+            previewRequest = null; previewKey = null; previewPacks = null; interruptPending = false; selectedActorId = null; selectedAction = null; selectedTargetId = null; actionMenu = 'skills'; render(); scanBattleButtons();
         } else if (action === 'execute') await performAction();
         else if (action === 'end-phase') await updateBattle(endAllyPhase);
         else if (action === 'request-interrupt') { interruptPending = true; render(); }
@@ -551,20 +563,22 @@ async function updateBattle(transform) {
     if (!record) throw new Error('当前没有战斗');
     const state = transform(record.state);
     await saveRecord(record.key, { state, messageKey: record.key });
-    selectedAction = null; interruptPending = false; render();
+    selectedAction = null; selectedTargetId = null; interruptPending = false; render();
 }
 
 async function performAction() {
     const record = currentRecord();
     if (!record) throw new Error('当前没有战斗');
     const actorId = panel.querySelector('#tb-actor')?.value;
-    const choice = panel.querySelector('#tb-action')?.value;
+    const choice = selectedAction;
     if (!choice) throw new Error('请选择行动');
     const [type, id] = choice.split('|');
     const action = { type, actorId };
     if (id) action.id = id;
     if (type === 'skill' || type === 'item') {
-        action.targetId = panel.querySelector('#tb-target')?.value;
+        const definition = type === 'skill' ? collectDefinitions(record.state.definitions).skills.get(id) : collectDefinitions(record.state.definitions).items.get(id);
+        if (definition?.target?.count !== 'all' && !selectedTargetId) throw new Error('请选择目标');
+        action.targetId = selectedTargetId;
         action.landingCol = Number(panel.querySelector('#tb-landing')?.value) || undefined;
     } else if (type === 'struggle') action.restraintInstanceId = id;
     else if (type === 'pickup') action.dropId = id;
@@ -577,12 +591,13 @@ async function settleLoot() {
     const selectedItems = [...panel.querySelectorAll('.tb-loot-item-check:checked')].map(x => ({ actorId: x.dataset.actor, id: x.value }));
     await updateBattle(state => {
         const next = structuredClone(state);
+        if (next.status !== 'ended') throw new Error('战斗未结束，不能拾取战利品');
         next.gearBag ||= {};
         for (const drop of next.drops.filter(x => selected.has(x.instanceId))) next.gearBag[drop.id] = (next.gearBag[drop.id] || 0) + 1;
         next.drops = next.drops.filter(x => !selected.has(x.instanceId));
         let itemCount = 0;
         for (const choice of selectedItems) {
-            const enemy = next.actors.find(x => x.id === choice.actorId && x.side === 'enemy');
+            const enemy = lootableEnemyItems(next).find(x => x.actor.id === choice.actorId && x.id === choice.id)?.actor;
             const count = enemy?.items?.[choice.id] || 0;
             if (!count) continue;
             next.bag[choice.id] = (next.bag[choice.id] || 0) + count;
@@ -596,8 +611,7 @@ async function settleLoot() {
 
 function handlePanelChange(event) {
     if (event.target.id === 'tb-editor-type') { editorType = event.target.value; render(); }
-    else if (event.target.id === 'tb-actor') { selectedActorId = event.target.value; selectedAction = null; render(); }
-    else if (event.target.id === 'tb-action') { selectedAction = event.target.value; render(); }
+    else if (event.target.id === 'tb-actor') { selectedActorId = event.target.value; selectedAction = null; selectedTargetId = null; render(); }
 }
 
 async function init() {

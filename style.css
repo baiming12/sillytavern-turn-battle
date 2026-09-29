@@ -22,6 +22,19 @@
 #tb-panel .tb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .6rem; }
 #tb-panel .tb-field { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
 #tb-panel .tb-side, #tb-panel .tb-pack, #tb-panel .tb-preview-actor, #tb-panel .tb-import-summary, #tb-panel .tb-action-form, #tb-panel .tb-log, #tb-panel .tb-report { padding: .7rem; margin: .7rem 0; border: 1px solid #aaa5; border-radius: 7px; }
+#tb-panel .tb-roster { display: flex; flex-wrap: wrap; gap: .3rem .7rem; padding: .3rem 0; }
+#tb-panel .tb-roster span { white-space: nowrap; }
+#tb-panel .tb-command { padding: .7rem; margin: .5rem 0; border: 1px solid #aaa8; border-radius: 8px; background: var(--SmartThemeBlurTintColor, #24242b); }
+#tb-panel .tb-command-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .35rem; margin: .45rem 0; }
+#tb-panel .tb-command-grid button, #tb-panel .tb-choice-grid button, #tb-panel .tb-target-grid button { width: 100%; margin: 0; }
+#tb-panel .tb-command button.active { outline: 2px solid #f4ce72; }
+#tb-panel .tb-choice-grid, #tb-panel .tb-target-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .35rem; max-height: 30vh; overflow-y: auto; padding: .15rem; }
+#tb-panel .tb-choice-grid button, #tb-panel .tb-target-grid button { min-width: 0; text-align: left; }
+#tb-panel .tb-choice-grid strong, #tb-panel .tb-choice-grid small, #tb-panel .tb-target-grid small { display: block; }
+#tb-panel .tb-choice-grid small, #tb-panel .tb-target-grid small { opacity: .8; }
+#tb-panel .tb-execute { display: block; width: 100%; margin: .5rem 0 0 !important; font-weight: 700; }
+#tb-panel .tb-battlefield, #tb-panel .tb-end-options { padding: .7rem; margin: .7rem 0; border: 1px solid #aaa5; border-radius: 7px; }
+#tb-panel summary { cursor: pointer; }
 #tb-panel .tb-row { display: flex; align-items: stretch; gap: .4rem; margin: .5rem 0; }
 #tb-panel .tb-row > b { flex: 0 0 3em; align-self: center; }
 #tb-panel .tb-slot { min-height: 5rem; flex: 1; padding: .5rem; border: 1px dashed #aaa8; border-radius: 5px; }
@@ -40,7 +53,11 @@
   #tb-panel { inset: 0 auto auto 0; width: 100vw; height: 100dvh; font-size: 15px; }
   #tb-panel .tb-shell { border-radius: 0; }
   #tb-panel .tb-field { grid-template-columns: 1fr; }
-  #tb-panel nav { max-height: 7rem; overflow: auto; }
+  #tb-panel nav { flex-wrap: nowrap; max-height: none; overflow-x: auto; }
+  #tb-panel nav button { flex: 0 0 auto; white-space: nowrap; }
+  #tb-panel main { padding: .5rem; }
+  #tb-panel .tb-command { position: sticky; top: 0; z-index: 2; max-height: 68dvh; overflow-y: auto; }
+  #tb-panel .tb-choice-grid, #tb-panel .tb-target-grid { max-height: 24dvh; }
   #tb-panel button { min-height: 40px; }
   #tb-panel input, #tb-panel select, #tb-panel textarea { font-size: 16px; }
   #tb-panel .tb-block .tb-ref { flex-basis: 100%; }

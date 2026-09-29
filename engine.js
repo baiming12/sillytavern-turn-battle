@@ -380,6 +380,12 @@ export function finishBattle(state, result = '中断') {
     return next;
 }
 
+export function lootableEnemyItems(state) {
+    return state.actors.filter(actor => actor.side === 'enemy' && actor.resources.hp.current <= 0)
+        .flatMap(actor => Object.entries(actor.items || {}).filter(([, count]) => count > 0)
+            .map(([id, count]) => ({ actor, id, count })));
+}
+
 export function battleReport(state, full = false) {
     const actorLines = state.actors.map(actor => `${actor.name}（${actor.side === 'ally' ? '玩家方' : '敌方'}）${Object.entries(actor.resources).map(([id, value]) => `${id} ${value.current}/${value.max}`).join('，')}，武器 ${actor.equipment.weapon || '无'}，拘束 ${(actor.restraints || []).map(x => x.id).join('、') || '无'}`);
     const lines = state.log.filter(entry => full || /造成|倒下|获得|解除|掉落|拾取|挣脱|突入|战斗结束/.test(entry.text)).map(entry => `第${entry.round}轮${entry.phase === 'ally' ? '玩家' : '敌方'}：${entry.text}`);

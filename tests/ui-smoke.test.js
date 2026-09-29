@@ -7,6 +7,7 @@ test('手机设置页重绘后，打开面板按钮仍可唤起战斗界面', as
     const documentListeners = new Map();
     const panelListeners = new Map();
     const nodes = [];
+    let selectedLoot = [];
     const originalFetch = globalThis.fetch;
     globalThis.document = {
         body: { append(node) { node.isConnected = true; nodes.push(node); } },
@@ -14,7 +15,9 @@ test('手机设置页重绘后，打开面板按钮仍可唤起战斗界面', as
             return {
                 id: '', hidden: false, isConnected: false, innerHTML: '', popoverOpen: false,
                 style: { setProperty() {} }, addEventListener(name, listener) { panelListeners.set(name, listener); },
-                contains() { return true; }, querySelector() { return null; },
+                contains() { return true; },
+                querySelector(selector) { return selector === '#tb-actor' ? { value: 'hero' } : null; },
+                querySelectorAll(selector) { return selector === '.tb-loot-item-check:checked' ? selectedLoot : []; },
                 matches(selector) { return selector === ':popover-open' && this.popoverOpen; },
                 showPopover() { this.popoverOpen = true; },
                 hidePopover() { this.popoverOpen = false; },
@@ -48,12 +51,13 @@ test('手机设置页重绘后，打开面板按钮仍可唤起战斗界面', as
         assert.equal(nodes[0].popoverOpen, true);
         assert.match(nodes[0].innerHTML, /载入示例战斗并预览/);
 
-        const clickAction = action => panelListeners.get('click')({
+        const clickButton = dataset => panelListeners.get('click')({
             target: {
                 classList: { contains: () => false },
-                closest: () => ({ dataset: { action } }),
+                closest: () => ({ dataset }),
             },
         });
+        const clickAction = action => clickButton({ action });
         const waitFor = async pattern => {
             for (let i = 0; i < 20 && !pattern.test(nodes[0].innerHTML); i++) await new Promise(resolve => setImmediate(resolve));
             assert.match(nodes[0].innerHTML, pattern);
@@ -64,6 +68,13 @@ test('手机设置页重绘后，打开面板按钮仍可唤起战斗界面', as
         clickAction('confirm-battle');
         await waitFor(/第 1 轮/);
         assert.match(nodes[0].innerHTML, /测试战士/);
+        assert.match(nodes[0].innerHTML, /data-menu="skills"/);
+        assert.match(nodes[0].innerHTML, /data-menu="items"/);
+        clickButton({ choice: 'skill|starter-test:wind-first' });
+        assert.match(nodes[0].innerHTML, /选择目标/);
+        clickButton({ targetId: 'enemy-guard' });
+        clickAction('execute');
+        await waitFor(/训练守卫 17\/35/);
         const battleKey = context.chatMetadata.turn_battle.activeKey;
         const battle = context.chatMetadata.turn_battle.records[battleKey].state;
         for (const actor of battle.actors.filter(actor => actor.side === 'ally')) actor.ap = 0;
@@ -74,9 +85,26 @@ test('手机设置页重绘后，打开面板按钮仍可唤起战斗界面', as
         assert.equal(battle.status, 'active');
         clickAction('end-phase');
         await waitFor(/第 2 轮/);
+        const nextState = context.chatMetadata.turn_battle.records[battleKey].state;
+        nextState.actors.find(actor => actor.id === 'enemy-guard').resources.hp.current = 0;
+        nextState.actors.find(actor => actor.id === 'enemy-guard').items['starter-test:healing-potion'] = 1;
+        nextState.actors.find(actor => actor.id === 'enemy-rogue').items['starter-test:lime'] = 1;
+        nextState.actors.find(actor => actor.id === 'enemy-mage').items['starter-test:mana-potion'] = 1;
         clickAction('request-interrupt');
         clickAction('confirm-interrupt');
         await waitFor(/战斗结束：中断/);
+        assert.match(nodes[0].innerHTML, /训练守卫的治疗药剂/);
+        assert.doesNotMatch(nodes[0].innerHTML, /训练刺客的石灰粉|训练法师的法力药剂/);
+        selectedLoot = [
+            { dataset: { actor: 'enemy-guard' }, value: 'starter-test:healing-potion' },
+            { dataset: { actor: 'enemy-rogue' }, value: 'starter-test:lime' },
+        ];
+        const bagBefore = context.chatMetadata.turn_battle.records[battleKey].state.bag['starter-test:healing-potion'];
+        clickAction('settle-loot');
+        await waitFor(/战后拾取 0 件装备、1 件道具/);
+        const settled = context.chatMetadata.turn_battle.records[battleKey].state;
+        assert.equal(settled.bag['starter-test:healing-potion'], bagBefore + 1);
+        assert.equal(settled.actors.find(actor => actor.id === 'enemy-rogue').items['starter-test:lime'], 1);
         assert.match(nodes[0].innerHTML, /返回聊天/);
         clickAction('close');
         assert.equal(nodes[0].hidden, true);

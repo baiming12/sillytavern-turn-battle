@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { CORE_PACK, collectDefinitions, validatePack, validateBattleRequest } from '../content.js';
-import { createBattle, executeAction, endAllyPhase } from '../engine.js';
+import { createBattle, executeAction, endAllyPhase, lootableEnemyItems } from '../engine.js';
 
 const pack = JSON.parse(readFileSync(new URL('../examples/基础测试内容包.json', import.meta.url), 'utf8'));
 const request = JSON.parse(readFileSync(new URL('../examples/基础测试开战快照.json', import.meta.url), 'utf8'));
@@ -20,6 +20,9 @@ test('基础测试包与示例开战快照可直接导入', () => {
     assert.equal(second.actors.find(actor => actor.id === 'enemy-guard').resources.hp.current, 0);
     assert.equal(second.status, 'active');
     assert.equal(second.result, null);
+    const secondRound = endAllyPhase(second);
+    assert.equal(secondRound.round, 2);
+    assert.deepEqual(lootableEnemyItems(secondRound).map(x => x.id), ['starter-test:healing-potion']);
     const duelRequest = structuredClone(request);
     duelRequest.actors = duelRequest.actors.filter(actor => ['hero', 'enemy-guard'].includes(actor.id));
     const duel = createBattle(duelRequest, [CORE_PACK, pack], limits, 42);
