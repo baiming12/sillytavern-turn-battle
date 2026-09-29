@@ -1,16 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 
 test('手机设置页重绘后，打开面板按钮仍可唤起战斗界面', async () => {
     const events = new Map();
     const documentListeners = new Map();
+    const panelListeners = new Map();
     const nodes = [];
+    const originalFetch = globalThis.fetch;
     globalThis.document = {
         body: { append(node) { node.isConnected = true; nodes.push(node); } },
         createElement() {
             return {
                 id: '', hidden: false, isConnected: false, innerHTML: '', popoverOpen: false,
-                style: { setProperty() {} }, addEventListener() {},
+                style: { setProperty() {} }, addEventListener(name, listener) { panelListeners.set(name, listener); },
+                contains() { return true; }, querySelector() { return null; },
                 matches(selector) { return selector === ':popover-open' && this.popoverOpen; },
                 showPopover() { this.popoverOpen = true; },
                 hidePopover() { this.popoverOpen = false; },
@@ -28,6 +32,7 @@ test('手机设置页重绘后，打开面板按钮仍可唤起战斗界面', as
         chatMetadata: {},
     };
     globalThis.SillyTavern = { getContext: () => context };
+    globalThis.fetch = async url => ({ ok: true, json: async () => JSON.parse(readFileSync(url, 'utf8')) });
     try {
         await import(`../index.js?ui-smoke=${Date.now()}`);
         await events.get('app-ready')();
@@ -42,8 +47,26 @@ test('手机设置页重绘后，打开面板按钮仍可唤起战斗界面', as
         assert.equal(nodes[0].hidden, false);
         assert.equal(nodes[0].popoverOpen, true);
         assert.match(nodes[0].innerHTML, /载入示例战斗并预览/);
+
+        const clickAction = action => panelListeners.get('click')({
+            target: {
+                classList: { contains: () => false },
+                closest: () => ({ dataset: { action } }),
+            },
+        });
+        const waitFor = async pattern => {
+            for (let i = 0; i < 20 && !pattern.test(nodes[0].innerHTML); i++) await new Promise(resolve => setImmediate(resolve));
+            assert.match(nodes[0].innerHTML, pattern);
+        };
+        clickAction('sample-preview');
+        await waitFor(/初始快照校验通过/);
+        assert.doesNotMatch(nodes[0].innerHTML, /引用未知|无效/);
+        clickAction('confirm-battle');
+        await waitFor(/第 1 轮/);
+        assert.match(nodes[0].innerHTML, /测试战士/);
     } finally {
         delete globalThis.document;
         delete globalThis.SillyTavern;
+        globalThis.fetch = originalFetch;
     }
 });

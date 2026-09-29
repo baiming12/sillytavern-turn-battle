@@ -17,6 +17,7 @@ let selectedActorId = null;
 let selectedAction = null;
 let previewRequest = null;
 let previewKey = null;
+let previewPacks = null;
 
 function settings() {
     const ctx = context();
@@ -152,7 +153,9 @@ function validateEnabled(request, ids) {
 }
 
 function requestErrors(request) {
-    const active = resolveActive();
+    const active = previewPacks
+        ? { packs: previewPacks, selectableIds: new Set(previewPacks.flatMap(pack => CONTENT_TYPES.flatMap(type => (pack[type] || []).map(entry => entry.id)))) }
+        : resolveActive();
     const errors = validateBattleRequest(request, collectDefinitions(active.packs), settings().limits);
     return errors.length ? errors : validateEnabled(request, active.selectableIds);
 }
@@ -248,7 +251,7 @@ function renderPreview() {
     const errors = requestErrors(request);
     const differences = snapshotDifferences(request);
     const actors = (Array.isArray(request.actors) ? request.actors : []).filter(x => x && typeof x === 'object').map(x => `<div class="tb-preview-actor"><b>${escapeHtml(x.name)} · ${x.side === 'ally' ? '玩家方' : '敌方'} ${escapeHtml(x.row)} ${escapeHtml(x.col)}</b>${resourceBars(x)}<small>属性：${escapeHtml(JSON.stringify(x.stats || {}))}<br>技能：${escapeHtml((Array.isArray(x.skills) ? x.skills : []).join('、') || '无')}<br>装备：${escapeHtml(JSON.stringify(x.equipment || {}))}<br>饰品：${escapeHtml(JSON.stringify(x.accessories || []))}<br>拘束：${escapeHtml(JSON.stringify(x.restraints || []))}<br>状态：${escapeHtml(JSON.stringify(x.statuses || []))}<br>个人道具：${escapeHtml(JSON.stringify(x.items || {}))}</small></div>`).join('');
-    return `<div><h2>开战预览</h2><p>${escapeHtml(request.scene || '')}</p><div class="tb-preview-list">${actors}</div><p>玩家共用背包：${escapeHtml(JSON.stringify(request.bag || {}))}</p>${differences.length ? `<section class="tb-pack"><h3>与上次结算不同 · 本次 AI 快照将覆盖</h3>${differences.map(x => `<div>${escapeHtml(x)}</div>`).join('')}</section>` : ''}${errors.length ? `<div class="tb-errors">${errors.map(x => `<div>${escapeHtml(x)}</div>`).join('')}</div>` : '<p class="tb-ok">初始快照校验通过</p>'}<details><summary>编辑完整初始快照 JSON</summary><textarea id="tb-preview-json">${escapeHtml(JSON.stringify(request, null, 2))}</textarea><button data-action="apply-preview-json">应用修改</button></details><button data-action="confirm-battle" ${errors.length ? 'disabled' : ''}>确认开战</button><button data-action="cancel-preview" class="tb-secondary">取消</button></div>`;
+    return `<div><h2>开战预览</h2><p>${escapeHtml(request.scene || '')}</p>${previewPacks ? '<p>示例战斗已临时载入基础测试包，不修改当前角色卡绑定。</p>' : ''}<div class="tb-preview-list">${actors}</div><p>玩家共用背包：${escapeHtml(JSON.stringify(request.bag || {}))}</p>${differences.length ? `<section class="tb-pack"><h3>与上次结算不同 · 本次 AI 快照将覆盖</h3>${differences.map(x => `<div>${escapeHtml(x)}</div>`).join('')}</section>` : ''}${errors.length ? `<div class="tb-errors">${errors.map(x => `<div>${escapeHtml(x)}</div>`).join('')}</div>` : '<p class="tb-ok">初始快照校验通过</p>'}<details><summary>编辑完整初始快照 JSON</summary><textarea id="tb-preview-json">${escapeHtml(JSON.stringify(request, null, 2))}</textarea><button data-action="apply-preview-json">应用修改</button></details><button data-action="confirm-battle" ${errors.length ? 'disabled' : ''}>确认开战</button><button data-action="cancel-preview" class="tb-secondary">取消</button></div>`;
 }
 
 function renderPacks() {
@@ -424,9 +427,17 @@ async function loadSamplePack() {
 }
 
 async function loadSampleBattle() {
-    const response = await fetch(new URL('./examples/基础测试开战快照.json', import.meta.url));
-    if (!response.ok) throw new Error(`示例快照加载失败：HTTP ${response.status}`);
-    previewRequest = await response.json();
+    const [packResponse, requestResponse] = await Promise.all([
+        fetch(new URL('./examples/基础测试内容包.json', import.meta.url)),
+        fetch(new URL('./examples/基础测试开战快照.json', import.meta.url)),
+    ]);
+    if (!packResponse.ok) throw new Error(`测试包加载失败：HTTP ${packResponse.status}`);
+    if (!requestResponse.ok) throw new Error(`示例快照加载失败：HTTP ${requestResponse.status}`);
+    const [pack, request] = await Promise.all([packResponse.json(), requestResponse.json()]);
+    const errors = validatePack(pack, [CORE_PACK]);
+    if (errors.length) throw new Error(`测试包无效：${errors.join('；')}`);
+    previewPacks = [CORE_PACK, pack];
+    previewRequest = request;
     previewKey = `manual-${Date.now()}`;
     tab = 'battle'; render();
 }
@@ -467,8 +478,9 @@ function scanBattleButtons() {
         button.textContent = records()[messageKey(index, message)] ? '查看战斗' : parsed.error ? '修复战斗请求' : '开始战斗';
         button.addEventListener('click', () => {
             const key = messageKey(index, message);
-            if (records()[key]) { context().chatMetadata[MODULE].activeKey = key; void context().saveMetadata?.(); previewRequest = null; showPanel('battle'); return; }
+            if (records()[key]) { context().chatMetadata[MODULE].activeKey = key; void context().saveMetadata?.(); previewRequest = null; previewPacks = null; showPanel('battle'); return; }
             previewKey = key;
+            previewPacks = null;
             previewRequest = parsed.data || { schema: 'turn-battle-request/v1', scene: '', actors: [], bag: {} };
             showPanel('battle');
             if (parsed.error) notice(parsed.error);
@@ -506,15 +518,15 @@ async function handlePanelClick(event) {
         else if (action === 'add-condition') addCondition();
         else if (action === 'add-effect') addEffect();
         else if (action === 'save-editor') await saveEditorEntry();
-        else if (action === 'manual-preview') { previewKey = `manual-${Date.now()}`; previewRequest = { schema: 'turn-battle-request/v1', scene: '', actors: [], bag: {} }; tab = 'battle'; render(); }
-        else if (action === 'cancel-preview') { previewRequest = null; previewKey = null; render(); }
+        else if (action === 'manual-preview') { previewKey = `manual-${Date.now()}`; previewPacks = null; previewRequest = { schema: 'turn-battle-request/v1', scene: '', actors: [], bag: {} }; tab = 'battle'; render(); }
+        else if (action === 'cancel-preview') { previewRequest = null; previewKey = null; previewPacks = null; render(); }
         else if (action === 'apply-preview-json') { previewRequest = JSON.parse(panel.querySelector('#tb-preview-json').value); render(); }
         else if (action === 'confirm-battle') {
             const errors = requestErrors(previewRequest);
             if (errors.length) throw new Error(errors.join('；'));
-            const state = createBattle(previewRequest, resolveActive().packs, settings().limits);
+            const state = createBattle(previewRequest, previewPacks || resolveActive().packs, settings().limits);
             await saveRecord(previewKey, { state, messageKey: previewKey });
-            previewRequest = null; previewKey = null; selectedActorId = null; selectedAction = null; render(); scanBattleButtons();
+            previewRequest = null; previewKey = null; previewPacks = null; selectedActorId = null; selectedAction = null; render(); scanBattleButtons();
         } else if (action === 'execute') await performAction();
         else if (action === 'end-phase') await updateBattle(endAllyPhase);
         else if (action === 'interrupt') await updateBattle(state => finishBattle(state, '中断'));
