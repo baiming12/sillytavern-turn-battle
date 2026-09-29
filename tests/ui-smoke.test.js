@@ -64,6 +64,22 @@ test('手机设置页重绘后，打开面板按钮仍可唤起战斗界面', as
         clickAction('confirm-battle');
         await waitFor(/第 1 轮/);
         assert.match(nodes[0].innerHTML, /测试战士/);
+        const battleKey = context.chatMetadata.turn_battle.activeKey;
+        const battle = context.chatMetadata.turn_battle.records[battleKey].state;
+        for (const actor of battle.actors.filter(actor => actor.side === 'ally')) actor.ap = 0;
+        clickAction('request-interrupt');
+        assert.match(nodes[0].innerHTML, /确认中断战斗/);
+        assert.match(nodes[0].innerHTML, /结束玩家阶段，让敌方行动/);
+        clickAction('cancel-interrupt');
+        assert.equal(battle.status, 'active');
+        clickAction('end-phase');
+        await waitFor(/第 2 轮/);
+        clickAction('request-interrupt');
+        clickAction('confirm-interrupt');
+        await waitFor(/战斗结束：中断/);
+        assert.match(nodes[0].innerHTML, /返回聊天/);
+        clickAction('close');
+        assert.equal(nodes[0].hidden, true);
     } finally {
         delete globalThis.document;
         delete globalThis.SillyTavern;

@@ -18,6 +18,7 @@ let selectedAction = null;
 let previewRequest = null;
 let previewKey = null;
 let previewPacks = null;
+let interruptPending = false;
 
 function settings() {
     const ctx = context();
@@ -199,6 +200,7 @@ function hidePanel() {
     if (!panel) return;
     if (typeof panel.hidePopover === 'function' && panel.matches(':popover-open')) panel.hidePopover();
     panel.hidden = true;
+    interruptPending = false;
 }
 
 function render() {
@@ -233,10 +235,14 @@ function renderBattle() {
         const targetControl = actionDefinition?.target?.count === 'all' ? `<p>目标：${targets.map(x => escapeHtml(x.name)).join('、') || '无合法目标'}</p>` : actionDefinition ? `<label>目标 <select id="tb-target">${targets.map(x => `<option value="${escapeHtml(x.id)}">${escapeHtml(x.name)}</option>`).join('')}</select></label>` : '';
         const landing = actionDefinition?.effects?.some(x => x.kind === 'infiltrate') ? `<label>突入落点 <select id="tb-landing">${emptyFrontColumns(state, actor.side === 'ally' ? 'enemy' : 'ally').map(col => `<option value="${col}">敌方前排 ${col}</option>`).join('')}</select></label>` : '';
         const moves = current === 'move' ? `<label>排 <select id="tb-move-row"><option value="front">前排</option><option value="back">后排</option></select></label><label>位置 <input id="tb-move-col" type="number" min="1" value="1"></label>` : '';
-        actions = `<section class="tb-action-form"><label>行动者 <select id="tb-actor">${actorOptions}</select></label><label>行动 <select id="tb-action">${choices.replace(`value="${escapeHtml(current)}"`, `value="${escapeHtml(current)}" selected`)}</select></label>${targetControl}${landing}${moves}<button data-action="execute" ${actionDefinition && !targets.length ? 'disabled' : ''}>执行行动</button><button data-action="end-phase">结束玩家阶段</button></section>`;
+        actions = `<section class="tb-action-form"><label>行动者 <select id="tb-actor">${actorOptions}</select></label><label>行动 <select id="tb-action">${choices.replace(`value="${escapeHtml(current)}"`, `value="${escapeHtml(current)}" selected`)}</select></label>${targetControl}${landing}${moves}<button data-action="execute" ${actionDefinition && !targets.length ? 'disabled' : ''}>执行行动</button></section>`;
     }
+    if (state.status === 'active' && state.phase === 'ally') actions += `<section class="tb-phase-controls">${actor ? '' : '<p>玩家方本阶段已无行动点，请结束阶段让敌方行动。</p>'}<button data-action="end-phase">结束玩家阶段，让敌方行动</button></section>`;
     const combatants = ['ally', 'enemy'].map(side => `<div class="tb-side"><h3>${side === 'ally' ? '玩家方' : '敌方'}</h3>${['front', 'back'].map(row => `<div class="tb-row"><b>${row === 'front' ? '前排' : '后排'}</b>${Array.from({ length: state.limits[`${side}${row === 'front' ? 'Front' : 'Back'}`] }, (_, i) => { const x = state.actors.find(a => (a.zone || a.side) === side && a.row === row && a.col === i + 1 && a.resources.hp.current > 0); return `<div class="tb-slot">${x ? `<strong>${escapeHtml(x.name)}</strong>${resourceBars(x)}<small>AP ${x.ap} · ${(x.statuses || []).map(s => escapeHtml(defs.statuses.get(s.id)?.name || s.id)).join('、')}${(x.restraints || []).map(r => escapeHtml(defs.equipment.get(r.id)?.name || r.id)).join('、')}</small>` : '空位'}</div>`; }).join('')}</div>`).join('')}</div>`).join('');
-    const report = state.status === 'ended' ? `<section class="tb-report"><h3>战斗结束：${escapeHtml(state.result)}</h3><button data-action="copy-short">复制简要报告</button><button data-action="copy-full">复制完整报告</button><textarea readonly>${escapeHtml(battleReport(state, false))}</textarea>${renderLoot(state, defs)}</section>` : `<button data-action="interrupt" class="tb-secondary">中断并生成报告</button>`;
+    const livingEnemies = state.actors.filter(x => x.side === 'enemy' && x.resources.hp.current > 0).length;
+    const report = state.status === 'ended'
+        ? `<section class="tb-report"><h3>战斗结束：${escapeHtml(state.result)}</h3><button data-action="copy-short">复制简要报告</button><button data-action="copy-full">复制完整报告</button><button data-action="close">返回聊天</button><textarea readonly>${escapeHtml(battleReport(state, false))}</textarea>${renderLoot(state, defs)}<button data-action="sample-preview" class="tb-secondary">重新试玩示例战斗</button></section>`
+        : `<section class="tb-end-options"><p>敌方仍有 ${livingEnemies} 名单位未倒下。全部倒下后会自动判定胜利。</p>${interruptPending ? '<p>提前中断会立即结束战斗并生成“中断”报告，即使敌人仍有生命。</p><button data-action="confirm-interrupt">确认中断战斗</button><button data-action="cancel-interrupt" class="tb-secondary">继续战斗</button>' : '<details><summary>提前结束这场战斗</summary><button data-action="request-interrupt" class="tb-secondary">中断并生成报告</button></details>'}</section>`;
     return `<div class="tb-battle"><h2>${escapeHtml(state.scene || '战斗')} · 第 ${state.round} 轮 · ${state.phase === 'ally' ? '玩家阶段' : '敌方阶段'}</h2><div class="tb-field">${combatants}</div>${actions}<section class="tb-log"><h3>战斗记录</h3>${state.log.slice(-20).map(x => `<div>第${x.round}轮：${escapeHtml(x.text)}</div>`).join('')}</section>${report}</div>`;
 }
 
@@ -526,10 +532,15 @@ async function handlePanelClick(event) {
             if (errors.length) throw new Error(errors.join('；'));
             const state = createBattle(previewRequest, previewPacks || resolveActive().packs, settings().limits);
             await saveRecord(previewKey, { state, messageKey: previewKey });
-            previewRequest = null; previewKey = null; previewPacks = null; selectedActorId = null; selectedAction = null; render(); scanBattleButtons();
+            previewRequest = null; previewKey = null; previewPacks = null; interruptPending = false; selectedActorId = null; selectedAction = null; render(); scanBattleButtons();
         } else if (action === 'execute') await performAction();
         else if (action === 'end-phase') await updateBattle(endAllyPhase);
-        else if (action === 'interrupt') await updateBattle(state => finishBattle(state, '中断'));
+        else if (action === 'request-interrupt') { interruptPending = true; render(); }
+        else if (action === 'cancel-interrupt') { interruptPending = false; render(); }
+        else if (action === 'confirm-interrupt') {
+            if (!interruptPending) throw new Error('请先选择提前结束战斗');
+            await updateBattle(state => finishBattle(state, '中断'));
+        }
         else if (action === 'copy-short' || action === 'copy-full') { const record = currentRecord(); if (record) await copy(battleReport(record.state, action === 'copy-full')); }
         else if (action === 'settle-loot') await settleLoot();
     } catch (error) { notice(error.message || String(error)); }
@@ -540,7 +551,7 @@ async function updateBattle(transform) {
     if (!record) throw new Error('当前没有战斗');
     const state = transform(record.state);
     await saveRecord(record.key, { state, messageKey: record.key });
-    selectedAction = null; render();
+    selectedAction = null; interruptPending = false; render();
 }
 
 async function performAction() {
