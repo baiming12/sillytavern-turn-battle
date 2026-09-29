@@ -1,8 +1,10 @@
 from pathlib import Path
+import json
 from zipfile import ZIP_DEFLATED, ZipFile
 
 project = Path(__file__).resolve().parents[1]
-archive = project.parent / f"{project.name}-0.1.0.zip"
+version = json.loads((project / "manifest.json").read_text(encoding="utf-8"))["version"]
+archive = project.parent / f"{project.name}-{version}.zip"
 excluded = {".git", "node_modules", "__pycache__"}
 
 with ZipFile(archive, "w", compression=ZIP_DEFLATED) as output:

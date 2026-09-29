@@ -180,7 +180,11 @@ function showPanel(nextTab = tab) {
     panel.id = 'tb-panel';
     if (!panel.isConnected) document.body.append(panel);
     panel.hidden = false;
-    render();
+    try { render(); }
+    catch (error) {
+        console.error('回合战斗面板打开失败', error);
+        panel.innerHTML = `<div class="tb-shell"><header><strong>回合战斗</strong><button class="tb-close" data-action="close">×</button></header><main><h2>面板打开失败</h2><p>${escapeHtml(error.message || String(error))}</p></main></div>`;
+    }
 }
 
 function hidePanel() { if (panel) panel.hidden = true; }
@@ -569,7 +573,11 @@ async function init() {
     const ctx = context();
     const html = await ctx.renderExtensionTemplateAsync(EXT_PATH, 'settings');
     document.querySelector('#extensions_settings2')?.insertAdjacentHTML('beforeend', html);
-    document.querySelector('#tb-open')?.addEventListener('click', () => showPanel('battle'));
+    document.addEventListener('click', event => {
+        if (!event.target?.closest?.('#tb-open')) return;
+        event.preventDefault();
+        showPanel('battle');
+    }, true);
     panel = document.createElement('div'); panel.id = 'tb-panel'; panel.hidden = true; document.body.append(panel);
     panel.addEventListener('click', event => { if (event.target.classList.contains('tb-remove-block')) event.target.closest('.tb-block').remove(); else void handlePanelClick(event); });
     panel.addEventListener('change', handlePanelChange);

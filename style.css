@@ -1,3 +1,4 @@
+#tb-open { display: inline-flex !important; flex: 0 0 auto !important; width: max-content !important; min-width: 6em; max-width: 100%; align-items: center; justify-content: center; white-space: nowrap; writing-mode: horizontal-tb; word-break: keep-all; padding: .4em .8em; }
 #tb-panel[hidden] { display: none !important; }
 #tb-panel { position: fixed; inset: 4vh 4vw; z-index: 10000; display: flex; justify-content: center; color: var(--SmartThemeBodyColor, #eee); font: 14px/1.5 system-ui, sans-serif; }
 #tb-panel * { box-sizing: border-box; }
