@@ -178,8 +178,13 @@ function showPanel(nextTab = tab) {
     tab = nextTab;
     panel ||= document.createElement('div');
     panel.id = 'tb-panel';
+    panel.popover = 'manual';
     if (!panel.isConnected) document.body.append(panel);
     panel.hidden = false;
+    panel.style?.setProperty('z-index', '2147483647', 'important');
+    try {
+        if (typeof panel.showPopover === 'function' && !panel.matches(':popover-open')) panel.showPopover();
+    } catch (error) { console.warn('回合战斗面板无法使用顶层显示，改用普通浮层', error); }
     try { render(); }
     catch (error) {
         console.error('回合战斗面板打开失败', error);
@@ -187,7 +192,11 @@ function showPanel(nextTab = tab) {
     }
 }
 
-function hidePanel() { if (panel) panel.hidden = true; }
+function hidePanel() {
+    if (!panel) return;
+    if (typeof panel.hidePopover === 'function' && panel.matches(':popover-open')) panel.hidePopover();
+    panel.hidden = true;
+}
 
 function render() {
     if (!panel || panel.hidden) return;
