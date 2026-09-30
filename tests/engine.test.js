@@ -144,3 +144,56 @@ test('预览拦截写错的自定义资源 ID', () => {
     const errors = validateBattleRequest(data, collectDefinitions([pack]), limits);
     assert.ok(errors.some(message => message.includes('focus')));
 });
+
+test('玩家前排可占据空出的敌方前排，持续遮蔽我方后排并可花行动返回', () => {
+    const front = actor('front', 'ally', 'front', 1, { skills: ['core:unarmed'] });
+    const second = actor('second', 'ally', 'front', 2);
+    const rear = actor('rear', 'ally', 'back', 1);
+    const enemy = actor('enemy', 'enemy', 'back', 1, { skills: ['core:unarmed'] });
+    const state = createBattle(request(front, second, rear, enemy), [CORE_PACK], limits, 8);
+    const entered = executeAction(state, { type: 'move', actorId: 'front', zone: 'enemy', row: 'front', col: 1 });
+    assert.equal(entered.actors[0].zone, 'enemy');
+    assert.equal(entered.actors[0].ap, 0);
+    const defs = collectDefinitions([CORE_PACK]);
+    assert.deepEqual(legalTargets(entered, entered.actors[3], defs.skills.get('core:unarmed'), defs).map(x => x.id), ['front', 'second']);
+    assert.throws(() => executeAction(entered, { type: 'move', actorId: 'second', zone: 'enemy', row: 'back', col: 2 }), /只能进入敌方前排/);
+    const joined = executeAction(entered, { type: 'move', actorId: 'second', zone: 'enemy', row: 'front', col: 2 });
+    assert.deepEqual(legalTargets(joined, joined.actors[3], defs.skills.get('core:unarmed'), defs).map(x => x.id), ['front', 'second']);
+    const next = endAllyPhase(joined);
+    assert.equal(next.actors[0].zone, 'enemy');
+    assert.equal(next.actors[1].zone, 'enemy');
+    const returned = executeAction(next, { type: 'move', actorId: 'front', zone: 'ally', row: 'front', col: 1 });
+    assert.equal(returned.actors[0].zone, 'ally');
+});
+
+test('敌方前排仍有人时不能占据，玩家占据后敌方后排不能前移或突入', () => {
+    const pack = structuredClone(CORE_PACK);
+    pack.skills.push({ id: 'core:enemy-leap', name: '突入', tags: [], cost: {}, target: { side: 'enemy', row: 'any', count: 'single', guard: false }, effects: [{ kind: 'infiltrate', returnAt: 'phaseEnd' }] });
+    const data = request(actor('hero', 'ally', 'front', 1), actor('guard', 'enemy', 'front', 1), actor('mage', 'enemy', 'back', 1, { skills: ['core:enemy-leap'] }));
+    const initial = createBattle(data, [pack], limits, 9);
+    assert.throws(() => executeAction(initial, { type: 'move', actorId: 'hero', zone: 'enemy', row: 'front', col: 2 }), /敌方前排无人/);
+    data.actors[1].resources.hp.current = 0;
+    const cleared = createBattle(data, [pack], limits, 9);
+    const entered = executeAction(cleared, { type: 'move', actorId: 'hero', zone: 'enemy', row: 'front', col: 1 });
+    entered.phase = 'enemy';
+    entered.actors[2].ap = 1;
+    assert.throws(() => executeAction(entered, { type: 'move', actorId: 'mage', row: 'front', col: 2 }), /无法离开后排/);
+    assert.deepEqual(legalTargets(entered, entered.actors[2], collectDefinitions([pack]).skills.get('core:enemy-leap'), collectDefinitions([pack])), []);
+    assert.throws(() => executeAction(entered, { type: 'skill', actorId: 'mage', id: 'core:enemy-leap', targetId: 'hero' }), /没有合法目标/);
+});
+
+test('Buff 可授予及封锁指定技能，结束后恢复技能列表', () => {
+    const pack = structuredClone(CORE_PACK);
+    pack.skills.push({ id: 'core:bound-trick', name: '束缚反制', tags: ['mouth'], cost: {}, target: { side: 'self', row: 'any', count: 'single', guard: false }, effects: [{ kind: 'resource', resource: 'sp', amount: 1 }] });
+    pack.statuses.push({ id: 'core:replacement', name: '受困', duration: 1, skills: ['core:bound-trick'], suppressedSkills: ['core:sword-strike'] });
+    assert.deepEqual(validatePack(pack), []);
+    const hero = actor('hero', 'ally', 'front', 1, { equipment: { weapon: 'core:sword' }, statuses: ['core:replacement'] });
+    const foe = actor('foe', 'enemy', 'front', 1);
+    const state = createBattle(request(hero, foe), [pack], limits, 10);
+    const defs = collectDefinitions([pack]);
+    assert.deepEqual(availableSkills(state.actors[0], defs).map(x => x.id), ['core:bound-trick']);
+    const next = endAllyPhase(state);
+    assert.deepEqual(availableSkills(next.actors[0], defs).map(x => x.id), ['core:sword-strike']);
+    pack.statuses[pack.statuses.length - 1].skills = ['core:unknown'];
+    assert.ok(validatePack(pack).some(message => message.includes('引用不存在的技能')));
+});

@@ -105,12 +105,19 @@ export function validatePack(pack, existingPacks = []) {
             if (type === 'equipment' && !EQUIPMENT_SLOTS.has(entry.slot)) errors.push(`${entry.id} 装备栏位无效`);
             if (type === 'equipment' && entry.escapeChance !== undefined && (!finite(entry.escapeChance) || entry.escapeChance < 0 || entry.escapeChance > 100)) errors.push(`${entry.id} 挣脱概率无效`);
             if ((type === 'equipment' || type === 'statuses') && entry.bonusAp !== undefined && (!Number.isInteger(entry.bonusAp) || entry.bonusAp < 0 || entry.bonusAp > 3)) errors.push(`${entry.id} 额外行动点必须为 0–3`);
+            if (type === 'statuses' && entry.maxStacks !== undefined && (!Number.isInteger(entry.maxStacks) || entry.maxStacks < 1)) errors.push(`${entry.id} 叠加上限必须是正整数`);
+            if (type === 'statuses' && entry.duration !== undefined && entry.duration !== null && (!Number.isInteger(entry.duration) || entry.duration < 1)) errors.push(`${entry.id} 持续阶段必须是正整数或 null`);
         }
     }
     const defs = collectDefinitions(all);
     for (const eq of asArray(pack.equipment).filter(isObject)) {
         for (const id of asArray(eq.skills)) if (!defs.skills.has(id)) errors.push(`${eq.id} 引用不存在的技能 ${id}`);
         for (const id of asArray(eq.statuses)) if (!defs.statuses.has(id)) errors.push(`${eq.id} 引用不存在的状态 ${id}`);
+    }
+    for (const status of asArray(pack.statuses).filter(isObject)) {
+        if (status.skills !== undefined && !Array.isArray(status.skills)) errors.push(`${status.id} 授予技能必须是数组`);
+        if (status.suppressedSkills !== undefined && !Array.isArray(status.suppressedSkills)) errors.push(`${status.id} 封锁技能必须是数组`);
+        for (const id of [...asArray(status.skills), ...asArray(status.suppressedSkills)]) if (!defs.skills.has(id)) errors.push(`${status.id} 引用不存在的技能 ${id}`);
     }
     for (const entry of [...asArray(pack.skills), ...asArray(pack.items)].filter(isObject)) for (const effect of asArray(entry.effects).filter(isObject)) {
         if (effect.statusId && !defs.statuses.has(effect.statusId)) errors.push(`${entry.id} 引用不存在的状态 ${effect.statusId}`);

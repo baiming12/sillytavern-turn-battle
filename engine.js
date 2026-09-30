@@ -64,8 +64,15 @@ function hasEquipmentId(actor, id) {
 export function availableSkills(actor, defs) {
     const ids = new Set(actor.skills || []);
     for (const eq of equipmentEntries(actor, defs)) for (const id of eq.skills || []) ids.add(id);
+    const suppressed = new Set();
+    for (const id of statusIds(actor, defs)) {
+        const status = defs.statuses.get(id);
+        for (const skillId of status?.skills || []) ids.add(skillId);
+        for (const skillId of status?.suppressedSkills || []) suppressed.add(skillId);
+    }
     if (!actor.equipment?.weapon) ids.add('core:unarmed');
-    return [...ids].map(id => defs.skills.get(id)).filter(Boolean);
+    const blocked = blockedTags(actor, defs);
+    return [...ids].filter(id => !suppressed.has(id)).map(id => defs.skills.get(id)).filter(skill => skill && !(skill.tags || []).some(tag => blocked.has(tag)));
 }
 
 function occupants(state, zone, row = null) {
@@ -81,6 +88,7 @@ export function emptyFrontColumns(state, targetSide) {
 function meetsRequirements(state, actor, skill, target, defs) {
     const blocked = blockedTags(actor, defs);
     if ((skill.tags || []).some(tag => blocked.has(tag))) return '状态禁止使用此技能';
+    if (actor.side === 'enemy' && actor.row === 'back' && (skill.effects || []).some(effect => effect.kind === 'infiltrate') && occupants(state, 'enemy', 'front').some(a => a.side === 'ally')) return '玩家已占据敌方前排，敌方后排无法离开后排';
     for (const req of skill.requirements || []) {
         if (req.kind === 'freePart' && !hasFreePart(actor, req.part, defs)) return `需要${req.part}自由`;
         if (req.kind === 'equippedTag' && !equipmentEntries(actor, defs).some(eq => eq.tags?.includes(req.tag))) return `需要装备 ${req.tag}`;
@@ -105,7 +113,7 @@ function meetsRequirements(state, actor, skill, target, defs) {
 export function legalTargets(state, actor, skill, defs) {
     const rule = skill.target || { side: 'enemy', row: 'any', count: 'single', guard: true };
     const side = rule.side === 'self' ? actor.side : rule.side === 'ally' ? actor.side : actor.side === 'ally' ? 'enemy' : 'ally';
-    const guarded = rule.side === 'enemy' && rule.guard !== false && occupants(state, side, 'front').some(a => a.side === side);
+    const guarded = rule.side === 'enemy' && rule.guard !== false && state.actors.some(a => alive(a) && a.side === side && a.row === 'front');
     const infiltrated = (actor.zone || actor.side) === side;
     return state.actors.filter(target => {
         if (!alive(target) || target.side !== side) return false;
@@ -140,6 +148,7 @@ function returnInfiltrator(state, actor) {
 
 function applyEffect(state, actor, targets, effect, defs, action) {
     if (effect.kind === 'infiltrate') {
+        if (actor.side === 'enemy' && actor.row === 'back' && occupants(state, 'enemy', 'front').some(a => a.side === 'ally')) throw new Error('玩家已占据敌方前排，敌方后排无法离开后排');
         const targetSide = actor.side === 'ally' ? 'enemy' : 'ally';
         const col = action.landingCol || emptyFrontColumns(state, targetSide)[0];
         if (!emptyFrontColumns(state, targetSide).includes(col)) throw new Error('突入落点无效');
@@ -256,12 +265,17 @@ function executeMutable(state, action) {
         for (const key of ['sp', 'mp']) actor.resources[key].current = clamp(actor.resources[key].current + 3, 0, actor.resources[key].max);
         log(state, `${actorName(actor)}休息，恢复精力和法力`);
     } else if (action.type === 'move') {
-        const zone = actor.side;
+        const zone = action.zone || actor.side;
         if (blockedTags(actor, defs).has('move') || !hasFreePart(actor, 'feet', defs)) throw new Error('当前拘束或状态禁止移动');
+        if (zone !== actor.side) {
+            if (actor.side !== 'ally' || zone !== 'enemy' || actor.row !== 'front' || occupants(state, 'enemy', 'front').some(x => x.side === 'enemy')) throw new Error('只有玩家前排能在敌方前排无人时进入敌方前排');
+            if (action.row !== 'front') throw new Error('只能进入敌方前排');
+        }
+        if (actor.side === 'enemy' && actor.row === 'back' && action.row !== 'back' && occupants(state, 'enemy', 'front').some(x => x.side === 'ally')) throw new Error('玩家已占据敌方前排，敌方后排无法离开后排');
         if (actor.infiltration || !['front', 'back'].includes(action.row) || !Number.isInteger(action.col) || action.col < 1 || action.col > state.limits[`${zone}${action.row === 'front' ? 'Front' : 'Back'}`]) throw new Error('移动目标无效');
         if (occupants(state, zone, action.row).some(x => x.col === action.col) || state.actors.some(x => x.infiltration && x.side === zone && x.infiltration.home.row === action.row && x.infiltration.home.col === action.col)) throw new Error('目标位置已占据');
-        actor.ap -= 1; actor.row = action.row; actor.col = action.col;
-        log(state, `${actorName(actor)}移动到${action.row}${action.col}`);
+        actor.ap -= 1; actor.zone = zone; actor.row = action.row; actor.col = action.col;
+        log(state, `${actorName(actor)}移动到${zone === 'ally' ? '玩家' : '敌方'}${action.row === 'front' ? '前排' : '后排'} ${action.col}`);
     } else if (action.type === 'pickup') {
         if (!hasFreePart(actor, 'hands', defs) || blockedTags(actor, defs).has('hand')) throw new Error('手部受限，无法拾取');
         if (actor.equipment.weapon) throw new Error('武器栏非空');
@@ -388,7 +402,7 @@ export function lootableEnemyItems(state) {
 
 export function battleReport(state, full = false) {
     const actorLines = state.actors.map(actor => `${actor.name}（${actor.side === 'ally' ? '玩家方' : '敌方'}）${Object.entries(actor.resources).map(([id, value]) => `${id} ${value.current}/${value.max}`).join('，')}，武器 ${actor.equipment.weapon || '无'}，拘束 ${(actor.restraints || []).map(x => x.id).join('、') || '无'}`);
-    const lines = state.log.filter(entry => full || /造成|倒下|获得|解除|掉落|拾取|挣脱|突入|战斗结束/.test(entry.text)).map(entry => `第${entry.round}轮${entry.phase === 'ally' ? '玩家' : '敌方'}：${entry.text}`);
+    const lines = state.log.filter(entry => full || /造成|倒下|获得|解除|掉落|拾取|挣脱|突入|移动到|战斗结束/.test(entry.text)).map(entry => `第${entry.round}轮${entry.phase === 'ally' ? '玩家' : '敌方'}：${entry.text}`);
     const finalSnapshot = {
         result: state.result,
         actors: state.actors.map(({ id, name, side, row, col, zone, stats, resources, skills, equipment, accessories, restraints, statuses, disabledEquipment, items }) => ({ id, name, side, row, col, zone, stats, resources, skills, equipment, accessories, restraints, statuses, disabledEquipment, items })),

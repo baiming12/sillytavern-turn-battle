@@ -98,7 +98,7 @@
         "AI策略"
       ],
       "keysecondary": [],
-      "content": "状态示例：{\"id\":\"demo:blind\",\"name\":\"失明\",\"duration\":2,\"accuracyMod\":-30,\"tags\":[\"debuff\"]}；可用 blockedTags 限制技能标签、stats 修改属性，bonusAp 提供 0–3 点额外行动点。装备也可有 bonusAp。敌人预设是可选默认模板，字段可包含 id、name、stats、resources、skills、equipment、accessories、restraints、statuses、items、aiProfile。AI 策略示例：{\"id\":\"demo:guard-ai\",\"name\":\"守卫\",\"skillPriority\":[\"demo:guard-hit\"],\"itemPriority\":[],\"useItems\":true}。剧情 AI 每场仍要写入完整初始快照，模板不能直接替代本场数值。",
+      "content": "状态示例：{\"id\":\"demo:blind\",\"name\":\"失明\",\"duration\":2,\"maxStacks\":1,\"accuracyMod\":-30,\"tags\":[\"debuff\"]}；可用 blockedTags 限制技能标签、stats 修改属性、bonusAp 提供 0–3 点额外行动点、skills 授予技能、suppressedSkills 封锁指定技能。技能或道具用 status/removeStatus 效果施加或解除状态。装备也可有 bonusAp。敌人预设是可选默认模板，字段可包含 id、name、stats、resources、skills、equipment、accessories、restraints、statuses、items、aiProfile。AI 策略示例：{\"id\":\"demo:guard-ai\",\"name\":\"守卫\",\"skillPriority\":[\"demo:guard-hit\"],\"itemPriority\":[],\"useItems\":true}。剧情 AI 每场仍要写入完整初始快照，模板不能直接替代本场数值。",
       "constant": false,
       "selective": false,
       "selectiveLogic": 0,

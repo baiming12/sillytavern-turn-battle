@@ -73,7 +73,7 @@ function resolveActive() {
         const id = queue.pop();
         const definition = CONTENT_TYPES.map(type => allDefs[type].get(id)).find(Boolean);
         if (!definition) continue;
-        const refs = [...(definition.skills || []), ...(definition.statuses || []), ...(definition.skillPriority || []), ...(definition.itemPriority || []), ...(definition.effects || []).flatMap(effect => [effect.statusId, effect.equipmentId]), ...(definition.requirements || []).flatMap(req => [req.statusId, req.equipmentId]), definition.aiProfile].filter(Boolean);
+        const refs = [...(definition.skills || []), ...(definition.suppressedSkills || []), ...(definition.statuses || []), ...(definition.skillPriority || []), ...(definition.itemPriority || []), ...(definition.effects || []).flatMap(effect => [effect.statusId, effect.equipmentId]), ...(definition.requirements || []).flatMap(req => [req.statusId, req.equipmentId]), definition.aiProfile].filter(Boolean);
         for (const ref of refs) if (!needed.has(ref)) { needed.add(ref); queue.push(ref); }
     }
     const packs = all.map(pack => ({ ...pack, ...Object.fromEntries(CONTENT_TYPES.map(type => [type, (pack[type] || []).filter(entry => needed.has(entry.id))])) })).filter(pack => CONTENT_TYPES.some(type => pack[type].length));
@@ -230,7 +230,7 @@ function renderBattle() {
         const skills = availableSkills(actor, defs).map(skill => choiceButton(`skill|${skill.id}`, skill.name, Object.entries(skill.cost || {}).map(([id, amount]) => `${id} ${amount}`).join(' · ') || '无消耗')).join('');
         const items = Object.entries(state.bag).filter(([id, count]) => count > 0 && defs.items.has(id)).map(([id, count]) => choiceButton(`item|${id}`, defs.items.get(id).name, `剩余 ${count}`)).join('');
         const restraints = (actor.restraints || []).map(x => choiceButton(`struggle|${x.instanceId}`, `挣扎：${defs.equipment.get(x.id)?.name || x.id}`)).join('');
-        const drops = state.drops.filter(x => x.zone === actor.side && x.row === actor.row && x.col === actor.col).map(x => choiceButton(`pickup|${x.instanceId}`, `拾取：${defs.equipment.get(x.id)?.name || x.id}`)).join('');
+        const drops = state.drops.filter(x => x.zone === (actor.zone || actor.side) && x.row === actor.row && x.col === actor.col).map(x => choiceButton(`pickup|${x.instanceId}`, `拾取：${defs.equipment.get(x.id)?.name || x.id}`)).join('');
         const choiceList = actionMenu === 'skills' ? skills || '<p>当前没有可选技能。</p>' : actionMenu === 'items' ? items || '<p>共用背包中没有可用道具。</p>' : actionMenu === 'move' ? '<p>移动消耗 1 次行动。</p>' : `${choiceButton('rest', '休息', '恢复精力与法力')}${restraints}${drops}`;
         const current = selectedAction || '';
         const actionDefinition = current.startsWith('skill|') ? defs.skills.get(current.slice(6)) : current.startsWith('item|') ? defs.items.get(current.slice(5)) : null;
@@ -238,9 +238,12 @@ function renderBattle() {
         const targetChosen = targets.some(x => x.id === selectedTargetId);
         const targetControl = actionDefinition?.target?.count === 'all' ? `<p>目标：${targets.map(x => escapeHtml(x.name)).join('、') || '无合法目标'}</p>` : actionDefinition ? `<div><b>选择目标</b><div class="tb-target-grid">${targets.map(x => `<button type="button" class="tb-target-choice ${selectedTargetId === x.id ? 'active' : ''}" data-target-id="${escapeHtml(x.id)}" aria-pressed="${selectedTargetId === x.id}">${escapeHtml(x.name)}<small>HP ${x.resources.hp.current}/${x.resources.hp.max}</small></button>`).join('') || '<p>无合法目标</p>'}</div></div>` : '';
         const landing = actionDefinition?.effects?.some(x => x.kind === 'infiltrate') ? `<label>突入落点 <select id="tb-landing">${emptyFrontColumns(state, actor.side === 'ally' ? 'enemy' : 'ally').map(col => `<option value="${col}">敌方前排 ${col}</option>`).join('')}</select></label>` : '';
-        const moves = current === 'move' ? `<label>排 <select id="tb-move-row"><option value="front">前排</option><option value="back">后排</option></select></label><label>位置 <input id="tb-move-col" type="number" min="1" value="1"></label>` : '';
+        const canEnterEnemyFront = actor.row === 'front' && !actor.infiltration && !state.actors.some(x => x.side === 'enemy' && (x.zone || x.side) === 'enemy' && x.row === 'front' && x.resources.hp.current > 0) && emptyFrontColumns(state, 'enemy').length > 0;
+        const moveDestinations = [['ally', 'front', '我方前排'], ['ally', 'back', '我方后排'], ...(canEnterEnemyFront ? [['enemy', 'front', '敌方前排']] : [])];
+        const moveOptions = actor.infiltration ? [] : moveDestinations.flatMap(([zone, row, label]) => Array.from({ length: state.limits[`${zone}${row === 'front' ? 'Front' : 'Back'}`] }, (_, index) => index + 1).filter(col => !state.actors.some(x => x.resources.hp.current > 0 && (x.zone || x.side) === zone && x.row === row && x.col === col) && !state.actors.some(x => x.infiltration && x.side === zone && x.infiltration.home.row === row && x.infiltration.home.col === col)).map(col => `<option value="${zone}:${row}:${col}">${label} ${col}</option>`));
+        const moves = current === 'move' ? `<label>目的地 <select id="tb-move-destination">${moveOptions.join('')}</select></label><p>移动消耗 1 次行动。敌方前排无人时，我方前排可进入并持续占位；返回我方需再次移动。</p>` : '';
         const menus = [['skills', '技能'], ['items', '道具'], ['move', '移动'], ['other', '其他']].map(([id, label]) => `<button type="button" data-menu="${id}" class="${actionMenu === id ? 'active' : ''}" aria-pressed="${actionMenu === id}">${label}</button>`).join('');
-        const canExecute = Boolean(current) && (!actionDefinition || (targets.length > 0 && (actionDefinition.target?.count === 'all' || targetChosen)));
+        const canExecute = Boolean(current) && (current !== 'move' || moveOptions.length > 0) && (!actionDefinition || (targets.length > 0 && (actionDefinition.target?.count === 'all' || targetChosen)));
         actions = `<section class="tb-command"><label>行动者 <select id="tb-actor">${actorOptions}</select></label><div class="tb-command-grid">${menus}</div><div class="tb-choice-grid">${choiceList}</div>${targetControl}${landing}${moves}<button data-action="execute" class="tb-execute" ${canExecute ? '' : 'disabled'}>确认行动</button></section>`;
     }
     if (state.status === 'active' && state.phase === 'ally') actions += `<section class="tb-phase-controls">${actor ? '' : '<p>玩家方本阶段已无行动点，请结束阶段让敌方行动。</p>'}<button data-action="end-phase">结束玩家阶段，让敌方行动</button></section>`;
@@ -303,7 +306,7 @@ function renderEquipmentEditorFields() {
 }
 
 function renderStatusEditorFields() {
-    return `<div class="tb-grid"><label>持续行动阶段（留空为永久）<input id="tb-ed-duration" type="number" min="1"></label><label>命中率修正 <input id="tb-ed-accuracy" type="number" value="0"></label><label>额外行动点 <input id="tb-ed-bonus-ap" type="number" min="0" max="3" value="0"></label><label>禁用技能标签（逗号分隔）<input id="tb-ed-blocked"></label><label>标签（逗号分隔）<input id="tb-ed-tags"></label></div><label>属性加成（每行 属性=数值）<textarea id="tb-ed-stats"></textarea></label>`;
+    return `<div class="tb-grid"><label>持续行动阶段（留空为永久）<input id="tb-ed-duration" type="number" min="1"></label><label>叠加上限 <input id="tb-ed-max-stacks" type="number" min="1" value="1"></label><label>命中率修正 <input id="tb-ed-accuracy" type="number" value="0"></label><label>额外行动点 <input id="tb-ed-bonus-ap" type="number" min="0" max="3" value="0"></label><label>禁用技能标签（逗号分隔）<input id="tb-ed-blocked"></label><label>授予技能 ID（逗号分隔）<input id="tb-ed-skills"></label><label>封锁技能 ID（逗号分隔）<input id="tb-ed-suppressed-skills"></label><label>标签（逗号分隔）<input id="tb-ed-tags"></label></div><label>属性加成（每行 属性=数值）<textarea id="tb-ed-stats"></textarea></label>`;
 }
 
 function renderEnemyEditorFields() {
@@ -393,7 +396,9 @@ function readEditorEntry() {
         if (entry.slot === 'restraint') { entry.escapeChance = Number(value('#tb-ed-escape')); entry.escapeCost = { sp: 5 }; }
     } else if (editorType === 'statuses') {
         entry.duration = value('#tb-ed-duration') ? Number(value('#tb-ed-duration')) : null;
+        entry.maxStacks = Number(value('#tb-ed-max-stacks'));
         entry.accuracyMod = Number(value('#tb-ed-accuracy')); entry.blockedTags = list(value('#tb-ed-blocked'));
+        entry.skills = list(value('#tb-ed-skills')); entry.suppressedSkills = list(value('#tb-ed-suppressed-skills'));
         entry.tags = list(value('#tb-ed-tags')); entry.stats = parseStats(value('#tb-ed-stats')); entry.bonusAp = Number(value('#tb-ed-bonus-ap'));
     } else if (editorType === 'enemies') {
         entry.skills = list(value('#tb-ed-skills')); entry.equipment = { weapon: value('#tb-ed-weapon') || null }; entry.stats = parseStats(value('#tb-ed-stats'));
@@ -582,7 +587,7 @@ async function performAction() {
         action.landingCol = Number(panel.querySelector('#tb-landing')?.value) || undefined;
     } else if (type === 'struggle') action.restraintInstanceId = id;
     else if (type === 'pickup') action.dropId = id;
-    else if (type === 'move') { action.row = panel.querySelector('#tb-move-row')?.value; action.col = Number(panel.querySelector('#tb-move-col')?.value); }
+    else if (type === 'move') { const [zone, row, col] = (panel.querySelector('#tb-move-destination')?.value || '').split(':'); action.zone = zone; action.row = row; action.col = Number(col); }
     await updateBattle(state => executeAction(state, action));
 }
 
