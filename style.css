@@ -43,8 +43,11 @@
 #tb-panel .tb-errors { margin: .6rem 0; padding: .7rem; border-left: 4px solid #e57878; background: #8e303044; }
 #tb-panel .tb-ok { color: #9cdfab; }
 #tb-panel .tb-block { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; padding: .3rem; border-bottom: 1px solid #aaa4; }
-#tb-panel .tb-block .tb-ref { flex: 1; }
+#tb-panel .tb-ref-host { flex: 1 1 12rem; min-width: 0; }
+#tb-panel .tb-ref-host .tb-ref { width: 100%; }
 #tb-panel .tb-block .tb-amount, #tb-panel .tb-block .tb-chance { width: 6rem; }
+#tb-panel .tb-reference-list { min-width: 0; max-height: 14rem; overflow-y: auto; margin: .6rem 0; padding: .5rem .7rem; border: 1px solid #aaa7; border-radius: 6px; }
+#tb-panel .tb-reference-list label { display: flex; flex-direction: row; align-items: center; gap: .4rem; }
 #tb-panel .tb-bind-options { max-height: 18rem; overflow: auto; }
 #tb-panel .tb-inline { margin-left: 1rem; }
 #tb-panel .tb-loot label { display: inline-flex; margin-right: .7rem; }
@@ -60,5 +63,5 @@
   #tb-panel .tb-choice-grid, #tb-panel .tb-target-grid { max-height: 24dvh; }
   #tb-panel button { min-height: 40px; }
   #tb-panel input, #tb-panel select, #tb-panel textarea { font-size: 16px; }
-  #tb-panel .tb-block .tb-ref { flex-basis: 100%; }
+  #tb-panel .tb-ref-host { flex-basis: 100%; }
 }

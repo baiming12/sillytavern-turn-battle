@@ -86,6 +86,8 @@ export function validatePack(pack, existingPacks = []) {
                     if (!REQUIREMENT_KINDS.has(req.kind)) errors.push(`${entry.id} 包含未知条件：${req.kind}`);
                     if (['selfEquipment', 'targetEquipment', 'selfNotEquipment', 'targetNotEquipment'].includes(req.kind) && !req.equipmentId) errors.push(`${entry.id} 装备条件缺少 equipmentId`);
                     if (['selfStatus', 'targetStatus', 'selfNotStatus', 'targetNotStatus'].includes(req.kind) && !req.statusId) errors.push(`${entry.id} 状态条件缺少 statusId`);
+                    if (req.kind === 'equippedTag' && !req.tag) errors.push(`${entry.id} 装备标签条件不能为空`);
+                    if (req.kind === 'equippedAnyTag' && (!Array.isArray(req.tags) || !req.tags.length)) errors.push(`${entry.id} 装备标签条件至少选择一个标签`);
                     if (['targetEquipped', 'targetNotEquipped', 'selfNotEquipped'].includes(req.kind) && !EQUIPMENT_SLOTS.has(req.slot)) errors.push(`${entry.id} 装备栏位条件无效`);
                 }
                 for (const effect of asArray(entry.effects)) {
@@ -96,7 +98,7 @@ export function validatePack(pack, existingPacks = []) {
                     if (effect.kind === 'actionPoints' && (!Number.isInteger(effect.amount) || effect.amount < 0)) errors.push(`${entry.id} 行动点必须是非负整数`);
                     if (effect.kind === 'resource' && !effect.resource) errors.push(`${entry.id} 缺少资源 ID`);
                     if (['status', 'removeStatus'].includes(effect.kind) && !effect.statusId) errors.push(`${entry.id} 状态效果缺少 statusId`);
-                    if (effect.kind === 'equipRestraint' && !effect.equipmentId) errors.push(`${entry.id} 拘束效果缺少 equipmentId`);
+                    if (['equipRestraint', 'removeRestraint'].includes(effect.kind) && !effect.equipmentId) errors.push(`${entry.id} 拘束效果缺少 equipmentId`);
                     if (['removeEquipment', 'disableEquipment'].includes(effect.kind) && !EQUIPMENT_SLOTS.has(effect.slot)) errors.push(`${entry.id} 装备效果缺少合法栏位`);
                     if (effect.kind === 'disableEquipment' && (!Number.isInteger(effect.duration) || effect.duration < 1)) errors.push(`${entry.id} 装备封锁时长无效`);
                 }
@@ -122,6 +124,7 @@ export function validatePack(pack, existingPacks = []) {
     for (const entry of [...asArray(pack.skills), ...asArray(pack.items)].filter(isObject)) for (const effect of asArray(entry.effects).filter(isObject)) {
         if (effect.statusId && !defs.statuses.has(effect.statusId)) errors.push(`${entry.id} 引用不存在的状态 ${effect.statusId}`);
         if (effect.equipmentId && !defs.equipment.has(effect.equipmentId)) errors.push(`${entry.id} 引用不存在的装备 ${effect.equipmentId}`);
+        if (['equipRestraint', 'removeRestraint'].includes(effect.kind) && effect.equipmentId && defs.equipment.get(effect.equipmentId)?.slot !== 'restraint') errors.push(`${entry.id} 拘束效果必须引用拘束装备`);
         if (effect.chance !== undefined && (!finite(effect.chance) || effect.chance < 0 || effect.chance > 100)) errors.push(`${entry.id} 概率必须在 0-100`);
     }
     for (const entry of [...asArray(pack.skills), ...asArray(pack.items)].filter(isObject)) for (const req of asArray(entry.requirements).filter(isObject)) {
