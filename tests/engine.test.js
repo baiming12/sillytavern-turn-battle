@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { CORE_PACK, collectDefinitions, validateBattleRequest, validatePack, parseBattleRequest } from '../content.js';
 import { createBattle, availableSkills, legalTargets, executeAction, endAllyPhase, battleReport } from '../engine.js';
-import { generateWriterWorldbook } from '../worldbook.js';
+import { generateWriterWorldbook, buildStoryPrompt } from '../worldbook.js';
 
 const limits = { allyFront: 2, allyBack: 2, enemyFront: 2, enemyBack: 2 };
 const actor = (id, side, row, col, extra = {}) => ({
@@ -21,6 +21,10 @@ test('内容包、开战格式、世界书可校验', () => {
     const book = generateWriterWorldbook();
     assert.ok(book.entries['0'].constant);
     assert.ok(JSON.parse(JSON.stringify(book)).entries['5'].content.includes('TURN_BATTLE_REQUEST'));
+    assert.match(book.entries['2'].content, /"description"/);
+    assert.match(book.entries['5'].content, /剧情中学会或失去技能/);
+    assert.match(buildStoryPrompt('skills core:fireball 火球术：火焰飞出'), /火球术：火焰飞出/);
+    assert.match(buildStoryPrompt(), /下次开战完整写入当前 skills/);
 });
 
 test('预览发现错误栏位、超量饰品、未知拘束', () => {
@@ -86,6 +90,18 @@ test('报告包含结算资源、掉落和共用背包', () => {
     const report = battleReport(next, true);
     assert.match(report, /core:sword/);
     assert.match(report, /core:potion×2/);
+});
+
+test('战斗报告携带本场用过的技能及当前装备的剧情介绍', () => {
+    const pack = structuredClone(CORE_PACK);
+    pack.skills.find(x => x.id === 'core:unarmed').description = '挥拳攻击目标。';
+    pack.equipment.find(x => x.id === 'core:sword').description = '一柄磨旧的长剑。';
+    const state = createBattle(request(actor('hero', 'ally', 'front', 1, { skills: ['core:unarmed'], equipment: { weapon: 'core:sword' } }), actor('foe', 'enemy', 'front', 1)), [pack], limits, 9);
+    const next = executeAction(state, { type: 'skill', actorId: 'hero', id: 'core:unarmed', targetId: 'foe' });
+    const report = battleReport(next);
+    assert.match(report, /本场相关内容介绍/);
+    assert.match(report, /徒手攻击（core:unarmed）：挥拳攻击目标/);
+    assert.match(report, /长剑（core:sword）：一柄磨旧的长剑/);
 });
 
 test('被动状态增加行动点，敌方规则 AI 按策略使用个人道具', () => {

@@ -77,6 +77,7 @@ export function validatePack(pack, existingPacks = []) {
             if (seen.has(entry.id)) errors.push(`重复 ID：${entry.id}`);
             seen.add(entry.id);
             if (!entry.name || typeof entry.name !== 'string') errors.push(`${entry.id} 缺少名称`);
+            if (entry.description !== undefined && typeof entry.description !== 'string') errors.push(`${entry.id} 的剧情介绍必须是文字`);
             if (type === 'skills' || type === 'items') {
                 if (!Array.isArray(entry.effects) || !entry.effects.length) errors.push(`${entry.id} 缺少效果块`);
                 if (entry.requirements !== undefined && !Array.isArray(entry.requirements)) errors.push(`${entry.id} 的 requirements 必须是数组`);
@@ -230,5 +231,5 @@ export function validateBattleRequest(request, definitions, limits = { allyFront
 }
 
 export function catalogText(packs) {
-    return packs.map(pack => `${pack.name} (${pack.id}):\n${CONTENT_TYPES.map(type => (pack[type] || []).map(item => `- ${type} ${item.id} ${item.name}${item.description ? `：${item.description}` : ''}${['allies', 'enemies'].includes(type) ? `；建议模板 ${JSON.stringify({ side: type === 'allies' ? 'ally' : 'enemy', row: item.row, col: item.col, stats: item.stats, resources: item.resources, skills: item.skills, equipment: item.equipment, accessories: item.accessories, restraints: item.restraints, statuses: item.statuses, ...(type === 'enemies' ? { items: item.items, aiProfile: item.aiProfile } : {}) })}` : ''}`).join('\n')).filter(Boolean).join('\n')}`).join('\n\n');
+    return packs.map(pack => `${pack.name} (${pack.id}):\n${CONTENT_TYPES.map(type => (pack[type] || []).map(item => `- ${type} ${item.id} ${item.name}${typeof item.description === 'string' && item.description.trim() ? `：${item.description.replace(/\s+/g, ' ').trim()}` : ''}${['allies', 'enemies'].includes(type) ? `；建议模板 ${JSON.stringify({ side: type === 'allies' ? 'ally' : 'enemy', row: item.row, col: item.col, stats: item.stats, resources: item.resources, skills: item.skills, equipment: item.equipment, accessories: item.accessories, restraints: item.restraints, statuses: item.statuses, ...(type === 'enemies' ? { items: item.items, aiProfile: item.aiProfile } : {}) })}` : ''}`).join('\n')).filter(Boolean).join('\n')}`).join('\n\n');
 }

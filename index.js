@@ -80,8 +80,7 @@ function resolveActive() {
         for (const ref of refs) if (!needed.has(ref)) { needed.add(ref); queue.push(ref); }
     }
     const packs = all.map(pack => ({ ...pack, ...Object.fromEntries(CONTENT_TYPES.map(type => [type, (pack[type] || []).filter(entry => needed.has(entry.id))])) })).filter(pack => CONTENT_TYPES.some(type => pack[type].length));
-    const visiblePacks = all.map(pack => ({ ...pack, ...Object.fromEntries(CONTENT_TYPES.map(type => [type, (pack[type] || []).filter(entry => direct.has(entry.id))])) })).filter(pack => CONTENT_TYPES.some(type => pack[type].length));
-    return { packs, visiblePacks, selectableIds: direct };
+    return { packs, selectableIds: needed };
 }
 
 function hash(text) {
@@ -377,7 +376,7 @@ function renderEditor() {
     const entry = editorEntry();
     const packOptions = settings().packs.map(value => option(value.id, value.name, pack.id)).join('');
     const entries = pack[editorType] || [];
-    return `<div><h2>可视化编辑</h2><p>可切换内容包、类别和已有条目；引用直接按名称选择。切换条目前请先保存当前修改。</p><div class="tb-grid"><label>内容包 <select id="tb-editor-pack">${packOptions}</select></label><label>类别 <select id="tb-editor-type">${EDITOR_TYPES.map(([value, label]) => option(value, label, editorType)).join('')}</select></label><label>选择已有条目 <select id="tb-editor-entry">${option('', '＋ 新建条目', editorEntryId)}${entries.map(value => option(value.id, value.name, editorEntryId)).join('')}</select></label></div><div class="tb-form"><label>ID 后缀 <input id="tb-editor-id" value="${inputValue(entry ? entry.id.slice(pack.id.length + 1) : '')}" placeholder="fireball" ${entry ? 'readonly' : ''}></label><label>名称 <input id="tb-editor-name" value="${inputValue(entry?.name)}" placeholder="火球术"></label><label>说明 <input id="tb-editor-description" value="${inputValue(entry?.description)}"></label>${editorType === 'skills' || editorType === 'items' ? renderActionEditorFields(entry) : editorType === 'equipment' ? renderEquipmentEditorFields(entry) : editorType === 'statuses' ? renderStatusEditorFields(entry) : editorType === 'allies' || editorType === 'enemies' ? renderUnitEditorFields(entry, editorType) : renderAiEditorFields(entry)}<button data-action="save-editor">${entry ? '校验并更新条目' : '校验并保存新条目'}</button></div></div>`;
+    return `<div><h2>可视化编辑</h2><p>可切换内容包、类别和已有条目；引用直接按名称选择。切换条目前请先保存当前修改。</p><div class="tb-grid"><label>内容包 <select id="tb-editor-pack">${packOptions}</select></label><label>类别 <select id="tb-editor-type">${EDITOR_TYPES.map(([value, label]) => option(value, label, editorType)).join('')}</select></label><label>选择已有条目 <select id="tb-editor-entry">${option('', '＋ 新建条目', editorEntryId)}${entries.map(value => option(value.id, value.name, editorEntryId)).join('')}</select></label></div><div class="tb-form"><label>ID 后缀 <input id="tb-editor-id" value="${inputValue(entry ? entry.id.slice(pack.id.length + 1) : '')}" placeholder="fireball" ${entry ? 'readonly' : ''}></label><label>名称 <input id="tb-editor-name" value="${inputValue(entry?.name)}" placeholder="火球术"></label><label>剧情介绍 <textarea class="tb-description" id="tb-editor-description" placeholder="写动作、外观或表现；具体数值由下方规则决定">${escapeHtml(entry?.description)}</textarea></label>${editorType === 'skills' || editorType === 'items' ? renderActionEditorFields(entry) : editorType === 'equipment' ? renderEquipmentEditorFields(entry) : editorType === 'statuses' ? renderStatusEditorFields(entry) : editorType === 'allies' || editorType === 'enemies' ? renderUnitEditorFields(entry, editorType) : renderAiEditorFields(entry)}<button data-action="save-editor">${entry ? '校验并更新条目' : '校验并保存新条目'}</button></div></div>`;
 }
 
 function renderActionEditorFields(entry) {
@@ -407,7 +406,7 @@ function renderAiEditorFields(entry) {
 
 function renderSettings() {
     const limits = settings().limits;
-    return `<div><h2>设置与提示词</h2><div class="tb-grid">${Object.entries(limits).map(([key, value]) => `<label>${escapeHtml(key)} <input class="tb-limit" data-key="${key}" type="number" min="1" max="12" value="${value}"></label>`).join('')}</div><button data-action="save-limits">保存位置上限</button><h3>剧情 AI 开战提示词</h3><p>把下方提示词放进当前剧情预设；内容目录来自此角色卡绑定。</p><textarea readonly id="tb-story-prompt">${escapeHtml(buildStoryPrompt(catalogText(resolveActive().visiblePacks)))}</textarea><button data-action="copy-prompt">复制提示词</button><h3>写卡助手世界书</h3><p>按照当前导入格式生成可导入酒馆的 World Info JSON。</p><button data-action="export-worldbook">导出世界书 JSON</button><button data-action="copy-worldbook">复制世界书 JSON</button><h3>手动开战</h3><button data-action="sample-preview">载入示例战斗并预览</button><button data-action="manual-preview">粘贴初始快照并预览</button></div>`;
+    return `<div><h2>设置与提示词</h2><div class="tb-grid">${Object.entries(limits).map(([key, value]) => `<label>${escapeHtml(key)} <input class="tb-limit" data-key="${key}" type="number" min="1" max="12" value="${value}"></label>`).join('')}</div><button data-action="save-limits">保存位置上限</button><h3>剧情 AI 开战提示词</h3><p>把下方提示词放进当前剧情预设；内容目录包含此角色卡绑定的条目及其引用。</p><textarea readonly id="tb-story-prompt">${escapeHtml(buildStoryPrompt(catalogText(resolveActive().packs)))}</textarea><button data-action="copy-prompt">复制提示词</button><h3>写卡助手世界书</h3><p>按照当前导入格式生成可导入酒馆的 World Info JSON。</p><button data-action="export-worldbook">导出世界书 JSON</button><button data-action="copy-worldbook">复制世界书 JSON</button><h3>手动开战</h3><button data-action="sample-preview">载入示例战斗并预览</button><button data-action="manual-preview">粘贴初始快照并预览</button></div>`;
 }
 
 function list(value) { return String(value || '').split(/[,，\n]/).map(x => x.trim()).filter(Boolean); }
@@ -643,9 +642,9 @@ async function handlePanelClick(event) {
     if (!action) return;
     try {
         if (action === 'close') hidePanel();
-        else if (action === 'copy-prompt') await copy(buildStoryPrompt(catalogText(resolveActive().visiblePacks)));
+        else if (action === 'copy-prompt') await copy(buildStoryPrompt(catalogText(resolveActive().packs)));
         else if (action === 'export-worldbook' || action === 'copy-worldbook') {
-            const data = JSON.stringify(generateWriterWorldbook(catalogText(resolveActive().visiblePacks)), null, 2);
+            const data = JSON.stringify(generateWriterWorldbook(catalogText(resolveActive().packs)), null, 2);
             if (action === 'copy-worldbook') await copy(data); else download('回合战斗-写卡助手世界书.json', data);
         } else if (action === 'save-limits') {
             for (const input of panel.querySelectorAll('.tb-limit')) settings().limits[input.dataset.key] = Math.max(1, Math.min(12, Number(input.value) || 1));
@@ -656,7 +655,7 @@ async function handlePanelClick(event) {
         } else if (action === 'remove-pack') {
             settings().packs = settings().packs.filter(x => x.id !== button.dataset.pack); saveSettings(); render();
         } else if (action === 'save-binding') { await saveBinding(getBindingFromUi()); render(); notice('角色卡绑定已保存'); }
-        else if (action === 'copy-catalog') await copy(catalogText(resolveActive().visiblePacks));
+        else if (action === 'copy-catalog') await copy(catalogText(resolveActive().packs));
         else if (action === 'check-import') checkImport();
         else if (action === 'load-sample-pack') await loadSamplePack();
         else if (action === 'sample-preview') await loadSampleBattle();

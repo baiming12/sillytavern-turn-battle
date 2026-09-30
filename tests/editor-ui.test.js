@@ -10,7 +10,7 @@ test('可视化编辑可切换我方和敌方角色，引用显示名称并保�
     const fields = new Map();
     const selectedRows = new Map();
     const sample = JSON.parse(readFileSync(new URL('../examples/基础测试内容包.json', import.meta.url), 'utf8'));
-    const saved = { packs: [structuredClone(CORE_PACK), sample], limits: { allyFront: 2, allyBack: 2, enemyFront: 2, enemyBack: 2 }, fallbackBinding: {} };
+    const saved = { packs: [structuredClone(CORE_PACK), sample], limits: { allyFront: 2, allyBack: 2, enemyFront: 2, enemyBack: 2 }, fallbackBinding: { 'starter-test': { mode: 'entries', entries: ['starter-test:warrior'] } } };
     let panel;
     globalThis.document = {
         body: { append(node) { node.isConnected = true; } },
@@ -44,6 +44,22 @@ test('可视化编辑可切换我方和敌方角色，引用显示名称并保�
         await import(`../index.js?editor-ui=${Date.now()}`);
         await events.get('app-ready')();
         documentListeners.get('click')({ target: { closest: selector => selector === '#tb-open' ? {} : null }, preventDefault() {} });
+        panelListeners.get('click')[0]({ target: { classList: { contains: () => false }, closest: () => ({ dataset: { tab: 'settings' } }) } });
+        assert.match(panel.innerHTML, /starter-test:wind-first/);
+        assert.match(panel.innerHTML, /starter-test:sword/);
+        assert.match(panel.innerHTML, /清风剑法第一式/);
+        panelListeners.get('click')[0]({ target: { classList: { contains: () => false }, closest: () => ({ dataset: { action: 'manual-preview' } }) } });
+        const preview = {
+            schema: 'turn-battle-request/v1', scene: '绑定依赖测试', bag: {},
+            actors: [
+                { ...structuredClone(sample.allies[0]), side: 'ally' },
+                { id: 'foe', name: '对手', side: 'enemy', row: 'front', col: 1, stats: { patk: 1, matk: 0, pdef: 0, mdef: 0 }, resources: { hp: { current: 10, max: 10 }, sp: { current: 0, max: 0 }, mp: { current: 0, max: 0 } }, skills: [], equipment: {}, accessories: [], restraints: [], statuses: [], items: {} },
+            ],
+        };
+        fields.set('#tb-preview-json', { value: JSON.stringify(preview) });
+        panelListeners.get('click')[0]({ target: { classList: { contains: () => false }, closest: () => ({ dataset: { action: 'apply-preview-json' } }) } });
+        assert.match(panel.innerHTML, /初始快照校验通过/);
+        panelListeners.get('click')[0]({ target: { classList: { contains: () => false }, closest: () => ({ dataset: { action: 'cancel-preview' } }) } });
         panelListeners.get('click')[0]({ target: { classList: { contains: () => false }, closest: () => ({ dataset: { tab: 'binding' } }) } });
         assert.match(panel.innerHTML, /value="allies"[^>]*>我方角色/);
         panelListeners.get('click')[0]({ target: { classList: { contains: () => false }, closest: () => ({ dataset: { tab: 'editor' } }) } });

@@ -12,6 +12,8 @@ test('基础测试包与示例开战快照可直接导入', () => {
     assert.deepEqual(validatePack(pack, [CORE_PACK]), []);
     assert.equal(pack.allies.length, 2);
     assert.match(catalogText([pack]), /allies starter-test:warrior 测试战士/);
+    assert.match(catalogText([pack]), /skills starter-test:fireball 火球术：咏唱后凝出火球/);
+    assert.match(catalogText([pack]), /equipment starter-test:sword 练习长剑：训练用长剑/);
     assert.deepEqual(validateBattleRequest(request, collectDefinitions([CORE_PACK, pack]), limits), []);
     const state = createBattle(request, [CORE_PACK, pack], limits, 42);
     assert.equal(state.actors.length, 5);

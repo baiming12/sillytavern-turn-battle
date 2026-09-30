@@ -315,7 +315,7 @@ function executeMutable(state, action) {
         for (const [key, amount] of Object.entries(definition.cost || {})) actor.resources[key].current -= amount;
         if (action.type === 'item') (actor.side === 'ally' ? state.bag : actor.items)[action.id] -= 1;
         actor.ap -= 1;
-        log(state, `${actorName(actor)}使用${definition.name}${selected.length === 1 ? `，目标${actorName(selected[0])}` : `，目标${selected.length}名单位`}`);
+        log(state, `${actorName(actor)}使用${definition.name}${selected.length === 1 ? `，目标${actorName(selected[0])}` : `，目标${selected.length}名单位`}`, { contentId: definition.id, contentType: action.type });
         for (const effect of definition.effects || []) applyEffect(state, actor, selected, effect, defs, action);
         if (actor.infiltration?.returnAt === 'skillEnd') returnInfiltrator(state, actor);
     } else throw new Error('未知行动');
@@ -402,12 +402,23 @@ export function lootableEnemyItems(state) {
 }
 
 export function battleReport(state, full = false) {
+    const defs = collectDefinitions(state.definitions);
     const actorLines = state.actors.map(actor => `${actor.name}（${actor.side === 'ally' ? '玩家方' : '敌方'}）${Object.entries(actor.resources).map(([id, value]) => `${id} ${value.current}/${value.max}`).join('，')}，武器 ${actor.equipment.weapon || '无'}，拘束 ${(actor.restraints || []).map(x => x.id).join('、') || '无'}`);
     const lines = state.log.filter(entry => full || /造成|倒下|获得|解除|掉落|拾取|挣脱|突入|移动到|战斗结束/.test(entry.text)).map(entry => `第${entry.round}轮${entry.phase === 'ally' ? '玩家' : '敌方'}：${entry.text}`);
+    const contentIds = new Set(state.log.map(entry => entry.details?.contentId).filter(Boolean));
+    for (const actor of state.actors) {
+        for (const id of Object.values(actor.equipment || {})) if (id) contentIds.add(id);
+        for (const id of actor.accessories || []) contentIds.add(id);
+        for (const entry of [...(actor.restraints || []), ...(actor.statuses || [])]) if (entry?.id) contentIds.add(entry.id);
+    }
+    const contentLines = [...contentIds].map(id => {
+        const item = defs.skills.get(id) || defs.items.get(id) || defs.equipment.get(id) || defs.statuses.get(id);
+        return typeof item?.description === 'string' && item.description.trim() ? `${item.name}（${id}）：${item.description.replace(/\s+/g, ' ').trim()}` : null;
+    }).filter(Boolean);
     const finalSnapshot = {
         result: state.result,
         actors: state.actors.map(({ id, name, side, row, col, zone, stats, resources, skills, equipment, accessories, restraints, statuses, disabledEquipment, items }) => ({ id, name, side, row, col, zone, stats, resources, skills, equipment, accessories, restraints, statuses, disabledEquipment, items })),
         bag: state.bag, gearBag: state.gearBag || {}, drops: state.drops,
     };
-    return [`【战斗报告】`, `场景：${state.scene || '未命名遭遇'}`, `结果：${state.result || '进行中'}`, ...lines, `【最终状态】`, ...actorLines, `玩家共用背包：${Object.entries(state.bag).map(([id, count]) => `${id}×${count}`).join('、') || '空'}`, `战后拾取装备：${Object.entries(state.gearBag || {}).map(([id, count]) => `${id}×${count}`).join('、') || '无'}`, `未拾取武器：${state.drops.map(x => x.id).join('、') || '无'}`, `【供剧情变量同步的完整状态 JSON】`, JSON.stringify(finalSnapshot), `请按战斗顺序续写剧情，生命归零视为倒下，不自动死亡。同步最终资源、装备、状态、道具和拾取结果，不改写战斗结算。`].join('\n');
+    return [`【战斗报告】`, `场景：${state.scene || '未命名遭遇'}`, `结果：${state.result || '进行中'}`, ...lines, `【最终状态】`, ...actorLines, `玩家共用背包：${Object.entries(state.bag).map(([id, count]) => `${id}×${count}`).join('、') || '空'}`, `战后拾取装备：${Object.entries(state.gearBag || {}).map(([id, count]) => `${id}×${count}`).join('、') || '无'}`, `未拾取武器：${state.drops.map(x => x.id).join('、') || '无'}`, ...(contentLines.length ? ['【本场相关内容介绍（仅供剧情描写）】', ...contentLines] : []), `【供剧情变量同步的完整状态 JSON】`, JSON.stringify(finalSnapshot), `请按战斗顺序续写剧情，生命归零视为倒下，不自动死亡。同步最终技能、资源、装备、状态、道具和拾取结果，不改写战斗结算。`].join('\n');
 }

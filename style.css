@@ -18,6 +18,7 @@
 #tb-panel label:has(input[type="checkbox"]) { flex-direction: row; align-items: center; }
 #tb-panel input, #tb-panel select, #tb-panel textarea { min-width: 0; max-width: 100%; padding: .35rem; color: inherit; background: #1119; border: 1px solid #aaa8; border-radius: 4px; }
 #tb-panel textarea { display: block; width: 100%; min-height: 12rem; resize: vertical; font-family: ui-monospace, monospace; }
+#tb-panel textarea.tb-description { min-height: 5rem; font-family: inherit; }
 #tb-panel #tb-preview-json, #tb-panel #tb-import-text, #tb-panel #tb-story-prompt { min-height: 20rem; }
 #tb-panel .tb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .6rem; }
 #tb-panel .tb-field { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
