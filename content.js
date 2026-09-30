@@ -1,6 +1,6 @@
 export const PACK_SCHEMA = 'turn-battle-pack/v1';
 export const REQUEST_SCHEMA = 'turn-battle-request/v1';
-export const CONTENT_TYPES = ['skills', 'statuses', 'equipment', 'items', 'enemies', 'aiProfiles'];
+export const CONTENT_TYPES = ['skills', 'statuses', 'equipment', 'items', 'allies', 'enemies', 'aiProfiles'];
 const EQUIPMENT_SLOTS = new Set(['weapon', 'outer', 'middle', 'underwear', 'legs', 'feet', 'accessory', 'restraint']);
 const REQUIREMENT_KINDS = new Set(['freePart', 'equippedTag', 'equippedAnyTag', 'enemyFrontEmpty', 'targetEquipped', 'targetNotEquipped', 'selfNotEquipped', 'selfEquipment', 'targetEquipment', 'selfNotEquipment', 'targetNotEquipment', 'selfStatus', 'targetStatus', 'selfNotStatus', 'targetNotStatus']);
 const EFFECT_KINDS = new Set(['damage', 'resource', 'status', 'removeStatus', 'equipRestraint', 'removeRestraint', 'disarm', 'removeEquipment', 'disableEquipment', 'infiltrate', 'actionPoints']);
@@ -47,6 +47,7 @@ export const CORE_PACK = {
         { id: 'core:rope-item', name: '套绳', target: { side: 'enemy', row: 'any', count: 'single', guard: false }, requirements: [{ kind: 'freePart', part: 'hands' }], effects: [{ kind: 'equipRestraint', equipmentId: 'core:rope', chance: 70 }] },
         { id: 'core:fire-scroll', name: '火球卷轴', target: { side: 'enemy', row: 'any', count: 'single', guard: false }, requirements: [{ kind: 'freePart', part: 'mouth' }], effects: [{ kind: 'damage', damageType: 'magic', power: 10, scale: 0.5 }] },
     ],
+    allies: [],
     enemies: [],
     aiProfiles: [],
 };
@@ -131,10 +132,31 @@ export function validatePack(pack, existingPacks = []) {
         if (req.statusId && !defs.statuses.has(req.statusId)) errors.push(`${entry.id} 条件引用不存在的状态 ${req.statusId}`);
         if (req.equipmentId && !defs.equipment.has(req.equipmentId)) errors.push(`${entry.id} 条件引用不存在的装备 ${req.equipmentId}`);
     }
-    for (const enemy of asArray(pack.enemies).filter(isObject)) {
-        for (const id of asArray(enemy.skills)) if (!defs.skills.has(id)) errors.push(`${enemy.id} 引用不存在的技能 ${id}`);
-        for (const id of Object.values(enemy.equipment || {}).flat()) if (id && !defs.equipment.has(id)) errors.push(`${enemy.id} 引用不存在的装备 ${id}`);
-        if (enemy.aiProfile && !defs.aiProfiles.has(enemy.aiProfile)) errors.push(`${enemy.id} 引用不存在的 AI 策略 ${enemy.aiProfile}`);
+    for (const type of ['allies', 'enemies']) for (const unit of asArray(pack[type]).filter(isObject)) {
+        const side = type === 'allies' ? 'ally' : 'enemy';
+        if (unit.side !== undefined && unit.side !== side) errors.push(`${unit.id} 阵营与预设类别不符`);
+        for (const field of ['skills', 'accessories', 'restraints', 'statuses']) if (unit[field] !== undefined && !Array.isArray(unit[field])) errors.push(`${unit.id} 的 ${field} 必须是数组`);
+        for (const field of ['equipment', 'items']) if (unit[field] !== undefined && !isObject(unit[field])) errors.push(`${unit.id} 的 ${field} 必须是对象`);
+        for (const id of asArray(unit.skills)) if (!defs.skills.has(id)) errors.push(`${unit.id} 引用不存在的技能 ${id}`);
+        if (unit.stats !== undefined && !isObject(unit.stats)) errors.push(`${unit.id} 属性必须是对象`);
+        for (const [key, value] of Object.entries(unit.stats || {})) if (!finite(value)) errors.push(`${unit.id} 属性 ${key} 必须是数字`);
+        if (unit.resources !== undefined && !isObject(unit.resources)) errors.push(`${unit.id} 资源必须是对象`);
+        if (isObject(unit.resources)) for (const key of ['hp', 'sp', 'mp']) if (!isObject(unit.resources[key])) errors.push(`${unit.id} 缺少 ${key} 资源`);
+        for (const [key, resource] of Object.entries(unit.resources || {})) if (!isObject(resource) || !finite(resource.current) || !finite(resource.max) || resource.current < 0 || resource.max < 0 || resource.current > resource.max) errors.push(`${unit.id} 资源 ${key} 无效`);
+        if (unit.row !== undefined && !['front', 'back'].includes(unit.row)) errors.push(`${unit.id} 建议排位无效`);
+        if (unit.col !== undefined && (!Number.isInteger(unit.col) || unit.col < 1)) errors.push(`${unit.id} 建议位置必须是正整数`);
+        for (const [slot, id] of Object.entries(unit.equipment || {})) if (id && defs.equipment.get(id)?.slot !== slot) errors.push(`${unit.id} 的 ${id} 不能放在 ${slot} 栏`);
+        if (asArray(unit.accessories).length > 5) errors.push(`${unit.id} 饰品超过 5 件`);
+        for (const id of asArray(unit.accessories)) if (defs.equipment.get(id)?.slot !== 'accessory') errors.push(`${unit.id} 的饰品 ${id} 无效`);
+        for (const value of asArray(unit.restraints)) if (defs.equipment.get(typeof value === 'string' ? value : value?.id)?.slot !== 'restraint') errors.push(`${unit.id} 的拘束无效`);
+        for (const value of asArray(unit.statuses)) if (!defs.statuses.has(typeof value === 'string' ? value : value?.id)) errors.push(`${unit.id} 引用不存在的状态`);
+        if (type === 'enemies') {
+            if (unit.aiProfile && !defs.aiProfiles.has(unit.aiProfile)) errors.push(`${unit.id} 引用不存在的 AI 策略 ${unit.aiProfile}`);
+            for (const [id, count] of Object.entries(unit.items || {})) if (!defs.items.has(id) || !Number.isInteger(count) || count < 0) errors.push(`${unit.id} 的道具 ${id} 无效`);
+        } else {
+            if (unit.aiProfile) errors.push(`${unit.id} 是我方角色，不使用敌方 AI 策略`);
+            if (Object.keys(unit.items || {}).length) errors.push(`${unit.id} 是我方角色，道具应放在共用背包`);
+        }
     }
     for (const profile of asArray(pack.aiProfiles).filter(isObject)) {
         for (const id of asArray(profile.skillPriority)) if (!defs.skills.has(id)) errors.push(`${profile.id} 引用不存在的技能 ${id}`);
@@ -208,5 +230,5 @@ export function validateBattleRequest(request, definitions, limits = { allyFront
 }
 
 export function catalogText(packs) {
-    return packs.map(pack => `${pack.name} (${pack.id}):\n${CONTENT_TYPES.map(type => (pack[type] || []).map(item => `- ${type} ${item.id} ${item.name}${item.description ? `：${item.description}` : ''}${type === 'enemies' ? `；建议模板 ${JSON.stringify({ stats: item.stats, resources: item.resources, skills: item.skills, equipment: item.equipment, aiProfile: item.aiProfile })}` : ''}`).join('\n')).filter(Boolean).join('\n')}`).join('\n\n');
+    return packs.map(pack => `${pack.name} (${pack.id}):\n${CONTENT_TYPES.map(type => (pack[type] || []).map(item => `- ${type} ${item.id} ${item.name}${item.description ? `：${item.description}` : ''}${['allies', 'enemies'].includes(type) ? `；建议模板 ${JSON.stringify({ side: type === 'allies' ? 'ally' : 'enemy', row: item.row, col: item.col, stats: item.stats, resources: item.resources, skills: item.skills, equipment: item.equipment, accessories: item.accessories, restraints: item.restraints, statuses: item.statuses, ...(type === 'enemies' ? { items: item.items, aiProfile: item.aiProfile } : {}) })}` : ''}`).join('\n')).filter(Boolean).join('\n')}`).join('\n\n');
 }

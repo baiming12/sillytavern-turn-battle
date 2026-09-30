@@ -2,7 +2,7 @@
   "schema": "turn-battle-pack/v1",
   "id": "starter-test",
   "name": "基础战斗测试包",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "用于手机酒馆首轮测试：前后排、护甲、饰品、法术、道具、拘束和敌方 AI。",
   "skills": [
     { "id": "starter-test:sword-attack", "name": "长剑攻击", "tags": ["physical", "hand", "melee"], "cost": {}, "target": { "side": "enemy", "row": "any", "count": "single", "guard": true }, "requirements": [{ "kind": "freePart", "part": "hands" }, { "kind": "equippedTag", "tag": "sword" }], "effects": [{ "kind": "damage", "damageType": "physical", "power": 4, "scale": 1 }] },
@@ -44,6 +44,10 @@
     { "id": "starter-test:lime", "name": "石灰粉", "target": { "side": "enemy", "row": "front", "count": "single", "guard": false }, "requirements": [{ "kind": "freePart", "part": "hands" }], "effects": [{ "kind": "status", "statusId": "starter-test:blind", "chance": 70 }] },
     { "id": "starter-test:rope-item", "name": "套绳", "target": { "side": "enemy", "row": "any", "count": "single", "guard": false }, "requirements": [{ "kind": "freePart", "part": "hands" }], "effects": [{ "kind": "equipRestraint", "equipmentId": "starter-test:rope", "chance": 70 }] },
     { "id": "starter-test:fire-scroll", "name": "火球卷轴", "target": { "side": "enemy", "row": "any", "count": "single", "guard": false }, "requirements": [{ "kind": "freePart", "part": "mouth" }], "effects": [{ "kind": "damage", "damageType": "magic", "power": 10, "scale": 0.5 }] }
+  ],
+  "allies": [
+    { "id": "starter-test:warrior", "name": "测试战士", "row": "front", "col": 1, "stats": { "patk": 10, "matk": 2, "pdef": 5, "mdef": 3, "speed": 3 }, "resources": { "hp": { "current": 60, "max": 60 }, "sp": { "current": 25, "max": 25 }, "mp": { "current": 5, "max": 5 }, "focus": { "current": 8, "max": 8 } }, "skills": ["starter-test:wind-first"], "equipment": { "weapon": "starter-test:sword", "outer": "starter-test:coat", "middle": "starter-test:shirt", "underwear": "starter-test:underwear", "legs": "starter-test:trousers", "feet": "starter-test:boots" }, "accessories": ["starter-test:ruby-ring", "starter-test:sapphire-ring", "starter-test:guard-charm", "starter-test:swift-charm", "starter-test:focus-charm"], "restraints": [], "statuses": ["starter-test:haste"] },
+    { "id": "starter-test:ally-mage", "name": "测试法师", "row": "back", "col": 1, "stats": { "patk": 2, "matk": 11, "pdef": 1, "mdef": 5, "speed": 2 }, "resources": { "hp": { "current": 40, "max": 40 }, "sp": { "current": 15, "max": 15 }, "mp": { "current": 30, "max": 30 }, "focus": { "current": 12, "max": 12 } }, "skills": ["starter-test:fireball", "starter-test:fire-rain", "starter-test:disarm", "starter-test:focus-drain"], "equipment": { "weapon": "starter-test:staff", "middle": "starter-test:shirt" }, "accessories": ["starter-test:sapphire-ring"], "restraints": [], "statuses": [] }
   ],
   "enemies": [
     { "id": "starter-test:guard", "name": "训练守卫", "stats": { "patk": 8, "matk": 0, "pdef": 4, "mdef": 2, "speed": 2 }, "resources": { "hp": { "current": 35, "max": 35 }, "sp": { "current": 15, "max": 15 }, "mp": { "current": 0, "max": 0 }, "focus": { "current": 8, "max": 8 } }, "skills": ["starter-test:wind-first"], "equipment": { "weapon": "starter-test:sword", "outer": "starter-test:coat", "legs": "starter-test:trousers" }, "items": { "starter-test:healing-potion": 1 }, "aiProfile": "starter-test:guard-ai" },

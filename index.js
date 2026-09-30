@@ -5,6 +5,7 @@ import { generateWriterWorldbook, buildStoryPrompt } from './worldbook.js';
 const MODULE = 'turn_battle';
 const EXT_PATH = 'third-party/sillytavern-turn-battle';
 const DEFAULT_LIMITS = { allyFront: 2, allyBack: 2, enemyFront: 2, enemyBack: 2 };
+const CONTENT_TYPE_NAMES = { skills: '技能', statuses: '状态', equipment: '装备', items: '道具', allies: '我方角色', enemies: '敌人', aiProfiles: '敌方 AI' };
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
 const context = () => SillyTavern.getContext();
 let panel;
@@ -75,7 +76,7 @@ function resolveActive() {
         const id = queue.pop();
         const definition = CONTENT_TYPES.map(type => allDefs[type].get(id)).find(Boolean);
         if (!definition) continue;
-        const refs = [...(definition.skills || []), ...(definition.suppressedSkills || []), ...(definition.statuses || []), ...(definition.skillPriority || []), ...(definition.itemPriority || []), ...(definition.effects || []).flatMap(effect => [effect.statusId, effect.equipmentId]), ...(definition.requirements || []).flatMap(req => [req.statusId, req.equipmentId]), definition.aiProfile].filter(Boolean);
+        const refs = [...(definition.skills || []), ...(definition.suppressedSkills || []), ...(definition.statuses || []).map(value => typeof value === 'string' ? value : value.id), ...(definition.skillPriority || []), ...(definition.itemPriority || []), ...Object.values(definition.equipment || {}), ...(definition.accessories || []), ...(definition.restraints || []).map(value => typeof value === 'string' ? value : value.id), ...Object.keys(definition.items || {}), ...(definition.effects || []).flatMap(effect => [effect.statusId, effect.equipmentId]), ...(definition.requirements || []).flatMap(req => [req.statusId, req.equipmentId]), definition.aiProfile].filter(Boolean);
         for (const ref of refs) if (!needed.has(ref)) { needed.add(ref); queue.push(ref); }
     }
     const packs = all.map(pack => ({ ...pack, ...Object.fromEntries(CONTENT_TYPES.map(type => [type, (pack[type] || []).filter(entry => needed.has(entry.id))])) })).filter(pack => CONTENT_TYPES.some(type => pack[type].length));
@@ -276,31 +277,35 @@ function renderPreview() {
 
 function renderPacks() {
     const packs = settings().packs;
-    return `<div><h2>内容包</h2><p>内容包在全局安装，角色卡可分别启用整包或部分条目。</p>${packs.map(pack => `<div class="tb-pack"><h3>${escapeHtml(pack.name)} <small>${escapeHtml(pack.id)} · ${escapeHtml(pack.version)}</small></h3><p>${CONTENT_TYPES.map(type => `${type} ${(pack[type] || []).length}`).join(' · ')}</p><button data-action="export-pack" data-pack="${escapeHtml(pack.id)}">导出 JSON</button>${pack.id !== 'core' ? `<button data-action="remove-pack" data-pack="${escapeHtml(pack.id)}" class="tb-secondary">移除</button>` : ''}</div>`).join('')}<p><button data-action="load-sample-pack">载入基础测试包并预览</button><button data-tab="import">批量导入</button><button data-tab="editor">可视化创建</button></p></div>`;
+    return `<div><h2>内容包</h2><p>内容包在全局安装，角色卡可分别启用整包或部分条目。</p>${packs.map(pack => `<div class="tb-pack"><h3>${escapeHtml(pack.name)} <small>${escapeHtml(pack.id)} · ${escapeHtml(pack.version)}</small></h3><p>${CONTENT_TYPES.map(type => `${CONTENT_TYPE_NAMES[type]} ${(pack[type] || []).length}`).join(' · ')}</p><button data-action="export-pack" data-pack="${escapeHtml(pack.id)}">导出 JSON</button>${pack.id !== 'core' ? `<button data-action="remove-pack" data-pack="${escapeHtml(pack.id)}" class="tb-secondary">移除</button>` : ''}</div>`).join('')}<p><button data-action="load-sample-pack">载入基础测试包并预览</button><button data-tab="import">批量导入</button><button data-tab="editor">可视化创建</button></p></div>`;
 }
 
 function renderBinding() {
     const card = currentCard();
     const profile = binding();
-    return `<div><h2>角色卡绑定</h2><p>当前：${escapeHtml(card?.name || '未选择单人角色卡（使用本地默认绑定）')}</p>${settings().packs.map(pack => { const rule = profile[pack.id] || { mode: 'off' }; return `<div class="tb-pack" data-bind-pack="${escapeHtml(pack.id)}"><h3>${escapeHtml(pack.name)}</h3><label>启用范围 <select class="tb-bind-mode" data-pack="${escapeHtml(pack.id)}"><option value="off" ${rule.mode === 'off' ? 'selected' : ''}>关闭</option><option value="all" ${rule.mode === 'all' ? 'selected' : ''}>整包</option><option value="categories" ${rule.mode === 'categories' ? 'selected' : ''}>按类别</option><option value="entries" ${rule.mode === 'entries' ? 'selected' : ''}>逐条目</option></select></label><div class="tb-bind-options">${CONTENT_TYPES.map(type => `<div><label><input type="checkbox" class="tb-bind-category" data-pack="${escapeHtml(pack.id)}" value="${type}" ${(rule.categories || []).includes(type) ? 'checked' : ''}>${type}</label>${(pack[type] || []).map(entry => `<label class="tb-inline"><input type="checkbox" class="tb-bind-entry" data-pack="${escapeHtml(pack.id)}" value="${escapeHtml(entry.id)}" ${(rule.entries || []).includes(entry.id) ? 'checked' : ''}>${escapeHtml(entry.name)}</label>`).join('')}</div>`).join('')}</div></div>`; }).join('')}<button data-action="save-binding">保存此角色卡绑定</button><button data-action="copy-catalog">复制可用内容目录</button></div>`;
+    return `<div><h2>角色卡绑定</h2><p>当前：${escapeHtml(card?.name || '未选择单人角色卡（使用本地默认绑定）')}</p>${settings().packs.map(pack => { const rule = profile[pack.id] || { mode: 'off' }; return `<div class="tb-pack" data-bind-pack="${escapeHtml(pack.id)}"><h3>${escapeHtml(pack.name)}</h3><label>启用范围 <select class="tb-bind-mode" data-pack="${escapeHtml(pack.id)}"><option value="off" ${rule.mode === 'off' ? 'selected' : ''}>关闭</option><option value="all" ${rule.mode === 'all' ? 'selected' : ''}>整包</option><option value="categories" ${rule.mode === 'categories' ? 'selected' : ''}>按类别</option><option value="entries" ${rule.mode === 'entries' ? 'selected' : ''}>逐条目</option></select></label><div class="tb-bind-options">${CONTENT_TYPES.map(type => `<div><label><input type="checkbox" class="tb-bind-category" data-pack="${escapeHtml(pack.id)}" value="${type}" ${(rule.categories || []).includes(type) ? 'checked' : ''}>${CONTENT_TYPE_NAMES[type]}</label>${(pack[type] || []).map(entry => `<label class="tb-inline"><input type="checkbox" class="tb-bind-entry" data-pack="${escapeHtml(pack.id)}" value="${escapeHtml(entry.id)}" ${(rule.entries || []).includes(entry.id) ? 'checked' : ''}>${escapeHtml(entry.name)}</label>`).join('')}</div>`).join('')}</div></div>`; }).join('')}<button data-action="save-binding">保存此角色卡绑定</button><button data-action="copy-catalog">复制可用内容目录</button></div>`;
 }
 
 function renderImport() {
     const errors = importErrors.map(error => `<div>${escapeHtml(error)}</div>`).join('');
     const currentPack = settings().packs.find(pack => pack.id === importData?.id);
     const entryStatus = (type, entry) => { const old = (currentPack?.[type] || []).find(value => value.id === entry?.id); return !old ? '新增' : JSON.stringify(old) === JSON.stringify(entry) ? '未变' : '更新'; };
-    const summary = importData ? `<div class="tb-import-summary"><h3>暂存预览：${escapeHtml(importData.name || importData.id)}</h3>${CONTENT_TYPES.map(type => { const entries = Array.isArray(importData[type]) ? importData[type] : []; return `<div><b>${type}：${entries.length}</b>${entries.map(entry => `<div>${escapeHtml(entry?.id || '?')} · ${escapeHtml(entry?.name || '?')} · ${entryStatus(type, entry)}</div>`).join('')}</div>`; }).join('')}<p><label>同 ID 处理 <select id="tb-import-mode"><option value="replace">更新现有内容包</option><option value="skip">跳过同 ID 内容包</option></select></label></p><button data-action="commit-import" ${importErrors.length ? 'disabled' : ''}>确认整批导入</button></div>` : '';
+    const summary = importData ? `<div class="tb-import-summary"><h3>暂存预览：${escapeHtml(importData.name || importData.id)}</h3>${CONTENT_TYPES.map(type => { const entries = Array.isArray(importData[type]) ? importData[type] : []; return `<div><b>${CONTENT_TYPE_NAMES[type]}：${entries.length}</b>${entries.map(entry => `<div>${escapeHtml(entry?.id || '?')} · ${escapeHtml(entry?.name || '?')} · ${entryStatus(type, entry)}</div>`).join('')}</div>`; }).join('')}<p><label>同 ID 处理 <select id="tb-import-mode"><option value="replace">更新现有内容包</option><option value="skip">跳过同 ID 内容包</option></select></label></p><button data-action="commit-import" ${importErrors.length ? 'disabled' : ''}>确认整批导入</button></div>` : '';
     return `<div><h2>批量导入</h2><p>写卡助手可按导出的世界书生成 <code>${PACK_SCHEMA}</code> JSON。先校验，确认后整包导入。</p><label>上传 JSON 文件 <input type="file" id="tb-import-file" accept=".json,application/json"></label><textarea id="tb-import-text" placeholder="粘贴内容包 JSON">${escapeHtml(importDraft)}</textarea><button data-action="check-import">校验并预览</button>${errors ? `<div class="tb-errors">${errors}</div>` : ''}${summary}</div>`;
 }
 
-const EDITOR_TYPES = [['skills', '技能'], ['items', '道具'], ['equipment', '装备'], ['statuses', 'Buff / Debuff'], ['enemies', '敌人预设'], ['aiProfiles', '敌方 AI 策略']];
+const EDITOR_TYPES = [['skills', '技能'], ['items', '道具'], ['equipment', '装备'], ['statuses', 'Buff / Debuff'], ['allies', '我方角色预设'], ['enemies', '敌人预设'], ['aiProfiles', '敌方 AI 策略']];
 const SLOT_NAMES = { weapon: '武器', outer: '外衣', middle: '里衣', underwear: '内衣', legs: '腿部', feet: '足部', accessory: '饰品', restraint: '拘束' };
+const UNIT_EQUIPMENT_SLOTS = ['weapon', 'outer', 'middle', 'underwear', 'legs', 'feet'];
 const PART_NAMES = { hands: '手部', mouth: '嘴巴', feet: '足部' };
 const CONDITION_NAMES = { freePart: '部位自由', equippedTag: '装备标签', equippedAnyTag: '装备任一标签', enemyFrontEmpty: '敌方前排有空位', targetEquipped: '目标装备栏非空', targetNotEquipped: '目标装备栏为空', selfNotEquipped: '自己装备栏为空', selfEquipment: '自己有指定装备', targetEquipment: '目标有指定装备', selfNotEquipment: '自己没有指定装备', targetNotEquipment: '目标没有指定装备', selfStatus: '自己有状态', targetStatus: '目标有状态', selfNotStatus: '自己没有状态', targetNotStatus: '目标没有状态' };
 const EFFECT_NAMES = { damage: '伤害', resource: '资源变化', status: '施加状态', removeStatus: '解除状态', equipRestraint: '施加拘束装备', removeRestraint: '移除拘束装备', disarm: '击落武器', removeEquipment: '卸除装备', disableEquipment: '暂时封锁装备', infiltrate: '突入', actionPoints: '增加行动点' };
 const option = (value, label, selected) => `<option value="${escapeHtml(value)}" ${value === selected ? 'selected' : ''}>${escapeHtml(label)}</option>`;
 const inputValue = value => escapeHtml(value ?? '');
 const formatStats = stats => Object.entries(stats || {}).map(([key, value]) => `${key}=${value}`).join('\n');
+const formatResources = resources => Object.entries(resources || {}).map(([key, value]) => `${key}=${value.current}/${value.max}`).join('\n');
+const instanceIds = values => (values || []).map(value => typeof value === 'string' ? value : value.id);
+const preserveInstances = (ids, previous = []) => ids.map(id => previous.find(value => typeof value === 'object' && value?.id === id) || id);
 
 function editorPack() { return settings().packs.find(pack => pack.id === editorPackId) || settings().packs[0]; }
 function editorEntry() { return (editorPack()?.[editorType] || []).find(entry => entry.id === editorEntryId) || null; }
@@ -317,8 +322,9 @@ function namedSelect(type, selected = '', filter = () => true, optional = false,
 }
 
 function namedChecklist(id, label, type, selected = [], filter = () => true) {
-    const chosen = new Set(selected || []);
-    const order = new Map((selected || []).map((value, index) => [value, index]));
+    const selectedIds = instanceIds(selected);
+    const chosen = new Set(selectedIds);
+    const order = new Map(selectedIds.map((value, index) => [value, index]));
     const entries = namedEntries(type, filter).sort((a, b) => (order.get(a.id) ?? Infinity) - (order.get(b.id) ?? Infinity));
     return `<fieldset class="tb-reference-list" id="${id}"><legend>${label}</legend>${entries.length ? entries.map(entry => `<label><input type="checkbox" value="${escapeHtml(entry.id)}" ${chosen.has(entry.id) ? 'checked' : ''}>${escapeHtml(entry.displayName)}</label>`).join('') : '<p>还没有可选条目，请先创建或导入内容。</p>'}</fieldset>`;
 }
@@ -371,7 +377,7 @@ function renderEditor() {
     const entry = editorEntry();
     const packOptions = settings().packs.map(value => option(value.id, value.name, pack.id)).join('');
     const entries = pack[editorType] || [];
-    return `<div><h2>可视化编辑</h2><p>可切换内容包、类别和已有条目；引用直接按名称选择。切换条目前请先保存当前修改。</p><div class="tb-grid"><label>内容包 <select id="tb-editor-pack">${packOptions}</select></label><label>类别 <select id="tb-editor-type">${EDITOR_TYPES.map(([value, label]) => option(value, label, editorType)).join('')}</select></label><label>选择已有条目 <select id="tb-editor-entry">${option('', '＋ 新建条目', editorEntryId)}${entries.map(value => option(value.id, value.name, editorEntryId)).join('')}</select></label></div><div class="tb-form"><label>ID 后缀 <input id="tb-editor-id" value="${inputValue(entry ? entry.id.slice(pack.id.length + 1) : '')}" placeholder="fireball" ${entry ? 'readonly' : ''}></label><label>名称 <input id="tb-editor-name" value="${inputValue(entry?.name)}" placeholder="火球术"></label><label>说明 <input id="tb-editor-description" value="${inputValue(entry?.description)}"></label>${editorType === 'skills' || editorType === 'items' ? renderActionEditorFields(entry) : editorType === 'equipment' ? renderEquipmentEditorFields(entry) : editorType === 'statuses' ? renderStatusEditorFields(entry) : editorType === 'enemies' ? renderEnemyEditorFields(entry) : renderAiEditorFields(entry)}<button data-action="save-editor">${entry ? '校验并更新条目' : '校验并保存新条目'}</button></div></div>`;
+    return `<div><h2>可视化编辑</h2><p>可切换内容包、类别和已有条目；引用直接按名称选择。切换条目前请先保存当前修改。</p><div class="tb-grid"><label>内容包 <select id="tb-editor-pack">${packOptions}</select></label><label>类别 <select id="tb-editor-type">${EDITOR_TYPES.map(([value, label]) => option(value, label, editorType)).join('')}</select></label><label>选择已有条目 <select id="tb-editor-entry">${option('', '＋ 新建条目', editorEntryId)}${entries.map(value => option(value.id, value.name, editorEntryId)).join('')}</select></label></div><div class="tb-form"><label>ID 后缀 <input id="tb-editor-id" value="${inputValue(entry ? entry.id.slice(pack.id.length + 1) : '')}" placeholder="fireball" ${entry ? 'readonly' : ''}></label><label>名称 <input id="tb-editor-name" value="${inputValue(entry?.name)}" placeholder="火球术"></label><label>说明 <input id="tb-editor-description" value="${inputValue(entry?.description)}"></label>${editorType === 'skills' || editorType === 'items' ? renderActionEditorFields(entry) : editorType === 'equipment' ? renderEquipmentEditorFields(entry) : editorType === 'statuses' ? renderStatusEditorFields(entry) : editorType === 'allies' || editorType === 'enemies' ? renderUnitEditorFields(entry, editorType) : renderAiEditorFields(entry)}<button data-action="save-editor">${entry ? '校验并更新条目' : '校验并保存新条目'}</button></div></div>`;
 }
 
 function renderActionEditorFields(entry) {
@@ -387,8 +393,12 @@ function renderStatusEditorFields(entry) {
     return `<div class="tb-grid"><label>持续行动阶段（留空为永久）<input id="tb-ed-duration" type="number" min="1" value="${inputValue(entry?.duration)}"></label><label>叠加上限 <input id="tb-ed-max-stacks" type="number" min="1" value="${inputValue(entry?.maxStacks ?? 1)}"></label><label>命中率修正 <input id="tb-ed-accuracy" type="number" value="${inputValue(entry?.accuracyMod ?? 0)}"></label><label>额外行动点 <input id="tb-ed-bonus-ap" type="number" min="0" max="3" value="${inputValue(entry?.bonusAp ?? 0)}"></label><label>封锁标签（如 hand、chant、move）<input id="tb-ed-blocked" value="${inputValue((entry?.blockedTags || []).join(','))}"></label><label>标签（逗号分隔）<input id="tb-ed-tags" value="${inputValue((entry?.tags || []).join(','))}"></label></div>${namedChecklist('tb-ed-skills', '授予技能', 'skills', entry?.skills)}${namedChecklist('tb-ed-suppressed-skills', '封锁指定技能（可选）', 'skills', entry?.suppressedSkills)}<label>属性加成（每行 属性=数值）<textarea id="tb-ed-stats">${escapeHtml(formatStats(entry?.stats))}</textarea></label>`;
 }
 
-function renderEnemyEditorFields(entry) {
-    return `<p>敌人预设提供建议默认值，本场状态仍由剧情 AI 提交。已有模板的其他字段会保留。</p>${namedChecklist('tb-ed-skills', '固有技能', 'skills', entry?.skills)}<label>武器 ${namedSelect('equipment', entry?.equipment?.weapon, value => value.slot === 'weapon', true, 'tb-ed-weapon')}</label><label>建议属性（每行 属性=数值）<textarea id="tb-ed-stats">${escapeHtml(formatStats(entry?.stats))}</textarea></label>`;
+function renderUnitEditorFields(entry, type) {
+    const ally = type === 'allies';
+    const resources = entry?.resources || { hp: { current: 30, max: 30 }, sp: { current: 20, max: 20 }, mp: { current: 0, max: 0 } };
+    const equipment = UNIT_EQUIPMENT_SLOTS.map(slot => `<label>${SLOT_NAMES[slot]} ${namedSelect('equipment', entry?.equipment?.[slot], value => value.slot === slot, true, `tb-ed-eq-${slot}`)}</label>`).join('');
+    const enemyFields = ally ? '<p>我方道具使用战斗快照中的共用背包，不给单个角色设置个人道具。</p>' : `<label>敌方 AI 策略 ${namedSelect('aiProfiles', entry?.aiProfile, () => true, true, 'tb-ed-ai-profile')}</label><fieldset class="tb-reference-list" id="tb-ed-items"><legend>个人道具数量</legend>${namedEntries('items').map(item => `<label>${escapeHtml(item.displayName)} <input class="tb-item-count" data-id="${escapeHtml(item.id)}" type="number" min="0" value="${inputValue(entry?.items?.[item.id] ?? 0)}"></label>`).join('') || '<p>还没有可选道具。</p>'}</fieldset>`;
+    return `<p>${ally ? '我方角色' : '敌人'}预设提供建议初始值；每场实际资源和装备仍由剧情 AI 提交并在开战预览中确认。</p><div class="tb-grid"><label>建议排位 <select id="tb-ed-unit-row">${option('front', '前排', entry?.row || 'front')}${option('back', '后排', entry?.row)}</select></label><label>建议位置 <input id="tb-ed-unit-col" type="number" min="1" value="${inputValue(entry?.col ?? 1)}"></label></div><label>属性（每行 属性=数值）<textarea id="tb-ed-stats" placeholder="patk=8">${escapeHtml(formatStats(entry?.stats))}</textarea></label><label>资源（每行 资源=当前/上限）<textarea id="tb-ed-resources">${escapeHtml(formatResources(resources))}</textarea></label>${namedChecklist('tb-ed-skills', '固有技能', 'skills', entry?.skills)}<details class="tb-unit-details" open><summary>装备、饰品、拘束与状态</summary><div class="tb-grid">${equipment}</div>${namedChecklist('tb-ed-accessories', '饰品（最多 5 件）', 'equipment', entry?.accessories, value => value.slot === 'accessory')}${namedChecklist('tb-ed-restraints', '初始拘束', 'equipment', entry?.restraints, value => value.slot === 'restraint')}${namedChecklist('tb-ed-unit-statuses', '初始 Buff / Debuff', 'statuses', entry?.statuses)}</details>${enemyFields}`;
 }
 
 function renderAiEditorFields(entry) {
@@ -412,6 +422,21 @@ function parseStats(value) {
         stats[key.trim()] = Number(raw);
     }
     return stats;
+}
+
+function parseResources(value) {
+    const resources = {};
+    for (const line of String(value || '').split(/\r?\n/)) {
+        if (!line.trim()) continue;
+        const match = line.trim().match(/^([^=\s]+)\s*=\s*(-?\d+(?:\.\d+)?)\s*\/\s*(-?\d+(?:\.\d+)?)$/);
+        if (!match) throw new Error(`资源行无效：${line}，应写成 hp=30/30`);
+        const current = Number(match[2]); const max = Number(match[3]);
+        if (current < 0 || max < 0 || current > max) throw new Error(`资源数值无效：${line}`);
+        if (resources[match[1]]) throw new Error(`资源重复：${match[1]}`);
+        resources[match[1]] = { current, max };
+    }
+    for (const key of ['hp', 'sp', 'mp']) if (!resources[key]) throw new Error(`角色预设缺少 ${key} 资源`);
+    return resources;
 }
 
 function addCondition() {
@@ -483,8 +508,21 @@ function readEditorEntry() {
         entry.accuracyMod = Number(value('#tb-ed-accuracy')); entry.blockedTags = list(value('#tb-ed-blocked'));
         entry.skills = checkedValues('#tb-ed-skills'); entry.suppressedSkills = checkedValues('#tb-ed-suppressed-skills');
         entry.tags = list(value('#tb-ed-tags')); entry.stats = parseStats(value('#tb-ed-stats')); entry.bonusAp = Number(value('#tb-ed-bonus-ap'));
-    } else if (editorType === 'enemies') {
-        entry.skills = checkedValues('#tb-ed-skills'); entry.equipment = { ...(previous?.equipment || {}), weapon: value('#tb-ed-weapon') || null }; entry.stats = parseStats(value('#tb-ed-stats'));
+    } else if (editorType === 'allies' || editorType === 'enemies') {
+        entry.row = value('#tb-ed-unit-row'); entry.col = Number(value('#tb-ed-unit-col'));
+        entry.stats = parseStats(value('#tb-ed-stats')); entry.resources = parseResources(value('#tb-ed-resources'));
+        entry.skills = checkedValues('#tb-ed-skills');
+        entry.equipment = { ...(previous?.equipment || {}) };
+        for (const slot of UNIT_EQUIPMENT_SLOTS) entry.equipment[slot] = value(`#tb-ed-eq-${slot}`) || null;
+        entry.accessories = checkedValues('#tb-ed-accessories');
+        entry.restraints = preserveInstances(checkedValues('#tb-ed-restraints'), previous?.restraints);
+        entry.statuses = preserveInstances(checkedValues('#tb-ed-unit-statuses'), previous?.statuses);
+        if (editorType === 'enemies') {
+            entry.aiProfile = value('#tb-ed-ai-profile') || null;
+            const items = [...panel.querySelectorAll('.tb-item-count')].map(input => [input.dataset.id, Number(input.value)]);
+            if (items.some(([, count]) => !Number.isInteger(count) || count < 0)) throw new Error('个人道具数量必须是非负整数');
+            entry.items = Object.fromEntries(items.filter(([, count]) => count > 0));
+        } else delete entry.items;
     } else {
         entry.skillPriority = checkedValues('#tb-ed-skills');
         entry.itemPriority = checkedValues('#tb-ed-items');
