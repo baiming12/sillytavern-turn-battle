@@ -1,0 +1,4765 @@
+{
+  "schema": "turn-battle-pack/v1",
+  "id": "fantasy-basic",
+  "name": "基础西幻职业与怪物技能包",
+  "version": "1.0.0",
+  "description": "七职业、通用武技与法术池、怪物通用技能。技能附有可结算的 Buff / Debuff。",
+  "skills": [
+    {
+      "id": "fantasy-basic:weapon/sword-slash",
+      "name": "长剑斩击",
+      "description": "以长剑向前挥出一击。",
+      "pool": "weapon",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {},
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "sword"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 3,
+          "scale": 1
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:weapon/axe-swing",
+      "name": "战斧劈砍",
+      "description": "抡起战斧向目标劈落。",
+      "pool": "weapon",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {},
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "axe"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 4,
+          "scale": 1
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:weapon/mace-hit",
+      "name": "钉锤打击",
+      "description": "挥动钉锤重击目标。",
+      "pool": "weapon",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {},
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "mace"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 3,
+          "scale": 1
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:weapon/bow-shot",
+      "name": "短弓射击",
+      "description": "搭箭射向可见的敌人。",
+      "pool": "weapon",
+      "tags": [
+        "physical",
+        "hand",
+        "ranged"
+      ],
+      "cost": {},
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "bow",
+            "crossbow"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 3,
+          "scale": 1
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:weapon/dagger-stab",
+      "name": "匕首刺击",
+      "description": "贴近目标迅速刺出匕首。",
+      "pool": "weapon",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {},
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "dagger",
+            "shortsword"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 2,
+          "scale": 1
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:weapon/staff-hit",
+      "name": "法杖敲击",
+      "description": "以法杖近身敲击。",
+      "pool": "weapon",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {},
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 2,
+          "scale": 0.6
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:weapon/symbol-hit",
+      "name": "圣徽拍击",
+      "description": "以手持圣徽近身击打。",
+      "pool": "weapon",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {},
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "holy-symbol"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 1,
+          "scale": 0.6
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:martial/power-strike",
+      "name": "强力打击",
+      "description": "蓄力后挥出沉重的一击。",
+      "pool": "martial",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {
+        "sp": 2
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "sword",
+            "axe",
+            "mace",
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 5,
+          "scale": 1.2
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:martial/cleave",
+      "name": "横扫",
+      "description": "横向挥动武器，攻击敌方前排。",
+      "pool": "martial",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {
+        "sp": 4
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "all",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "sword",
+            "axe",
+            "mace",
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 2,
+          "scale": 0.75
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:martial/armor-break",
+      "name": "破甲斩",
+      "description": "瞄准护甲接缝，留下明显破绽。",
+      "pool": "martial",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {
+        "sp": 4
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "sword",
+            "axe",
+            "mace",
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 3,
+          "scale": 0.8
+        },
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/armor-broken",
+          "chance": 75
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:martial/disarm",
+      "name": "缴械打击",
+      "description": "击向握持武器的手，试图使武器脱落。",
+      "pool": "martial",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {
+        "sp": 4
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "sword",
+            "axe",
+            "mace",
+            "blessed-blade"
+          ]
+        },
+        {
+          "kind": "targetEquipped",
+          "slot": "weapon"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 2,
+          "scale": 0.7
+        },
+        {
+          "kind": "disarm",
+          "chance": 45
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:martial/guard",
+      "name": "防御架势",
+      "description": "稳住身形，准备承受下一轮攻势。",
+      "pool": "martial",
+      "tags": [
+        "physical",
+        "hand"
+      ],
+      "cost": {
+        "sp": 3
+      },
+      "target": {
+        "side": "self",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "selfNotStatus",
+          "statusId": "fantasy-basic:status/guarded"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/guarded",
+          "chance": 100
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:martial/battle-cry",
+      "name": "战吼",
+      "description": "高声鼓舞同伴，提升整队战意。",
+      "pool": "martial",
+      "tags": [
+        "physical",
+        "mouth"
+      ],
+      "cost": {
+        "sp": 4
+      },
+      "target": {
+        "side": "ally",
+        "row": "any",
+        "count": "all",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "targetNotStatus",
+          "statusId": "fantasy-basic:status/battle-cry"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/battle-cry",
+          "chance": 100
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:martial/finish",
+      "name": "破绽追击",
+      "description": "抓住敌人护甲破绽补上重击。",
+      "pool": "martial",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {
+        "sp": 5
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "sword",
+            "axe",
+            "mace",
+            "blessed-blade"
+          ]
+        },
+        {
+          "kind": "targetStatus",
+          "statusId": "fantasy-basic:status/armor-broken"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 7,
+          "scale": 1.35
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:martial/recover",
+      "name": "调息",
+      "description": "稳住呼吸，恢复少量精力。",
+      "pool": "martial",
+      "tags": [
+        "physical"
+      ],
+      "cost": {},
+      "target": {
+        "side": "self",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [],
+      "effects": [
+        {
+          "kind": "resource",
+          "resource": "sp",
+          "amount": 6
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:agile/quick-attack",
+      "name": "迅捷一击",
+      "description": "抓住空隙迅速出手。",
+      "pool": "agile",
+      "tags": [
+        "physical",
+        "hand"
+      ],
+      "cost": {
+        "sp": 2
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "bow",
+            "crossbow",
+            "dagger",
+            "shortsword"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 2,
+          "scale": 0.9
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:agile/disorient",
+      "name": "扰乱",
+      "description": "虚晃一击，使目标露出破绽。",
+      "pool": "agile",
+      "tags": [
+        "physical",
+        "hand"
+      ],
+      "cost": {
+        "sp": 3
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "bow",
+            "crossbow",
+            "dagger",
+            "shortsword"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/exposed",
+          "chance": 70
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:agile/hamstring",
+      "name": "阻行打击",
+      "description": "攻击目标腿部，试图限制移动。",
+      "pool": "agile",
+      "tags": [
+        "physical",
+        "hand"
+      ],
+      "cost": {
+        "sp": 4
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "bow",
+            "crossbow",
+            "dagger",
+            "shortsword"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 2,
+          "scale": 0.7
+        },
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/rooted",
+          "chance": 55
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:agile/recover",
+      "name": "调整呼吸",
+      "description": "暂缓出手，恢复少量精力。",
+      "pool": "agile",
+      "tags": [
+        "physical"
+      ],
+      "cost": {},
+      "target": {
+        "side": "self",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [],
+      "effects": [
+        {
+          "kind": "resource",
+          "resource": "sp",
+          "amount": 5
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:agile/decisive-attack",
+      "name": "破绽一击",
+      "description": "精准攻击已经失去平衡的目标。",
+      "pool": "agile",
+      "tags": [
+        "physical",
+        "hand"
+      ],
+      "cost": {
+        "sp": 4
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "bow",
+            "crossbow",
+            "dagger",
+            "shortsword"
+          ]
+        },
+        {
+          "kind": "targetStatus",
+          "statusId": "fantasy-basic:status/exposed"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 5,
+          "scale": 1.1
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:spell/magic-bolt",
+      "name": "魔力弹",
+      "description": "聚成一束魔力，越过遮挡击中敌人。",
+      "pool": "spell-common",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 2
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "spellbook",
+            "holy-symbol",
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "magic",
+          "power": 3,
+          "scale": 0.8
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:spell/ward",
+      "name": "防护结界",
+      "description": "在同伴身上覆上一层微光屏障。",
+      "pool": "spell-common",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 4
+      },
+      "target": {
+        "side": "ally",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "spellbook",
+            "holy-symbol",
+            "blessed-blade"
+          ]
+        },
+        {
+          "kind": "targetNotStatus",
+          "statusId": "fantasy-basic:status/arcane-ward"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/arcane-ward",
+          "chance": 100
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:spell/haste",
+      "name": "迅捷术",
+      "description": "加快同伴动作，使其下一阶段多行动一次。",
+      "pool": "spell-common",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 7
+      },
+      "target": {
+        "side": "ally",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "spellbook",
+            "holy-symbol",
+            "blessed-blade"
+          ]
+        },
+        {
+          "kind": "targetNotStatus",
+          "statusId": "fantasy-basic:status/haste"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/haste",
+          "chance": 100
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:spell/bind",
+      "name": "束缚术",
+      "description": "魔力缠住目标双脚，限制移动。",
+      "pool": "spell-common",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 5
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "spellbook",
+            "holy-symbol",
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/rooted",
+          "chance": 70
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:spell/mana-recover",
+      "name": "魔力回涌",
+      "description": "稍作凝神，重新汇聚法力。",
+      "pool": "spell-common",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {},
+      "target": {
+        "side": "self",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "resource",
+          "resource": "mp",
+          "amount": 5
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:spell/fireball",
+      "name": "火球术",
+      "description": "咏唱凝聚火球，飞向指定目标。",
+      "pool": "spell-arcane",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 5
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "spellbook"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "magic",
+          "power": 6,
+          "scale": 1
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:spell/fire-rain",
+      "name": "火雨术",
+      "description": "召来火雨，覆盖敌方前后排。",
+      "pool": "spell-arcane",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 10
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "all",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "spellbook"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "magic",
+          "power": 4,
+          "scale": 0.8
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:spell/ice-lance",
+      "name": "冰枪术",
+      "description": "锐利寒冰穿向目标，并留下寒意。",
+      "pool": "spell-arcane",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 5
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "spellbook"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "magic",
+          "power": 4,
+          "scale": 1
+        },
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/chilled",
+          "chance": 70
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:spell/frost-wave",
+      "name": "寒潮",
+      "description": "寒气席卷敌阵，令动作变得迟缓。",
+      "pool": "spell-arcane",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 8
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "all",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "spellbook"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "magic",
+          "power": 2,
+          "scale": 0.65
+        },
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/chilled",
+          "chance": 60
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:spell/lightning",
+      "name": "雷击术",
+      "description": "一道雷光直击指定目标。",
+      "pool": "spell-arcane",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 7
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "spellbook"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "magic",
+          "power": 8,
+          "scale": 1.1
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:spell/thunderstorm",
+      "name": "雷暴",
+      "description": "多道雷光在敌阵中同时落下。",
+      "pool": "spell-arcane",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 12
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "all",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "spellbook"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "magic",
+          "power": 5,
+          "scale": 1
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:spell/arcane-shield",
+      "name": "奥术护甲",
+      "description": "为自己织出抵挡魔法的护盾。",
+      "pool": "spell-arcane",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 4
+      },
+      "target": {
+        "side": "self",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "spellbook"
+          ]
+        },
+        {
+          "kind": "selfNotStatus",
+          "statusId": "fantasy-basic:status/arcane-ward"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/arcane-ward",
+          "chance": 100
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:spell/holy-bolt",
+      "name": "圣光弹",
+      "description": "聚集圣光射向指定敌人。",
+      "pool": "spell-divine",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 4
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "holy-symbol",
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "magic",
+          "power": 5,
+          "scale": 1
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:spell/heal",
+      "name": "治疗术",
+      "description": "以温暖圣光治疗一名同伴。",
+      "pool": "spell-divine",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 5
+      },
+      "target": {
+        "side": "ally",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "holy-symbol",
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "resource",
+          "resource": "hp",
+          "amount": 15
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:spell/group-heal",
+      "name": "群体治疗",
+      "description": "圣光同时照向全队，缓解伤势。",
+      "pool": "spell-divine",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 9
+      },
+      "target": {
+        "side": "ally",
+        "row": "any",
+        "count": "all",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "holy-symbol",
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "resource",
+          "resource": "hp",
+          "amount": 9
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:spell/bless",
+      "name": "祝福术",
+      "description": "为全队送上短暂的战斗祝福。",
+      "pool": "spell-divine",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 7
+      },
+      "target": {
+        "side": "ally",
+        "row": "any",
+        "count": "all",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "holy-symbol",
+            "blessed-blade"
+          ]
+        },
+        {
+          "kind": "targetNotStatus",
+          "statusId": "fantasy-basic:status/blessed"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/blessed",
+          "chance": 100
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:spell/sanctuary",
+      "name": "圣佑术",
+      "description": "圣光保护一名同伴。",
+      "pool": "spell-divine",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 5
+      },
+      "target": {
+        "side": "ally",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "holy-symbol",
+            "blessed-blade"
+          ]
+        },
+        {
+          "kind": "targetNotStatus",
+          "statusId": "fantasy-basic:status/holy-ward"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/holy-ward",
+          "chance": 100
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:spell/purify",
+      "name": "净化祷言",
+      "description": "驱散常见的寒意、束足、沉默和毒性。",
+      "pool": "spell-divine",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 6
+      },
+      "target": {
+        "side": "ally",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "holy-symbol",
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "removeStatus",
+          "statusId": "fantasy-basic:status/chilled",
+          "chance": 100
+        },
+        {
+          "kind": "removeStatus",
+          "statusId": "fantasy-basic:status/rooted",
+          "chance": 100
+        },
+        {
+          "kind": "removeStatus",
+          "statusId": "fantasy-basic:status/silenced",
+          "chance": 100
+        },
+        {
+          "kind": "removeStatus",
+          "statusId": "fantasy-basic:status/poisoned",
+          "chance": 100
+        },
+        {
+          "kind": "removeStatus",
+          "statusId": "fantasy-basic:status/weakened",
+          "chance": 100
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:spell/radiance",
+      "name": "光辉之环",
+      "description": "圣光环绕敌阵，压制黑暗气息。",
+      "pool": "spell-divine",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 10
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "all",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "holy-symbol",
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "magic",
+          "power": 4,
+          "scale": 0.8
+        },
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/weakened",
+          "chance": 45
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:warrior/steel-strike",
+      "name": "钢铁重斩",
+      "description": "沉稳蓄力后斩向敌人。",
+      "pool": "warrior",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {
+        "sp": 4
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "sword",
+            "axe",
+            "mace",
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 7,
+          "scale": 1.25
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:warrior/shield-wall",
+      "name": "坚守阵线",
+      "description": "让同伴暂时保持严密防守。",
+      "pool": "warrior",
+      "tags": [
+        "physical",
+        "mouth"
+      ],
+      "cost": {
+        "sp": 6
+      },
+      "target": {
+        "side": "ally",
+        "row": "any",
+        "count": "all",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "targetNotStatus",
+          "statusId": "fantasy-basic:status/guarded"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/guarded",
+          "chance": 100
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:warrior/double-slash",
+      "name": "双重斩",
+      "description": "接连挥出两记较轻的斩击。",
+      "pool": "warrior",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {
+        "sp": 5
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "sword",
+            "axe",
+            "mace",
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 2,
+          "scale": 0.65
+        },
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 2,
+          "scale": 0.65
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:warrior/press-attack",
+      "name": "压制打击",
+      "description": "迫使目标失去稳固架势。",
+      "pool": "warrior",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {
+        "sp": 4
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "sword",
+            "axe",
+            "mace",
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 3,
+          "scale": 0.8
+        },
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/exposed",
+          "chance": 75
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:warrior/unyielding",
+      "name": "不屈之势",
+      "description": "重新收紧防线并恢复少量精力。",
+      "pool": "warrior",
+      "tags": [
+        "physical"
+      ],
+      "cost": {
+        "sp": 2
+      },
+      "target": {
+        "side": "self",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "selfNotStatus",
+          "statusId": "fantasy-basic:status/guarded"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/guarded",
+          "chance": 100
+        },
+        {
+          "kind": "resource",
+          "resource": "sp",
+          "amount": 5
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:archer/aim",
+      "name": "凝神瞄准",
+      "description": "稳定呼吸，准备一记更准确的射击。",
+      "pool": "archer",
+      "tags": [
+        "physical",
+        "hand"
+      ],
+      "cost": {
+        "sp": 2
+      },
+      "target": {
+        "side": "self",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "selfNotStatus",
+          "statusId": "fantasy-basic:status/precision"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/precision",
+          "chance": 100
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:archer/piercing-shot",
+      "name": "穿透箭",
+      "description": "抓住空隙，让箭矢越过前排。",
+      "pool": "archer",
+      "tags": [
+        "physical",
+        "hand",
+        "ranged"
+      ],
+      "cost": {
+        "sp": 4
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "bow",
+            "crossbow"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 5,
+          "scale": 1.1
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:archer/double-shot",
+      "name": "连珠箭",
+      "description": "短时间内连续射出两箭。",
+      "pool": "archer",
+      "tags": [
+        "physical",
+        "hand",
+        "ranged"
+      ],
+      "cost": {
+        "sp": 5
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "bow",
+            "crossbow"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 2,
+          "scale": 0.65
+        },
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 2,
+          "scale": 0.65
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:archer/arrow-rain",
+      "name": "箭雨",
+      "description": "箭矢从上方落向敌方全员。",
+      "pool": "archer",
+      "tags": [
+        "physical",
+        "hand",
+        "ranged"
+      ],
+      "cost": {
+        "sp": 8
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "all",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "bow",
+            "crossbow"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 2,
+          "scale": 0.7
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:archer/pinning-arrow",
+      "name": "束足箭",
+      "description": "箭矢钉住目标衣物或脚边，限制移动。",
+      "pool": "archer",
+      "tags": [
+        "physical",
+        "hand",
+        "ranged"
+      ],
+      "cost": {
+        "sp": 4
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "bow",
+            "crossbow"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 3,
+          "scale": 0.8
+        },
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/rooted",
+          "chance": 65
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:mage/arcane-focus",
+      "name": "奥术增幅",
+      "description": "集中精神，让法术威力暂时增强。",
+      "pool": "mage",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 5
+      },
+      "target": {
+        "side": "self",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "spellbook"
+          ]
+        },
+        {
+          "kind": "selfNotStatus",
+          "statusId": "fantasy-basic:status/arcane-focus"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/arcane-focus",
+          "chance": 100
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:mage/mana-burst",
+      "name": "魔力爆发",
+      "description": "将积蓄的魔力向敌阵释放。",
+      "pool": "mage",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 9
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "all",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "spellbook"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "magic",
+          "power": 5,
+          "scale": 0.9
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:mage/silence",
+      "name": "静默咒",
+      "description": "暂时压住目标的咏唱之声。",
+      "pool": "mage",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 6
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "spellbook"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/silenced",
+          "chance": 70
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:mage/mana-drain",
+      "name": "法力抽离",
+      "description": "扰乱目标体内的法力流动。",
+      "pool": "mage",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 4
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "spellbook"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "magic",
+          "power": 2,
+          "scale": 0.5
+        },
+        {
+          "kind": "resource",
+          "resource": "mp",
+          "amount": -6
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:mage/twin-bolt",
+      "name": "双生魔矢",
+      "description": "接连发出两道魔力飞矢。",
+      "pool": "mage",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 7
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "spellbook"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "magic",
+          "power": 2,
+          "scale": 0.7
+        },
+        {
+          "kind": "damage",
+          "damageType": "magic",
+          "power": 2,
+          "scale": 0.7
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:berserker/rage",
+      "name": "狂怒",
+      "description": "放弃一部分防守，换取更猛烈的攻击。",
+      "pool": "berserker",
+      "tags": [
+        "physical",
+        "mouth"
+      ],
+      "cost": {
+        "sp": 4
+      },
+      "target": {
+        "side": "self",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "selfNotStatus",
+          "statusId": "fantasy-basic:status/rage"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/rage",
+          "chance": 100
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:berserker/whirlwind",
+      "name": "旋风斩",
+      "description": "抡起武器攻击敌方前排全员。",
+      "pool": "berserker",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {
+        "sp": 7
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "all",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "sword",
+            "axe",
+            "mace",
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 4,
+          "scale": 0.95
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:berserker/bone-breaker",
+      "name": "碎骨重击",
+      "description": "猛力击打目标，使其防御松动。",
+      "pool": "berserker",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {
+        "sp": 5
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "sword",
+            "axe",
+            "mace",
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 6,
+          "scale": 1.1
+        },
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/armor-broken",
+          "chance": 70
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:berserker/frenzied-assault",
+      "name": "狂乱连斩",
+      "description": "在狂怒中连续攻击同一目标。",
+      "pool": "berserker",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {
+        "sp": 6
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "sword",
+            "axe",
+            "mace",
+            "blessed-blade"
+          ]
+        },
+        {
+          "kind": "selfStatus",
+          "statusId": "fantasy-basic:status/rage"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 3,
+          "scale": 0.8
+        },
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 3,
+          "scale": 0.8
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:berserker/surge",
+      "name": "暴烈冲势",
+      "description": "催动战意，争取再行动一次。",
+      "pool": "berserker",
+      "tags": [
+        "physical",
+        "mouth"
+      ],
+      "cost": {
+        "sp": 6
+      },
+      "target": {
+        "side": "self",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "selfStatus",
+          "statusId": "fantasy-basic:status/rage"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "actionPoints",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:priest/healing-prayer",
+      "name": "疗愈祷词",
+      "description": "以祷词治疗一名伤势较重的同伴。",
+      "pool": "priest",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 8
+      },
+      "target": {
+        "side": "ally",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "holy-symbol",
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "resource",
+          "resource": "hp",
+          "amount": 24
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:priest/group-prayer",
+      "name": "群体祈祷",
+      "description": "祈祷为全队降下祝福与少量治疗。",
+      "pool": "priest",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 11
+      },
+      "target": {
+        "side": "ally",
+        "row": "any",
+        "count": "all",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "holy-symbol",
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "resource",
+          "resource": "hp",
+          "amount": 6
+        },
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/blessed",
+          "chance": 100
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:priest/holy-word",
+      "name": "圣言",
+      "description": "以坚定圣言削弱敌人的攻击意志。",
+      "pool": "priest",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 6
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "holy-symbol",
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "magic",
+          "power": 3,
+          "scale": 0.7
+        },
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/weakened",
+          "chance": 70
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:priest/mercy-ward",
+      "name": "慈悲庇护",
+      "description": "为一名同伴加上圣佑并恢复少量生命。",
+      "pool": "priest",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 8
+      },
+      "target": {
+        "side": "ally",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "holy-symbol",
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "resource",
+          "resource": "hp",
+          "amount": 6
+        },
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/holy-ward",
+          "chance": 100
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:priest/clarity",
+      "name": "澄明祷告",
+      "description": "驱散同伴身上的沉默与虚弱。",
+      "pool": "priest",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 4
+      },
+      "target": {
+        "side": "ally",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "holy-symbol",
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "removeStatus",
+          "statusId": "fantasy-basic:status/silenced",
+          "chance": 100
+        },
+        {
+          "kind": "removeStatus",
+          "statusId": "fantasy-basic:status/weakened",
+          "chance": 100
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:paladin/holy-smite",
+      "name": "圣光斩",
+      "description": "利刃与圣光一同击中眼前的敌人。",
+      "pool": "paladin",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {
+        "sp": 3,
+        "mp": 3
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 4,
+          "scale": 0.85
+        },
+        {
+          "kind": "damage",
+          "damageType": "magic",
+          "power": 2,
+          "scale": 0.55
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:paladin/guard-oath",
+      "name": "守护誓言",
+      "description": "立下守护誓言，圣光庇护一名同伴。",
+      "pool": "paladin",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 5
+      },
+      "target": {
+        "side": "ally",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "staff",
+            "holy-symbol",
+            "blessed-blade"
+          ]
+        },
+        {
+          "kind": "targetNotStatus",
+          "statusId": "fantasy-basic:status/holy-ward"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/holy-ward",
+          "chance": 100
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:paladin/lay-on-hands",
+      "name": "圣疗之手",
+      "description": "触碰同伴，将圣光注入伤处。",
+      "pool": "paladin",
+      "tags": [
+        "magic",
+        "hand"
+      ],
+      "cost": {
+        "mp": 7
+      },
+      "target": {
+        "side": "ally",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "resource",
+          "resource": "hp",
+          "amount": 19
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:paladin/judgment",
+      "name": "裁决之刃",
+      "description": "抓住护甲破绽，以圣力重击敌人。",
+      "pool": "paladin",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {
+        "sp": 4,
+        "mp": 4
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "sword",
+            "axe",
+            "mace",
+            "blessed-blade"
+          ]
+        },
+        {
+          "kind": "targetStatus",
+          "statusId": "fantasy-basic:status/armor-broken"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 6,
+          "scale": 1.1
+        },
+        {
+          "kind": "damage",
+          "damageType": "magic",
+          "power": 3,
+          "scale": 0.6
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:paladin/radiant-sweep",
+      "name": "辉光横斩",
+      "description": "带着圣光横扫敌方前排。",
+      "pool": "paladin",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {
+        "sp": 5,
+        "mp": 4
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "all",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "blessed-blade"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 3,
+          "scale": 0.75
+        },
+        {
+          "kind": "damage",
+          "damageType": "magic",
+          "power": 1,
+          "scale": 0.4
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:assassin/gale-thrust",
+      "name": "疾风刺",
+      "description": "借敌方前排空位突入，刺向目标。",
+      "pool": "assassin",
+      "tags": [
+        "physical",
+        "hand",
+        "move",
+        "melee"
+      ],
+      "cost": {
+        "sp": 5
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "dagger",
+            "shortsword"
+          ]
+        },
+        {
+          "kind": "freePart",
+          "part": "feet"
+        },
+        {
+          "kind": "enemyFrontEmpty"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "infiltrate",
+          "returnAt": "phaseEnd"
+        },
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 4,
+          "scale": 1
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:assassin/feint",
+      "name": "佯攻",
+      "description": "诱使目标误判攻势，露出防守空隙。",
+      "pool": "assassin",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {
+        "sp": 3
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "dagger",
+            "shortsword"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 2,
+          "scale": 0.6
+        },
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/exposed",
+          "chance": 80
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:assassin/sneak-strike",
+      "name": "破绽背刺",
+      "description": "抓住已暴露的破绽刺向要害。",
+      "pool": "assassin",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {
+        "sp": 5
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "dagger",
+            "shortsword"
+          ]
+        },
+        {
+          "kind": "targetStatus",
+          "statusId": "fantasy-basic:status/exposed"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 8,
+          "scale": 1.35
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:assassin/smoke",
+      "name": "烟幕",
+      "description": "撒出烟雾，遮掩自己的行动。",
+      "pool": "assassin",
+      "tags": [
+        "physical",
+        "hand"
+      ],
+      "cost": {
+        "sp": 3
+      },
+      "target": {
+        "side": "self",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "selfNotStatus",
+          "statusId": "fantasy-basic:status/smoke-veil"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/smoke-veil",
+          "chance": 100
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:assassin/throat-cut",
+      "name": "封喉刺",
+      "description": "精准刺向发声要处，干扰施法。",
+      "pool": "assassin",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {
+        "sp": 5
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "dagger",
+            "shortsword"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 4,
+          "scale": 1
+        },
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/silenced",
+          "chance": 65
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:assassin/poison-blade",
+      "name": "毒刃",
+      "description": "匕首上的毒性令目标四肢无力。",
+      "pool": "assassin",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {
+        "sp": 4
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        },
+        {
+          "kind": "equippedAnyTag",
+          "tags": [
+            "dagger",
+            "shortsword"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 3,
+          "scale": 0.8
+        },
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/poisoned",
+          "chance": 70
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:monster/claw",
+      "name": "爪击",
+      "description": "以利爪向前扑抓。",
+      "pool": "monster",
+      "tags": [
+        "physical",
+        "hand",
+        "melee"
+      ],
+      "cost": {},
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 3,
+          "scale": 1
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:monster/bite",
+      "name": "撕咬",
+      "description": "咬住目标，令其动作变得虚弱。",
+      "pool": "monster",
+      "tags": [
+        "physical",
+        "melee"
+      ],
+      "cost": {
+        "sp": 2
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 4,
+          "scale": 1
+        },
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/weakened",
+          "chance": 40
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:monster/heavy-blow",
+      "name": "蛮力重击",
+      "description": "以沉重力量击向面前的敌人。",
+      "pool": "monster",
+      "tags": [
+        "physical",
+        "melee"
+      ],
+      "cost": {
+        "sp": 3
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 6,
+          "scale": 1.2
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:monster/sweep",
+      "name": "巨力横扫",
+      "description": "横扫敌方前排全员。",
+      "pool": "monster",
+      "tags": [
+        "physical",
+        "melee"
+      ],
+      "cost": {
+        "sp": 5
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "all",
+        "guard": true
+      },
+      "requirements": [],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 3,
+          "scale": 0.8
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:monster/rock",
+      "name": "投石",
+      "description": "抓起石块投向可见目标。",
+      "pool": "monster",
+      "tags": [
+        "physical",
+        "ranged"
+      ],
+      "cost": {},
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "physical",
+          "power": 3,
+          "scale": 0.8
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:monster/net",
+      "name": "撒网",
+      "description": "试图用绳网限制目标脚步。",
+      "pool": "monster",
+      "tags": [
+        "physical",
+        "ranged"
+      ],
+      "cost": {
+        "sp": 3
+      },
+      "target": {
+        "side": "enemy",
+        "row": "front",
+        "count": "single",
+        "guard": true
+      },
+      "requirements": [
+        {
+          "kind": "targetNotStatus",
+          "statusId": "fantasy-basic:status/rooted"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/rooted",
+          "chance": 65
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:monster/dark-bolt",
+      "name": "暗影弹",
+      "description": "放出一道阴冷的魔法飞弹。",
+      "pool": "monster",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 3
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "magic",
+          "power": 4,
+          "scale": 1
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:monster/curse",
+      "name": "衰弱诅咒",
+      "description": "以低语削弱目标的攻击能力。",
+      "pool": "monster",
+      "tags": [
+        "magic",
+        "mouth",
+        "chant"
+      ],
+      "cost": {
+        "mp": 4
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "targetNotStatus",
+          "statusId": "fantasy-basic:status/weakened"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/weakened",
+          "chance": 75
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:monster/howl",
+      "name": "凶性咆哮",
+      "description": "以咆哮激起同伴的凶性。",
+      "pool": "monster",
+      "tags": [
+        "physical",
+        "mouth"
+      ],
+      "cost": {
+        "sp": 3
+      },
+      "target": {
+        "side": "ally",
+        "row": "any",
+        "count": "all",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "mouth"
+        },
+        {
+          "kind": "selfNotStatus",
+          "statusId": "fantasy-basic:status/monster-fury"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/monster-fury",
+          "chance": 100
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:monster/acid-spit",
+      "name": "酸液喷吐",
+      "description": "酸液飞向指定目标，侵蚀防护。",
+      "pool": "monster",
+      "tags": [
+        "magic",
+        "ranged"
+      ],
+      "cost": {
+        "mp": 4
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "magic",
+          "power": 3,
+          "scale": 0.7
+        },
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/armor-broken",
+          "chance": 60
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:monster/flame-breath",
+      "name": "烈焰吐息",
+      "description": "火焰覆盖敌方前后排。",
+      "pool": "monster",
+      "tags": [
+        "magic",
+        "ranged"
+      ],
+      "cost": {
+        "mp": 8
+      },
+      "target": {
+        "side": "enemy",
+        "row": "any",
+        "count": "all",
+        "guard": false
+      },
+      "requirements": [],
+      "effects": [
+        {
+          "kind": "damage",
+          "damageType": "magic",
+          "power": 5,
+          "scale": 0.8
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:monster/shadow-veil",
+      "name": "暗影遮蔽",
+      "description": "阴影遮掩身形，使敌人难以瞄准。",
+      "pool": "monster",
+      "tags": [
+        "magic"
+      ],
+      "cost": {
+        "mp": 4
+      },
+      "target": {
+        "side": "self",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "selfNotStatus",
+          "statusId": "fantasy-basic:status/smoke-veil"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "status",
+          "statusId": "fantasy-basic:status/smoke-veil",
+          "chance": 100
+        }
+      ]
+    }
+  ],
+  "statuses": [
+    {
+      "id": "fantasy-basic:status/armor-broken",
+      "name": "破甲",
+      "description": "护甲出现破绽，物理防护下降。",
+      "tags": [
+        "debuff"
+      ],
+      "duration": 2,
+      "maxStacks": 1,
+      "stats": {
+        "pdef": -3
+      }
+    },
+    {
+      "id": "fantasy-basic:status/guarded",
+      "name": "守势",
+      "description": "稳住架势，减轻正面冲击。",
+      "tags": [
+        "buff"
+      ],
+      "duration": 2,
+      "maxStacks": 1,
+      "stats": {
+        "pdef": 3,
+        "mdef": 1
+      }
+    },
+    {
+      "id": "fantasy-basic:status/battle-cry",
+      "name": "战意",
+      "description": "受到战吼鼓舞，出手更有力。",
+      "tags": [
+        "buff"
+      ],
+      "duration": 2,
+      "maxStacks": 1,
+      "stats": {
+        "patk": 2
+      }
+    },
+    {
+      "id": "fantasy-basic:status/precision",
+      "name": "瞄准",
+      "description": "屏息瞄准，攻击更容易命中。",
+      "tags": [
+        "buff"
+      ],
+      "duration": 2,
+      "maxStacks": 1,
+      "accuracyMod": 18
+    },
+    {
+      "id": "fantasy-basic:status/rooted",
+      "name": "缚足",
+      "description": "脚步被牵制，难以移动或突入。",
+      "tags": [
+        "debuff"
+      ],
+      "duration": 2,
+      "maxStacks": 1,
+      "blockedTags": [
+        "move"
+      ]
+    },
+    {
+      "id": "fantasy-basic:status/chilled",
+      "name": "寒意",
+      "description": "寒气侵入四肢，出手变得迟缓。",
+      "tags": [
+        "debuff"
+      ],
+      "duration": 2,
+      "maxStacks": 1,
+      "accuracyMod": -12,
+      "stats": {
+        "patk": -1
+      }
+    },
+    {
+      "id": "fantasy-basic:status/arcane-ward",
+      "name": "奥术护盾",
+      "description": "流动的法术屏障抵御魔法冲击。",
+      "tags": [
+        "buff"
+      ],
+      "duration": 2,
+      "maxStacks": 1,
+      "stats": {
+        "mdef": 4
+      }
+    },
+    {
+      "id": "fantasy-basic:status/haste",
+      "name": "迅捷",
+      "description": "法术加速动作，下次己方阶段可额外行动一次。",
+      "tags": [
+        "buff"
+      ],
+      "duration": 2,
+      "maxStacks": 1,
+      "bonusAp": 1
+    },
+    {
+      "id": "fantasy-basic:status/blessed",
+      "name": "祝福",
+      "description": "圣光鼓舞身心，攻击与防护略有提升。",
+      "tags": [
+        "buff"
+      ],
+      "duration": 2,
+      "maxStacks": 1,
+      "stats": {
+        "patk": 1,
+        "matk": 1,
+        "pdef": 1,
+        "mdef": 1
+      }
+    },
+    {
+      "id": "fantasy-basic:status/holy-ward",
+      "name": "圣佑",
+      "description": "温暖的圣光环绕，减轻物理与魔法伤害。",
+      "tags": [
+        "buff"
+      ],
+      "duration": 2,
+      "maxStacks": 1,
+      "stats": {
+        "pdef": 2,
+        "mdef": 3
+      }
+    },
+    {
+      "id": "fantasy-basic:status/silenced",
+      "name": "沉默",
+      "description": "喉间的咒语无法成形。",
+      "tags": [
+        "debuff"
+      ],
+      "duration": 2,
+      "maxStacks": 1,
+      "blockedTags": [
+        "chant"
+      ]
+    },
+    {
+      "id": "fantasy-basic:status/weakened",
+      "name": "虚弱",
+      "description": "力量被削弱，攻击威力下降。",
+      "tags": [
+        "debuff"
+      ],
+      "duration": 2,
+      "maxStacks": 1,
+      "stats": {
+        "patk": -2,
+        "matk": -2
+      }
+    },
+    {
+      "id": "fantasy-basic:status/rage",
+      "name": "狂怒",
+      "description": "怒意推动攻击，也使防守露出破绽。",
+      "tags": [
+        "buff"
+      ],
+      "duration": 2,
+      "maxStacks": 1,
+      "stats": {
+        "patk": 4,
+        "pdef": -2
+      }
+    },
+    {
+      "id": "fantasy-basic:status/smoke-veil",
+      "name": "烟幕掩护",
+      "description": "身形藏在烟幕中，更难被击中。",
+      "tags": [
+        "buff"
+      ],
+      "duration": 2,
+      "maxStacks": 1,
+      "stats": {
+        "evasion": 18
+      }
+    },
+    {
+      "id": "fantasy-basic:status/exposed",
+      "name": "露出破绽",
+      "description": "防守失衡，物理与魔法防护下降。",
+      "tags": [
+        "debuff"
+      ],
+      "duration": 2,
+      "maxStacks": 1,
+      "stats": {
+        "pdef": -2,
+        "mdef": -2
+      }
+    },
+    {
+      "id": "fantasy-basic:status/poisoned",
+      "name": "中毒",
+      "description": "毒性令四肢疲软，攻击能力下降。",
+      "tags": [
+        "debuff"
+      ],
+      "duration": 2,
+      "maxStacks": 1,
+      "stats": {
+        "patk": -2,
+        "matk": -1
+      }
+    },
+    {
+      "id": "fantasy-basic:status/monster-fury",
+      "name": "凶性",
+      "description": "野性被激发，攻击变得猛烈。",
+      "tags": [
+        "buff"
+      ],
+      "duration": 2,
+      "maxStacks": 1,
+      "stats": {
+        "patk": 2
+      }
+    },
+    {
+      "id": "fantasy-basic:status/warrior-passive",
+      "name": "坚韧",
+      "description": "长期战斗训练带来更稳固的防守。",
+      "tags": [
+        "passive"
+      ],
+      "duration": null,
+      "maxStacks": 1,
+      "stats": {
+        "pdef": 2
+      }
+    },
+    {
+      "id": "fantasy-basic:status/warrior-training",
+      "name": "兵器训练",
+      "description": "熟练掌握兵器的发力与落点。",
+      "tags": [
+        "passive"
+      ],
+      "duration": null,
+      "maxStacks": 1,
+      "accuracyMod": 5
+    },
+    {
+      "id": "fantasy-basic:status/archer-passive",
+      "name": "鹰眼",
+      "description": "长年的瞄准训练提升了命中。",
+      "tags": [
+        "passive"
+      ],
+      "duration": null,
+      "maxStacks": 1,
+      "accuracyMod": 8
+    },
+    {
+      "id": "fantasy-basic:status/archer-footwork",
+      "name": "轻足",
+      "description": "善于变换站位，较难被攻击命中。",
+      "tags": [
+        "passive"
+      ],
+      "duration": null,
+      "maxStacks": 1,
+      "stats": {
+        "evasion": 6
+      }
+    },
+    {
+      "id": "fantasy-basic:status/mage-passive",
+      "name": "奥术亲和",
+      "description": "施法时更容易汇聚奥术力量。",
+      "tags": [
+        "passive"
+      ],
+      "duration": null,
+      "maxStacks": 1,
+      "stats": {
+        "matk": 2
+      }
+    },
+    {
+      "id": "fantasy-basic:status/mage-discipline",
+      "name": "法术纪律",
+      "description": "严谨的法术训练强化精神防护。",
+      "tags": [
+        "passive"
+      ],
+      "duration": null,
+      "maxStacks": 1,
+      "stats": {
+        "mdef": 1
+      }
+    },
+    {
+      "id": "fantasy-basic:status/berserker-passive",
+      "name": "狂性",
+      "description": "攻击更凶猛，防护略有减弱。",
+      "tags": [
+        "passive"
+      ],
+      "duration": null,
+      "maxStacks": 1,
+      "stats": {
+        "patk": 2,
+        "pdef": -1
+      }
+    },
+    {
+      "id": "fantasy-basic:status/berserker-instinct",
+      "name": "战斗本能",
+      "description": "混战中依然能抓住敌人的位置。",
+      "tags": [
+        "passive"
+      ],
+      "duration": null,
+      "maxStacks": 1,
+      "accuracyMod": 5
+    },
+    {
+      "id": "fantasy-basic:status/priest-passive",
+      "name": "虔诚",
+      "description": "坚定的信念使精神防护更加稳固。",
+      "tags": [
+        "passive"
+      ],
+      "duration": null,
+      "maxStacks": 1,
+      "stats": {
+        "mdef": 2
+      }
+    },
+    {
+      "id": "fantasy-basic:status/priest-liturgy",
+      "name": "圣言研习",
+      "description": "熟悉圣言的节奏与施法落点。",
+      "tags": [
+        "passive"
+      ],
+      "duration": null,
+      "maxStacks": 1,
+      "accuracyMod": 5
+    },
+    {
+      "id": "fantasy-basic:status/paladin-passive",
+      "name": "守护者",
+      "description": "守护誓言强化了自身防护。",
+      "tags": [
+        "passive"
+      ],
+      "duration": null,
+      "maxStacks": 1,
+      "stats": {
+        "pdef": 1,
+        "mdef": 1
+      }
+    },
+    {
+      "id": "fantasy-basic:status/paladin-discipline",
+      "name": "誓约训练",
+      "description": "持剑与祈祷时动作更加稳定。",
+      "tags": [
+        "passive"
+      ],
+      "duration": null,
+      "maxStacks": 1,
+      "accuracyMod": 5
+    },
+    {
+      "id": "fantasy-basic:status/assassin-passive",
+      "name": "夜行",
+      "description": "习惯隐匿行动，更难被敌人瞄准。",
+      "tags": [
+        "passive"
+      ],
+      "duration": null,
+      "maxStacks": 1,
+      "stats": {
+        "evasion": 8
+      }
+    },
+    {
+      "id": "fantasy-basic:status/assassin-reflex",
+      "name": "敏锐反应",
+      "description": "细小破绽也难以逃过双眼。",
+      "tags": [
+        "passive"
+      ],
+      "duration": null,
+      "maxStacks": 1,
+      "accuracyMod": 5
+    },
+    {
+      "id": "fantasy-basic:status/arcane-focus",
+      "name": "奥术增幅",
+      "description": "奥术力量暂时聚集，魔法攻击提高。",
+      "tags": [
+        "buff"
+      ],
+      "duration": 2,
+      "maxStacks": 1,
+      "stats": {
+        "matk": 3
+      }
+    }
+  ],
+  "equipment": [
+    {
+      "id": "fantasy-basic:gear/sword",
+      "name": "制式长剑",
+      "description": "结实可靠的钢制长剑。",
+      "slot": "weapon",
+      "tags": [
+        "sword"
+      ],
+      "stats": {
+        "patk": 2
+      },
+      "skills": [
+        "fantasy-basic:weapon/sword-slash"
+      ]
+    },
+    {
+      "id": "fantasy-basic:gear/axe",
+      "name": "双刃战斧",
+      "description": "斧刃宽重，适合猛烈劈砍。",
+      "slot": "weapon",
+      "tags": [
+        "axe"
+      ],
+      "stats": {
+        "patk": 3,
+        "pdef": -1
+      },
+      "skills": [
+        "fantasy-basic:weapon/axe-swing"
+      ]
+    },
+    {
+      "id": "fantasy-basic:gear/mace",
+      "name": "钉锤",
+      "description": "沉重的锤头适合击碎护甲。",
+      "slot": "weapon",
+      "tags": [
+        "mace"
+      ],
+      "stats": {
+        "patk": 2
+      },
+      "skills": [
+        "fantasy-basic:weapon/mace-hit"
+      ]
+    },
+    {
+      "id": "fantasy-basic:gear/bow",
+      "name": "猎弓",
+      "description": "一把适于远距离射击的长弓。",
+      "slot": "weapon",
+      "tags": [
+        "bow"
+      ],
+      "stats": {
+        "patk": 2
+      },
+      "skills": [
+        "fantasy-basic:weapon/bow-shot"
+      ]
+    },
+    {
+      "id": "fantasy-basic:gear/dagger",
+      "name": "锋利匕首",
+      "description": "窄刃匕首，便于近身突刺。",
+      "slot": "weapon",
+      "tags": [
+        "dagger"
+      ],
+      "stats": {
+        "patk": 1,
+        "accuracy": 5
+      },
+      "skills": [
+        "fantasy-basic:weapon/dagger-stab"
+      ]
+    },
+    {
+      "id": "fantasy-basic:gear/staff",
+      "name": "奥术法杖",
+      "description": "法杖上的纹路在施法时微亮。",
+      "slot": "weapon",
+      "tags": [
+        "staff"
+      ],
+      "stats": {
+        "matk": 2
+      },
+      "skills": [
+        "fantasy-basic:weapon/staff-hit"
+      ]
+    },
+    {
+      "id": "fantasy-basic:gear/holy-symbol",
+      "name": "持握圣徽",
+      "description": "掌心大小的圣徽，能够引导祈祷。",
+      "slot": "weapon",
+      "tags": [
+        "holy-symbol"
+      ],
+      "stats": {
+        "matk": 2,
+        "mdef": 1
+      },
+      "skills": [
+        "fantasy-basic:weapon/symbol-hit"
+      ]
+    },
+    {
+      "id": "fantasy-basic:gear/blessed-sword",
+      "name": "祝圣长剑",
+      "description": "剑身刻有守护誓文。",
+      "slot": "weapon",
+      "tags": [
+        "sword",
+        "blessed-blade"
+      ],
+      "stats": {
+        "patk": 2,
+        "matk": 1
+      },
+      "skills": [
+        "fantasy-basic:weapon/sword-slash"
+      ]
+    },
+    {
+      "id": "fantasy-basic:gear/chainmail",
+      "name": "锁子甲",
+      "description": "细密的金属环保护躯干。",
+      "slot": "outer",
+      "stats": {
+        "pdef": 3
+      }
+    },
+    {
+      "id": "fantasy-basic:gear/leather",
+      "name": "皮甲",
+      "description": "轻便耐磨，适合快速行动。",
+      "slot": "outer",
+      "stats": {
+        "pdef": 1
+      }
+    },
+    {
+      "id": "fantasy-basic:gear/robe",
+      "name": "法袍",
+      "description": "绣有简洁符文的长袍。",
+      "slot": "outer",
+      "stats": {
+        "mdef": 2
+      }
+    }
+  ],
+  "items": [
+    {
+      "id": "fantasy-basic:item/heal-potion",
+      "name": "治疗药剂",
+      "description": "喝下后缓解伤势。",
+      "target": {
+        "side": "ally",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "resource",
+          "resource": "hp",
+          "amount": 15
+        }
+      ]
+    },
+    {
+      "id": "fantasy-basic:item/mana-potion",
+      "name": "法力药剂",
+      "description": "喝下后恢复少量法力。",
+      "target": {
+        "side": "ally",
+        "row": "any",
+        "count": "single",
+        "guard": false
+      },
+      "requirements": [
+        {
+          "kind": "freePart",
+          "part": "hands"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "resource",
+          "resource": "mp",
+          "amount": 10
+        }
+      ]
+    }
+  ],
+  "allies": [
+    {
+      "id": "fantasy-basic:ally/warrior",
+      "name": "见习战士",
+      "row": "front",
+      "col": 1,
+      "stats": {
+        "patk": 9,
+        "matk": 0,
+        "pdef": 6,
+        "mdef": 3,
+        "accuracy": 5
+      },
+      "resources": {
+        "hp": {
+          "current": 52,
+          "max": 52
+        },
+        "sp": {
+          "current": 28,
+          "max": 28
+        },
+        "mp": {
+          "current": 0,
+          "max": 0
+        }
+      },
+      "skills": [
+        "fantasy-basic:martial/power-strike",
+        "fantasy-basic:martial/armor-break",
+        "fantasy-basic:martial/guard",
+        "fantasy-basic:martial/finish",
+        "fantasy-basic:warrior/steel-strike",
+        "fantasy-basic:warrior/shield-wall"
+      ],
+      "equipment": {
+        "weapon": "fantasy-basic:gear/sword",
+        "outer": "fantasy-basic:gear/chainmail"
+      },
+      "accessories": [],
+      "restraints": [],
+      "statuses": [
+        "fantasy-basic:status/warrior-passive",
+        "fantasy-basic:status/warrior-training"
+      ]
+    },
+    {
+      "id": "fantasy-basic:ally/archer",
+      "name": "见习射手",
+      "row": "back",
+      "col": 1,
+      "stats": {
+        "patk": 10,
+        "matk": 0,
+        "pdef": 2,
+        "mdef": 2,
+        "accuracy": 6
+      },
+      "resources": {
+        "hp": {
+          "current": 40,
+          "max": 40
+        },
+        "sp": {
+          "current": 30,
+          "max": 30
+        },
+        "mp": {
+          "current": 0,
+          "max": 0
+        }
+      },
+      "skills": [
+        "fantasy-basic:agile/disorient",
+        "fantasy-basic:archer/aim",
+        "fantasy-basic:archer/piercing-shot",
+        "fantasy-basic:archer/double-shot",
+        "fantasy-basic:archer/arrow-rain",
+        "fantasy-basic:archer/pinning-arrow"
+      ],
+      "equipment": {
+        "weapon": "fantasy-basic:gear/bow",
+        "outer": "fantasy-basic:gear/leather"
+      },
+      "accessories": [],
+      "restraints": [],
+      "statuses": [
+        "fantasy-basic:status/archer-passive",
+        "fantasy-basic:status/archer-footwork"
+      ]
+    },
+    {
+      "id": "fantasy-basic:ally/mage",
+      "name": "见习法师",
+      "row": "back",
+      "col": 1,
+      "stats": {
+        "patk": 2,
+        "matk": 11,
+        "pdef": 1,
+        "mdef": 4
+      },
+      "resources": {
+        "hp": {
+          "current": 34,
+          "max": 34
+        },
+        "sp": {
+          "current": 12,
+          "max": 12
+        },
+        "mp": {
+          "current": 36,
+          "max": 36
+        }
+      },
+      "skills": [
+        "fantasy-basic:spell/magic-bolt",
+        "fantasy-basic:spell/fireball",
+        "fantasy-basic:spell/fire-rain",
+        "fantasy-basic:spell/ice-lance",
+        "fantasy-basic:spell/ward",
+        "fantasy-basic:mage/arcane-focus"
+      ],
+      "equipment": {
+        "weapon": "fantasy-basic:gear/staff",
+        "outer": "fantasy-basic:gear/robe"
+      },
+      "accessories": [],
+      "restraints": [],
+      "statuses": [
+        "fantasy-basic:status/mage-passive",
+        "fantasy-basic:status/mage-discipline"
+      ]
+    },
+    {
+      "id": "fantasy-basic:ally/berserker",
+      "name": "见习狂战士",
+      "row": "front",
+      "col": 1,
+      "stats": {
+        "patk": 11,
+        "matk": 0,
+        "pdef": 3,
+        "mdef": 2
+      },
+      "resources": {
+        "hp": {
+          "current": 56,
+          "max": 56
+        },
+        "sp": {
+          "current": 30,
+          "max": 30
+        },
+        "mp": {
+          "current": 0,
+          "max": 0
+        }
+      },
+      "skills": [
+        "fantasy-basic:martial/power-strike",
+        "fantasy-basic:martial/cleave",
+        "fantasy-basic:martial/armor-break",
+        "fantasy-basic:berserker/rage",
+        "fantasy-basic:berserker/whirlwind",
+        "fantasy-basic:berserker/frenzied-assault"
+      ],
+      "equipment": {
+        "weapon": "fantasy-basic:gear/axe",
+        "outer": "fantasy-basic:gear/leather"
+      },
+      "accessories": [],
+      "restraints": [],
+      "statuses": [
+        "fantasy-basic:status/berserker-passive",
+        "fantasy-basic:status/berserker-instinct"
+      ]
+    },
+    {
+      "id": "fantasy-basic:ally/priest",
+      "name": "见习牧师",
+      "row": "back",
+      "col": 1,
+      "stats": {
+        "patk": 2,
+        "matk": 8,
+        "pdef": 2,
+        "mdef": 5
+      },
+      "resources": {
+        "hp": {
+          "current": 42,
+          "max": 42
+        },
+        "sp": {
+          "current": 14,
+          "max": 14
+        },
+        "mp": {
+          "current": 32,
+          "max": 32
+        }
+      },
+      "skills": [
+        "fantasy-basic:spell/magic-bolt",
+        "fantasy-basic:spell/holy-bolt",
+        "fantasy-basic:spell/heal",
+        "fantasy-basic:spell/group-heal",
+        "fantasy-basic:spell/bless",
+        "fantasy-basic:spell/purify",
+        "fantasy-basic:priest/holy-word"
+      ],
+      "equipment": {
+        "weapon": "fantasy-basic:gear/holy-symbol",
+        "outer": "fantasy-basic:gear/robe"
+      },
+      "accessories": [],
+      "restraints": [],
+      "statuses": [
+        "fantasy-basic:status/priest-passive",
+        "fantasy-basic:status/priest-liturgy"
+      ]
+    },
+    {
+      "id": "fantasy-basic:ally/paladin",
+      "name": "见习圣骑士",
+      "row": "front",
+      "col": 1,
+      "stats": {
+        "patk": 8,
+        "matk": 6,
+        "pdef": 5,
+        "mdef": 4
+      },
+      "resources": {
+        "hp": {
+          "current": 52,
+          "max": 52
+        },
+        "sp": {
+          "current": 23,
+          "max": 23
+        },
+        "mp": {
+          "current": 22,
+          "max": 22
+        }
+      },
+      "skills": [
+        "fantasy-basic:martial/power-strike",
+        "fantasy-basic:martial/guard",
+        "fantasy-basic:martial/armor-break",
+        "fantasy-basic:spell/holy-bolt",
+        "fantasy-basic:paladin/holy-smite",
+        "fantasy-basic:paladin/guard-oath"
+      ],
+      "equipment": {
+        "weapon": "fantasy-basic:gear/blessed-sword",
+        "outer": "fantasy-basic:gear/chainmail"
+      },
+      "accessories": [],
+      "restraints": [],
+      "statuses": [
+        "fantasy-basic:status/paladin-passive",
+        "fantasy-basic:status/paladin-discipline"
+      ]
+    },
+    {
+      "id": "fantasy-basic:ally/assassin",
+      "name": "见习刺客",
+      "row": "front",
+      "col": 1,
+      "stats": {
+        "patk": 9,
+        "matk": 0,
+        "pdef": 2,
+        "mdef": 2,
+        "accuracy": 7,
+        "evasion": 5
+      },
+      "resources": {
+        "hp": {
+          "current": 38,
+          "max": 38
+        },
+        "sp": {
+          "current": 32,
+          "max": 32
+        },
+        "mp": {
+          "current": 0,
+          "max": 0
+        }
+      },
+      "skills": [
+        "fantasy-basic:agile/recover",
+        "fantasy-basic:assassin/gale-thrust",
+        "fantasy-basic:assassin/feint",
+        "fantasy-basic:assassin/sneak-strike",
+        "fantasy-basic:assassin/smoke",
+        "fantasy-basic:assassin/throat-cut",
+        "fantasy-basic:assassin/poison-blade"
+      ],
+      "equipment": {
+        "weapon": "fantasy-basic:gear/dagger",
+        "outer": "fantasy-basic:gear/leather"
+      },
+      "accessories": [],
+      "restraints": [],
+      "statuses": [
+        "fantasy-basic:status/assassin-passive",
+        "fantasy-basic:status/assassin-reflex"
+      ]
+    }
+  ],
+  "enemies": [
+    {
+      "id": "fantasy-basic:enemy/wolf",
+      "name": "荒原狼",
+      "row": "front",
+      "col": 1,
+      "stats": {
+        "patk": 7,
+        "matk": 0,
+        "pdef": 2,
+        "mdef": 1
+      },
+      "resources": {
+        "hp": {
+          "current": 29,
+          "max": 29
+        },
+        "sp": {
+          "current": 16,
+          "max": 16
+        },
+        "mp": {
+          "current": 0,
+          "max": 0
+        }
+      },
+      "skills": [
+        "fantasy-basic:monster/howl",
+        "fantasy-basic:monster/claw",
+        "fantasy-basic:monster/bite"
+      ],
+      "equipment": {},
+      "accessories": [],
+      "restraints": [],
+      "statuses": [],
+      "aiProfile": "fantasy-basic:ai/beast",
+      "items": {}
+    },
+    {
+      "id": "fantasy-basic:enemy/goblin",
+      "name": "哥布林掠夺者",
+      "row": "front",
+      "col": 1,
+      "stats": {
+        "patk": 7,
+        "matk": 0,
+        "pdef": 3,
+        "mdef": 1
+      },
+      "resources": {
+        "hp": {
+          "current": 32,
+          "max": 32
+        },
+        "sp": {
+          "current": 18,
+          "max": 18
+        },
+        "mp": {
+          "current": 0,
+          "max": 0
+        }
+      },
+      "skills": [
+        "fantasy-basic:monster/net",
+        "fantasy-basic:monster/rock",
+        "fantasy-basic:monster/heavy-blow"
+      ],
+      "equipment": {
+        "weapon": "fantasy-basic:gear/mace",
+        "outer": "fantasy-basic:gear/leather"
+      },
+      "accessories": [],
+      "restraints": [],
+      "statuses": [],
+      "aiProfile": "fantasy-basic:ai/raider",
+      "items": {}
+    },
+    {
+      "id": "fantasy-basic:enemy/cultist",
+      "name": "邪教徒",
+      "row": "back",
+      "col": 1,
+      "stats": {
+        "patk": 2,
+        "matk": 8,
+        "pdef": 1,
+        "mdef": 3
+      },
+      "resources": {
+        "hp": {
+          "current": 27,
+          "max": 27
+        },
+        "sp": {
+          "current": 10,
+          "max": 10
+        },
+        "mp": {
+          "current": 22,
+          "max": 22
+        }
+      },
+      "skills": [
+        "fantasy-basic:monster/curse",
+        "fantasy-basic:monster/dark-bolt",
+        "fantasy-basic:monster/shadow-veil"
+      ],
+      "equipment": {
+        "weapon": "fantasy-basic:gear/staff",
+        "outer": "fantasy-basic:gear/robe"
+      },
+      "accessories": [],
+      "restraints": [],
+      "statuses": [],
+      "aiProfile": "fantasy-basic:ai/cultist",
+      "items": {}
+    },
+    {
+      "id": "fantasy-basic:enemy/ogre",
+      "name": "山地食人魔",
+      "row": "front",
+      "col": 1,
+      "stats": {
+        "patk": 11,
+        "matk": 0,
+        "pdef": 5,
+        "mdef": 2
+      },
+      "resources": {
+        "hp": {
+          "current": 70,
+          "max": 70
+        },
+        "sp": {
+          "current": 24,
+          "max": 24
+        },
+        "mp": {
+          "current": 0,
+          "max": 0
+        }
+      },
+      "skills": [
+        "fantasy-basic:monster/sweep",
+        "fantasy-basic:monster/heavy-blow",
+        "fantasy-basic:monster/rock"
+      ],
+      "equipment": {
+        "weapon": "fantasy-basic:gear/mace",
+        "outer": "fantasy-basic:gear/leather"
+      },
+      "accessories": [],
+      "restraints": [],
+      "statuses": [],
+      "aiProfile": "fantasy-basic:ai/brute",
+      "items": {}
+    },
+    {
+      "id": "fantasy-basic:enemy/drake",
+      "name": "幼年火龙",
+      "row": "front",
+      "col": 1,
+      "stats": {
+        "patk": 9,
+        "matk": 8,
+        "pdef": 5,
+        "mdef": 4
+      },
+      "resources": {
+        "hp": {
+          "current": 66,
+          "max": 66
+        },
+        "sp": {
+          "current": 20,
+          "max": 20
+        },
+        "mp": {
+          "current": 20,
+          "max": 20
+        }
+      },
+      "skills": [
+        "fantasy-basic:monster/flame-breath",
+        "fantasy-basic:monster/acid-spit",
+        "fantasy-basic:monster/claw"
+      ],
+      "equipment": {},
+      "accessories": [],
+      "restraints": [],
+      "statuses": [],
+      "aiProfile": "fantasy-basic:ai/drake",
+      "items": {}
+    }
+  ],
+  "aiProfiles": [
+    {
+      "id": "fantasy-basic:ai/beast",
+      "name": "野兽 AI",
+      "skillPriority": [
+        "fantasy-basic:monster/howl",
+        "fantasy-basic:monster/bite",
+        "fantasy-basic:monster/claw"
+      ],
+      "itemPriority": [],
+      "useItems": false
+    },
+    {
+      "id": "fantasy-basic:ai/raider",
+      "name": "劫掠者 AI",
+      "skillPriority": [
+        "fantasy-basic:monster/net",
+        "fantasy-basic:monster/rock",
+        "fantasy-basic:monster/heavy-blow"
+      ],
+      "itemPriority": [],
+      "useItems": false
+    },
+    {
+      "id": "fantasy-basic:ai/cultist",
+      "name": "邪教徒 AI",
+      "skillPriority": [
+        "fantasy-basic:monster/shadow-veil",
+        "fantasy-basic:monster/curse",
+        "fantasy-basic:monster/dark-bolt"
+      ],
+      "itemPriority": [],
+      "useItems": false
+    },
+    {
+      "id": "fantasy-basic:ai/brute",
+      "name": "巨怪 AI",
+      "skillPriority": [
+        "fantasy-basic:monster/sweep",
+        "fantasy-basic:monster/heavy-blow"
+      ],
+      "itemPriority": [],
+      "useItems": false
+    },
+    {
+      "id": "fantasy-basic:ai/drake",
+      "name": "幼龙 AI",
+      "skillPriority": [
+        "fantasy-basic:monster/flame-breath",
+        "fantasy-basic:monster/acid-spit",
+        "fantasy-basic:monster/claw"
+      ],
+      "itemPriority": [],
+      "useItems": false
+    }
+  ]
+}

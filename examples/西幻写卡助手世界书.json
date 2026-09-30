@@ -1,0 +1,160 @@
+{
+  "entries": {
+    "0": {
+      "uid": 0,
+      "comment": "回合战斗格式总则",
+      "key": [],
+      "keysecondary": [],
+      "content": "你正在为“回合战斗”插件编写内容。只在用户要求生成战斗内容包或角色卡战斗适配时输出对应结构化数据。内容包格式版本：turn-battle-pack/v1；开战快照格式版本：turn-battle-request/v1。\n输出必须是纯 JSON，不要 Markdown 代码围栏、解释文字或脚本。所有定义使用“包ID:条目ID”形式的唯一 ID。引用必须指向同批次定义或用户提供的现有目录。技能条件和效果只能使用下列格式指导条目支持的种类。给技能、装备、道具和状态各写一个 description，描述供剧情 AI 写外观与动作，不代替规则字段。生成后自检 ID、引用、数值范围和装备栏位。",
+      "constant": true,
+      "selective": false,
+      "selectiveLogic": 0,
+      "disable": false,
+      "order": 200,
+      "position": 0,
+      "probability": 100,
+      "useProbability": false,
+      "depth": 4,
+      "excludeRecursion": true,
+      "matchWholeWords": false
+    },
+    "1": {
+      "uid": 1,
+      "comment": "内容包外层结构",
+      "key": [
+        "批量导入",
+        "内容包",
+        "DLC"
+      ],
+      "keysecondary": [],
+      "content": "生成批量导入内容时使用一个 JSON 对象：{\"schema\":\"turn-battle-pack/v1\",\"id\":\"小写包ID\",\"name\":\"内容包名称\",\"version\":\"1.0.0\",\"skills\":[],\"statuses\":[],\"equipment\":[],\"items\":[],\"allies\":[],\"enemies\":[],\"aiProfiles\":[]}。allies 是我方角色预设，enemies 是敌人预设。各数组可一次批量包含多个条目，定义的 id 必须以包ID和冒号开头。装备授予的技能、状态以及道具效果中的状态/装备，全部用 ID 引用。",
+      "constant": false,
+      "selective": false,
+      "selectiveLogic": 0,
+      "disable": false,
+      "order": 170,
+      "position": 0,
+      "probability": 100,
+      "useProbability": false,
+      "depth": 4,
+      "excludeRecursion": true,
+      "matchWholeWords": false
+    },
+    "2": {
+      "uid": 2,
+      "comment": "技能格式",
+      "key": [
+        "技能",
+        "剑法",
+        "法术",
+        "攻击"
+      ],
+      "keysecondary": [],
+      "content": "技能条目示例：{\"id\":\"demo:fireball\",\"name\":\"火球术\",\"description\":\"咏唱后凝成炽热火球，飞向指定目标并炸开。\",\"tags\":[\"magic\",\"mouth\",\"chant\"],\"cost\":{\"mp\":5},\"target\":{\"side\":\"enemy\",\"row\":\"any\",\"count\":\"single\",\"guard\":false},\"requirements\":[{\"kind\":\"freePart\",\"part\":\"mouth\"},{\"kind\":\"equippedAnyTag\",\"tags\":[\"staff\",\"spellbook\"]}],\"effects\":[{\"kind\":\"damage\",\"damageType\":\"magic\",\"power\":6,\"scale\":1}]}。description 写剧情可见的动作和表现；数值、前提、目标与效果分别写在规则字段。target.side 用 enemy/ally/self；row 用 front/back/any；count 用 single/all；guard=false 表示无视前排保护。原本只能选前排的技能若带 melee 标签，施放者进入敌方前排后也可攻击后排；释放前提照常检查。条件：freePart、equippedTag、equippedAnyTag、enemyFrontEmpty、targetEquipped、targetNotEquipped、selfNotEquipped、selfEquipment、targetEquipment、selfNotEquipment、targetNotEquipment、selfStatus、targetStatus、selfNotStatus、targetNotStatus。指定装备使用 equipmentId，指定状态使用 statusId。效果：damage、resource、status、removeStatus、equipRestraint、removeRestraint、disarm、removeEquipment、disableEquipment、infiltrate、actionPoints。disableEquipment 指定 slot 与正整数 duration。概率 chance 为 0–100 数字。",
+      "constant": false,
+      "selective": false,
+      "selectiveLogic": 0,
+      "disable": false,
+      "order": 160,
+      "position": 0,
+      "probability": 100,
+      "useProbability": false,
+      "depth": 4,
+      "excludeRecursion": true,
+      "matchWholeWords": false
+    },
+    "3": {
+      "uid": 3,
+      "comment": "道具与装备格式",
+      "key": [
+        "道具",
+        "装备",
+        "武器",
+        "饰品",
+        "拘束"
+      ],
+      "keysecondary": [],
+      "content": "道具使用与技能相同的 target、requirements、effects 字段；例如石灰粉：{\"id\":\"demo:lime\",\"name\":\"石灰粉\",\"description\":\"一把细粉扬向敌人面部。\",\"target\":{\"side\":\"enemy\",\"row\":\"front\",\"count\":\"single\",\"guard\":false},\"effects\":[{\"kind\":\"status\",\"statusId\":\"demo:blind\",\"chance\":70}]}。装备示例：{\"id\":\"demo:staff\",\"name\":\"法杖\",\"description\":\"杖身刻着暗淡纹路，施法时泛起微光。\",\"slot\":\"weapon\",\"tags\":[\"staff\"],\"stats\":{\"matk\":2},\"skills\":[]}。装备 description 写外观和剧情用途；属性、授予技能与状态分别写在规则字段。slot 可用 weapon、outer、middle、underwear、legs、feet、accessory、restraint。拘束装备额外设置 parts、statuses、escapeChance、escapeCost；parts 用 hands、feet、mouth、body。法术书属于 weapon，法术卷轴属于 items。",
+      "constant": false,
+      "selective": false,
+      "selectiveLogic": 0,
+      "disable": false,
+      "order": 150,
+      "position": 0,
+      "probability": 100,
+      "useProbability": false,
+      "depth": 4,
+      "excludeRecursion": true,
+      "matchWholeWords": false
+    },
+    "4": {
+      "uid": 4,
+      "comment": "状态与角色预设格式",
+      "key": [
+        "Buff",
+        "Debuff",
+        "我方角色",
+        "敌人预设",
+        "状态",
+        "AI策略"
+      ],
+      "keysecondary": [],
+      "content": "状态示例：{\"id\":\"demo:blind\",\"name\":\"失明\",\"description\":\"视线模糊，难以瞄准目标。\",\"duration\":2,\"maxStacks\":1,\"accuracyMod\":-30,\"tags\":[\"debuff\"]}；可用 blockedTags 限制技能标签、stats 修改属性、bonusAp 提供 0–3 点额外行动点、skills 授予技能、suppressedSkills 封锁指定技能。技能或道具用 status/removeStatus 效果施加或解除状态。装备也可有 bonusAp。我方角色预设放在 allies，敌人预设放在 enemies，均可包含 id、name、row、col、stats、resources、skills、equipment、accessories、restraints、statuses；敌人还可包含 items、aiProfile。我方道具统一写入开战快照外层 bag，不放在单个角色里。AI 策略示例：{\"id\":\"demo:guard-ai\",\"name\":\"守卫\",\"skillPriority\":[\"demo:guard-hit\"],\"itemPriority\":[],\"useItems\":true}。剧情 AI 每场仍要写入完整初始快照；预设只是建议值，不能替代当前剧情变量。",
+      "constant": false,
+      "selective": false,
+      "selectiveLogic": 0,
+      "disable": false,
+      "order": 140,
+      "position": 0,
+      "probability": 100,
+      "useProbability": false,
+      "depth": 4,
+      "excludeRecursion": true,
+      "matchWholeWords": false
+    },
+    "5": {
+      "uid": 5,
+      "comment": "角色卡开战快照适配",
+      "key": [
+        "写卡",
+        "角色卡",
+        "开战格式",
+        "战斗变量"
+      ],
+      "keysecondary": [],
+      "content": "如果用户要求你编写角色卡的战斗变量与开战格式：剧情变量名可自由设计，但开战时必须把当前变量映射成 turn-battle-request/v1 的 JSON。外层字段：schema、scene、actors、bag。每名 actor 至少包含 id、name、side(ally/enemy)、row(front/back)、col(从1开始)、stats、resources；resources 中 hp/sp/mp 各为 {\"current\":数值,\"max\":数值}，可另加自定义资源；另可填 skills、equipment、accessories、restraints、statuses、items、aiProfile。玩家方道具数量只在外层 bag 填一次；敌方道具写在各自 actor.items。剧情中学会或失去技能、取得或失去装备、换装、增减道具时，先更新剧情变量；下次开战把当前完整的 skills、equipment、accessories、restraints、statuses、bag 等写进快照，不能重新套用预设初始值。战斗结束时按报告完整状态同步变量。只能引用已启用目录中的 ID；新技能或装备必须先创建内容定义、导入并绑定，剧情 AI 不得仅靠快照临时发明定义。开战回复的剧情停在第一项行动前，在末尾输出 HTML 注释标记：<!-- TURN_BATTLE_REQUEST 换行 JSON 换行 -->。",
+      "constant": false,
+      "selective": false,
+      "selectiveLogic": 0,
+      "disable": false,
+      "order": 130,
+      "position": 0,
+      "probability": 100,
+      "useProbability": false,
+      "depth": 4,
+      "excludeRecursion": true,
+      "matchWholeWords": false
+    },
+    "6": {
+      "uid": 6,
+      "comment": "已有内容目录",
+      "key": [
+        "现有内容",
+        "引用目录"
+      ],
+      "keysecondary": [],
+      "content": "写作时可引用的已有内容定义如下。不要使用目录以外且未在同批次创建的 ID：\n基础规则示例包 (core):\n- skills core:unarmed 徒手攻击\n- skills core:sword-strike 剑击\n- skills core:clear-wind-first 拂柳：清风剑法第一式：以轻快剑路拨开敌方防线。\n- skills core:dagger-strike 匕首刺击\n- skills core:shortsword-strike 短剑刺击\n- skills core:staff-strike 法杖敲击\n- skills core:book-strike 法术书拍击\n- skills core:fireball 火球术\n- skills core:fire-rain 火雨术\n- skills core:disarm 除你武器\n- skills core:gale-thrust 疾风刺\n- statuses core:blind 失明\n- statuses core:bound-hands 手部束缚\n- statuses core:gagged 堵嘴\n- equipment core:sword 长剑\n- equipment core:staff 法杖\n- equipment core:spellbook 法术书\n- equipment core:dagger 匕首\n- equipment core:shortsword 短剑\n- equipment core:rope 绳索\n- equipment core:gag 口枷\n- items core:potion 治疗药剂\n- items core:lime 石灰粉\n- items core:rope-item 套绳\n- items core:fire-scroll 火球卷轴\n\n基础西幻职业与怪物技能包 (fantasy-basic):\n- skills fantasy-basic:weapon/sword-slash 长剑斩击：以长剑向前挥出一击。\n- skills fantasy-basic:weapon/axe-swing 战斧劈砍：抡起战斧向目标劈落。\n- skills fantasy-basic:weapon/mace-hit 钉锤打击：挥动钉锤重击目标。\n- skills fantasy-basic:weapon/bow-shot 短弓射击：搭箭射向可见的敌人。\n- skills fantasy-basic:weapon/dagger-stab 匕首刺击：贴近目标迅速刺出匕首。\n- skills fantasy-basic:weapon/staff-hit 法杖敲击：以法杖近身敲击。\n- skills fantasy-basic:weapon/symbol-hit 圣徽拍击：以手持圣徽近身击打。\n- skills fantasy-basic:martial/power-strike 强力打击：蓄力后挥出沉重的一击。\n- skills fantasy-basic:martial/cleave 横扫：横向挥动武器，攻击敌方前排。\n- skills fantasy-basic:martial/armor-break 破甲斩：瞄准护甲接缝，留下明显破绽。\n- skills fantasy-basic:martial/disarm 缴械打击：击向握持武器的手，试图使武器脱落。\n- skills fantasy-basic:martial/guard 防御架势：稳住身形，准备承受下一轮攻势。\n- skills fantasy-basic:martial/battle-cry 战吼：高声鼓舞同伴，提升整队战意。\n- skills fantasy-basic:martial/finish 破绽追击：抓住敌人护甲破绽补上重击。\n- skills fantasy-basic:martial/recover 调息：稳住呼吸，恢复少量精力。\n- skills fantasy-basic:agile/quick-attack 迅捷一击：抓住空隙迅速出手。\n- skills fantasy-basic:agile/disorient 扰乱：虚晃一击，使目标露出破绽。\n- skills fantasy-basic:agile/hamstring 阻行打击：攻击目标腿部，试图限制移动。\n- skills fantasy-basic:agile/recover 调整呼吸：暂缓出手，恢复少量精力。\n- skills fantasy-basic:agile/decisive-attack 破绽一击：精准攻击已经失去平衡的目标。\n- skills fantasy-basic:spell/magic-bolt 魔力弹：聚成一束魔力，越过遮挡击中敌人。\n- skills fantasy-basic:spell/ward 防护结界：在同伴身上覆上一层微光屏障。\n- skills fantasy-basic:spell/haste 迅捷术：加快同伴动作，使其下一阶段多行动一次。\n- skills fantasy-basic:spell/bind 束缚术：魔力缠住目标双脚，限制移动。\n- skills fantasy-basic:spell/mana-recover 魔力回涌：稍作凝神，重新汇聚法力。\n- skills fantasy-basic:spell/fireball 火球术：咏唱凝聚火球，飞向指定目标。\n- skills fantasy-basic:spell/fire-rain 火雨术：召来火雨，覆盖敌方前后排。\n- skills fantasy-basic:spell/ice-lance 冰枪术：锐利寒冰穿向目标，并留下寒意。\n- skills fantasy-basic:spell/frost-wave 寒潮：寒气席卷敌阵，令动作变得迟缓。\n- skills fantasy-basic:spell/lightning 雷击术：一道雷光直击指定目标。\n- skills fantasy-basic:spell/thunderstorm 雷暴：多道雷光在敌阵中同时落下。\n- skills fantasy-basic:spell/arcane-shield 奥术护甲：为自己织出抵挡魔法的护盾。\n- skills fantasy-basic:spell/holy-bolt 圣光弹：聚集圣光射向指定敌人。\n- skills fantasy-basic:spell/heal 治疗术：以温暖圣光治疗一名同伴。\n- skills fantasy-basic:spell/group-heal 群体治疗：圣光同时照向全队，缓解伤势。\n- skills fantasy-basic:spell/bless 祝福术：为全队送上短暂的战斗祝福。\n- skills fantasy-basic:spell/sanctuary 圣佑术：圣光保护一名同伴。\n- skills fantasy-basic:spell/purify 净化祷言：驱散常见的寒意、束足、沉默和毒性。\n- skills fantasy-basic:spell/radiance 光辉之环：圣光环绕敌阵，压制黑暗气息。\n- skills fantasy-basic:warrior/steel-strike 钢铁重斩：沉稳蓄力后斩向敌人。\n- skills fantasy-basic:warrior/shield-wall 坚守阵线：让同伴暂时保持严密防守。\n- skills fantasy-basic:warrior/double-slash 双重斩：接连挥出两记较轻的斩击。\n- skills fantasy-basic:warrior/press-attack 压制打击：迫使目标失去稳固架势。\n- skills fantasy-basic:warrior/unyielding 不屈之势：重新收紧防线并恢复少量精力。\n- skills fantasy-basic:archer/aim 凝神瞄准：稳定呼吸，准备一记更准确的射击。\n- skills fantasy-basic:archer/piercing-shot 穿透箭：抓住空隙，让箭矢越过前排。\n- skills fantasy-basic:archer/double-shot 连珠箭：短时间内连续射出两箭。\n- skills fantasy-basic:archer/arrow-rain 箭雨：箭矢从上方落向敌方全员。\n- skills fantasy-basic:archer/pinning-arrow 束足箭：箭矢钉住目标衣物或脚边，限制移动。\n- skills fantasy-basic:mage/arcane-focus 奥术增幅：集中精神，让法术威力暂时增强。\n- skills fantasy-basic:mage/mana-burst 魔力爆发：将积蓄的魔力向敌阵释放。\n- skills fantasy-basic:mage/silence 静默咒：暂时压住目标的咏唱之声。\n- skills fantasy-basic:mage/mana-drain 法力抽离：扰乱目标体内的法力流动。\n- skills fantasy-basic:mage/twin-bolt 双生魔矢：接连发出两道魔力飞矢。\n- skills fantasy-basic:berserker/rage 狂怒：放弃一部分防守，换取更猛烈的攻击。\n- skills fantasy-basic:berserker/whirlwind 旋风斩：抡起武器攻击敌方前排全员。\n- skills fantasy-basic:berserker/bone-breaker 碎骨重击：猛力击打目标，使其防御松动。\n- skills fantasy-basic:berserker/frenzied-assault 狂乱连斩：在狂怒中连续攻击同一目标。\n- skills fantasy-basic:berserker/surge 暴烈冲势：催动战意，争取再行动一次。\n- skills fantasy-basic:priest/healing-prayer 疗愈祷词：以祷词治疗一名伤势较重的同伴。\n- skills fantasy-basic:priest/group-prayer 群体祈祷：祈祷为全队降下祝福与少量治疗。\n- skills fantasy-basic:priest/holy-word 圣言：以坚定圣言削弱敌人的攻击意志。\n- skills fantasy-basic:priest/mercy-ward 慈悲庇护：为一名同伴加上圣佑并恢复少量生命。\n- skills fantasy-basic:priest/clarity 澄明祷告：驱散同伴身上的沉默与虚弱。\n- skills fantasy-basic:paladin/holy-smite 圣光斩：利刃与圣光一同击中眼前的敌人。\n- skills fantasy-basic:paladin/guard-oath 守护誓言：立下守护誓言，圣光庇护一名同伴。\n- skills fantasy-basic:paladin/lay-on-hands 圣疗之手：触碰同伴，将圣光注入伤处。\n- skills fantasy-basic:paladin/judgment 裁决之刃：抓住护甲破绽，以圣力重击敌人。\n- skills fantasy-basic:paladin/radiant-sweep 辉光横斩：带着圣光横扫敌方前排。\n- skills fantasy-basic:assassin/gale-thrust 疾风刺：借敌方前排空位突入，刺向目标。\n- skills fantasy-basic:assassin/feint 佯攻：诱使目标误判攻势，露出防守空隙。\n- skills fantasy-basic:assassin/sneak-strike 破绽背刺：抓住已暴露的破绽刺向要害。\n- skills fantasy-basic:assassin/smoke 烟幕：撒出烟雾，遮掩自己的行动。\n- skills fantasy-basic:assassin/throat-cut 封喉刺：精准刺向发声要处，干扰施法。\n- skills fantasy-basic:assassin/poison-blade 毒刃：匕首上的毒性令目标四肢无力。\n- skills fantasy-basic:monster/claw 爪击：以利爪向前扑抓。\n- skills fantasy-basic:monster/bite 撕咬：咬住目标，令其动作变得虚弱。\n- skills fantasy-basic:monster/heavy-blow 蛮力重击：以沉重力量击向面前的敌人。\n- skills fantasy-basic:monster/sweep 巨力横扫：横扫敌方前排全员。\n- skills fantasy-basic:monster/rock 投石：抓起石块投向可见目标。\n- skills fantasy-basic:monster/net 撒网：试图用绳网限制目标脚步。\n- skills fantasy-basic:monster/dark-bolt 暗影弹：放出一道阴冷的魔法飞弹。\n- skills fantasy-basic:monster/curse 衰弱诅咒：以低语削弱目标的攻击能力。\n- skills fantasy-basic:monster/howl 凶性咆哮：以咆哮激起同伴的凶性。\n- skills fantasy-basic:monster/acid-spit 酸液喷吐：酸液飞向指定目标，侵蚀防护。\n- skills fantasy-basic:monster/flame-breath 烈焰吐息：火焰覆盖敌方前后排。\n- skills fantasy-basic:monster/shadow-veil 暗影遮蔽：阴影遮掩身形，使敌人难以瞄准。\n- statuses fantasy-basic:status/armor-broken 破甲：护甲出现破绽，物理防护下降。\n- statuses fantasy-basic:status/guarded 守势：稳住架势，减轻正面冲击。\n- statuses fantasy-basic:status/battle-cry 战意：受到战吼鼓舞，出手更有力。\n- statuses fantasy-basic:status/precision 瞄准：屏息瞄准，攻击更容易命中。\n- statuses fantasy-basic:status/rooted 缚足：脚步被牵制，难以移动或突入。\n- statuses fantasy-basic:status/chilled 寒意：寒气侵入四肢，出手变得迟缓。\n- statuses fantasy-basic:status/arcane-ward 奥术护盾：流动的法术屏障抵御魔法冲击。\n- statuses fantasy-basic:status/haste 迅捷：法术加速动作，下次己方阶段可额外行动一次。\n- statuses fantasy-basic:status/blessed 祝福：圣光鼓舞身心，攻击与防护略有提升。\n- statuses fantasy-basic:status/holy-ward 圣佑：温暖的圣光环绕，减轻物理与魔法伤害。\n- statuses fantasy-basic:status/silenced 沉默：喉间的咒语无法成形。\n- statuses fantasy-basic:status/weakened 虚弱：力量被削弱，攻击威力下降。\n- statuses fantasy-basic:status/rage 狂怒：怒意推动攻击，也使防守露出破绽。\n- statuses fantasy-basic:status/smoke-veil 烟幕掩护：身形藏在烟幕中，更难被击中。\n- statuses fantasy-basic:status/exposed 露出破绽：防守失衡，物理与魔法防护下降。\n- statuses fantasy-basic:status/poisoned 中毒：毒性令四肢疲软，攻击能力下降。\n- statuses fantasy-basic:status/monster-fury 凶性：野性被激发，攻击变得猛烈。\n- statuses fantasy-basic:status/warrior-passive 坚韧：长期战斗训练带来更稳固的防守。\n- statuses fantasy-basic:status/warrior-training 兵器训练：熟练掌握兵器的发力与落点。\n- statuses fantasy-basic:status/archer-passive 鹰眼：长年的瞄准训练提升了命中。\n- statuses fantasy-basic:status/archer-footwork 轻足：善于变换站位，较难被攻击命中。\n- statuses fantasy-basic:status/mage-passive 奥术亲和：施法时更容易汇聚奥术力量。\n- statuses fantasy-basic:status/mage-discipline 法术纪律：严谨的法术训练强化精神防护。\n- statuses fantasy-basic:status/berserker-passive 狂性：攻击更凶猛，防护略有减弱。\n- statuses fantasy-basic:status/berserker-instinct 战斗本能：混战中依然能抓住敌人的位置。\n- statuses fantasy-basic:status/priest-passive 虔诚：坚定的信念使精神防护更加稳固。\n- statuses fantasy-basic:status/priest-liturgy 圣言研习：熟悉圣言的节奏与施法落点。\n- statuses fantasy-basic:status/paladin-passive 守护者：守护誓言强化了自身防护。\n- statuses fantasy-basic:status/paladin-discipline 誓约训练：持剑与祈祷时动作更加稳定。\n- statuses fantasy-basic:status/assassin-passive 夜行：习惯隐匿行动，更难被敌人瞄准。\n- statuses fantasy-basic:status/assassin-reflex 敏锐反应：细小破绽也难以逃过双眼。\n- statuses fantasy-basic:status/arcane-focus 奥术增幅：奥术力量暂时聚集，魔法攻击提高。\n- equipment fantasy-basic:gear/sword 制式长剑：结实可靠的钢制长剑。\n- equipment fantasy-basic:gear/axe 双刃战斧：斧刃宽重，适合猛烈劈砍。\n- equipment fantasy-basic:gear/mace 钉锤：沉重的锤头适合击碎护甲。\n- equipment fantasy-basic:gear/bow 猎弓：一把适于远距离射击的长弓。\n- equipment fantasy-basic:gear/dagger 锋利匕首：窄刃匕首，便于近身突刺。\n- equipment fantasy-basic:gear/staff 奥术法杖：法杖上的纹路在施法时微亮。\n- equipment fantasy-basic:gear/holy-symbol 持握圣徽：掌心大小的圣徽，能够引导祈祷。\n- equipment fantasy-basic:gear/blessed-sword 祝圣长剑：剑身刻有守护誓文。\n- equipment fantasy-basic:gear/chainmail 锁子甲：细密的金属环保护躯干。\n- equipment fantasy-basic:gear/leather 皮甲：轻便耐磨，适合快速行动。\n- equipment fantasy-basic:gear/robe 法袍：绣有简洁符文的长袍。\n- items fantasy-basic:item/heal-potion 治疗药剂：喝下后缓解伤势。\n- items fantasy-basic:item/mana-potion 法力药剂：喝下后恢复少量法力。\n- allies fantasy-basic:ally/warrior 见习战士；建议模板 {\"side\":\"ally\",\"row\":\"front\",\"col\":1,\"stats\":{\"patk\":9,\"matk\":0,\"pdef\":6,\"mdef\":3,\"accuracy\":5},\"resources\":{\"hp\":{\"current\":52,\"max\":52},\"sp\":{\"current\":28,\"max\":28},\"mp\":{\"current\":0,\"max\":0}},\"skills\":[\"fantasy-basic:martial/power-strike\",\"fantasy-basic:martial/armor-break\",\"fantasy-basic:martial/guard\",\"fantasy-basic:martial/finish\",\"fantasy-basic:warrior/steel-strike\",\"fantasy-basic:warrior/shield-wall\"],\"equipment\":{\"weapon\":\"fantasy-basic:gear/sword\",\"outer\":\"fantasy-basic:gear/chainmail\"},\"accessories\":[],\"restraints\":[],\"statuses\":[\"fantasy-basic:status/warrior-passive\",\"fantasy-basic:status/warrior-training\"]}\n- allies fantasy-basic:ally/archer 见习射手；建议模板 {\"side\":\"ally\",\"row\":\"back\",\"col\":1,\"stats\":{\"patk\":10,\"matk\":0,\"pdef\":2,\"mdef\":2,\"accuracy\":6},\"resources\":{\"hp\":{\"current\":40,\"max\":40},\"sp\":{\"current\":30,\"max\":30},\"mp\":{\"current\":0,\"max\":0}},\"skills\":[\"fantasy-basic:agile/disorient\",\"fantasy-basic:archer/aim\",\"fantasy-basic:archer/piercing-shot\",\"fantasy-basic:archer/double-shot\",\"fantasy-basic:archer/arrow-rain\",\"fantasy-basic:archer/pinning-arrow\"],\"equipment\":{\"weapon\":\"fantasy-basic:gear/bow\",\"outer\":\"fantasy-basic:gear/leather\"},\"accessories\":[],\"restraints\":[],\"statuses\":[\"fantasy-basic:status/archer-passive\",\"fantasy-basic:status/archer-footwork\"]}\n- allies fantasy-basic:ally/mage 见习法师；建议模板 {\"side\":\"ally\",\"row\":\"back\",\"col\":1,\"stats\":{\"patk\":2,\"matk\":11,\"pdef\":1,\"mdef\":4},\"resources\":{\"hp\":{\"current\":34,\"max\":34},\"sp\":{\"current\":12,\"max\":12},\"mp\":{\"current\":36,\"max\":36}},\"skills\":[\"fantasy-basic:spell/magic-bolt\",\"fantasy-basic:spell/fireball\",\"fantasy-basic:spell/fire-rain\",\"fantasy-basic:spell/ice-lance\",\"fantasy-basic:spell/ward\",\"fantasy-basic:mage/arcane-focus\"],\"equipment\":{\"weapon\":\"fantasy-basic:gear/staff\",\"outer\":\"fantasy-basic:gear/robe\"},\"accessories\":[],\"restraints\":[],\"statuses\":[\"fantasy-basic:status/mage-passive\",\"fantasy-basic:status/mage-discipline\"]}\n- allies fantasy-basic:ally/berserker 见习狂战士；建议模板 {\"side\":\"ally\",\"row\":\"front\",\"col\":1,\"stats\":{\"patk\":11,\"matk\":0,\"pdef\":3,\"mdef\":2},\"resources\":{\"hp\":{\"current\":56,\"max\":56},\"sp\":{\"current\":30,\"max\":30},\"mp\":{\"current\":0,\"max\":0}},\"skills\":[\"fantasy-basic:martial/power-strike\",\"fantasy-basic:martial/cleave\",\"fantasy-basic:martial/armor-break\",\"fantasy-basic:berserker/rage\",\"fantasy-basic:berserker/whirlwind\",\"fantasy-basic:berserker/frenzied-assault\"],\"equipment\":{\"weapon\":\"fantasy-basic:gear/axe\",\"outer\":\"fantasy-basic:gear/leather\"},\"accessories\":[],\"restraints\":[],\"statuses\":[\"fantasy-basic:status/berserker-passive\",\"fantasy-basic:status/berserker-instinct\"]}\n- allies fantasy-basic:ally/priest 见习牧师；建议模板 {\"side\":\"ally\",\"row\":\"back\",\"col\":1,\"stats\":{\"patk\":2,\"matk\":8,\"pdef\":2,\"mdef\":5},\"resources\":{\"hp\":{\"current\":42,\"max\":42},\"sp\":{\"current\":14,\"max\":14},\"mp\":{\"current\":32,\"max\":32}},\"skills\":[\"fantasy-basic:spell/magic-bolt\",\"fantasy-basic:spell/holy-bolt\",\"fantasy-basic:spell/heal\",\"fantasy-basic:spell/group-heal\",\"fantasy-basic:spell/bless\",\"fantasy-basic:spell/purify\",\"fantasy-basic:priest/holy-word\"],\"equipment\":{\"weapon\":\"fantasy-basic:gear/holy-symbol\",\"outer\":\"fantasy-basic:gear/robe\"},\"accessories\":[],\"restraints\":[],\"statuses\":[\"fantasy-basic:status/priest-passive\",\"fantasy-basic:status/priest-liturgy\"]}\n- allies fantasy-basic:ally/paladin 见习圣骑士；建议模板 {\"side\":\"ally\",\"row\":\"front\",\"col\":1,\"stats\":{\"patk\":8,\"matk\":6,\"pdef\":5,\"mdef\":4},\"resources\":{\"hp\":{\"current\":52,\"max\":52},\"sp\":{\"current\":23,\"max\":23},\"mp\":{\"current\":22,\"max\":22}},\"skills\":[\"fantasy-basic:martial/power-strike\",\"fantasy-basic:martial/guard\",\"fantasy-basic:martial/armor-break\",\"fantasy-basic:spell/holy-bolt\",\"fantasy-basic:paladin/holy-smite\",\"fantasy-basic:paladin/guard-oath\"],\"equipment\":{\"weapon\":\"fantasy-basic:gear/blessed-sword\",\"outer\":\"fantasy-basic:gear/chainmail\"},\"accessories\":[],\"restraints\":[],\"statuses\":[\"fantasy-basic:status/paladin-passive\",\"fantasy-basic:status/paladin-discipline\"]}\n- allies fantasy-basic:ally/assassin 见习刺客；建议模板 {\"side\":\"ally\",\"row\":\"front\",\"col\":1,\"stats\":{\"patk\":9,\"matk\":0,\"pdef\":2,\"mdef\":2,\"accuracy\":7,\"evasion\":5},\"resources\":{\"hp\":{\"current\":38,\"max\":38},\"sp\":{\"current\":32,\"max\":32},\"mp\":{\"current\":0,\"max\":0}},\"skills\":[\"fantasy-basic:agile/recover\",\"fantasy-basic:assassin/gale-thrust\",\"fantasy-basic:assassin/feint\",\"fantasy-basic:assassin/sneak-strike\",\"fantasy-basic:assassin/smoke\",\"fantasy-basic:assassin/throat-cut\",\"fantasy-basic:assassin/poison-blade\"],\"equipment\":{\"weapon\":\"fantasy-basic:gear/dagger\",\"outer\":\"fantasy-basic:gear/leather\"},\"accessories\":[],\"restraints\":[],\"statuses\":[\"fantasy-basic:status/assassin-passive\",\"fantasy-basic:status/assassin-reflex\"]}\n- enemies fantasy-basic:enemy/wolf 荒原狼；建议模板 {\"side\":\"enemy\",\"row\":\"front\",\"col\":1,\"stats\":{\"patk\":7,\"matk\":0,\"pdef\":2,\"mdef\":1},\"resources\":{\"hp\":{\"current\":29,\"max\":29},\"sp\":{\"current\":16,\"max\":16},\"mp\":{\"current\":0,\"max\":0}},\"skills\":[\"fantasy-basic:monster/howl\",\"fantasy-basic:monster/claw\",\"fantasy-basic:monster/bite\"],\"equipment\":{},\"accessories\":[],\"restraints\":[],\"statuses\":[],\"items\":{},\"aiProfile\":\"fantasy-basic:ai/beast\"}\n- enemies fantasy-basic:enemy/goblin 哥布林掠夺者；建议模板 {\"side\":\"enemy\",\"row\":\"front\",\"col\":1,\"stats\":{\"patk\":7,\"matk\":0,\"pdef\":3,\"mdef\":1},\"resources\":{\"hp\":{\"current\":32,\"max\":32},\"sp\":{\"current\":18,\"max\":18},\"mp\":{\"current\":0,\"max\":0}},\"skills\":[\"fantasy-basic:monster/net\",\"fantasy-basic:monster/rock\",\"fantasy-basic:monster/heavy-blow\"],\"equipment\":{\"weapon\":\"fantasy-basic:gear/mace\",\"outer\":\"fantasy-basic:gear/leather\"},\"accessories\":[],\"restraints\":[],\"statuses\":[],\"items\":{},\"aiProfile\":\"fantasy-basic:ai/raider\"}\n- enemies fantasy-basic:enemy/cultist 邪教徒；建议模板 {\"side\":\"enemy\",\"row\":\"back\",\"col\":1,\"stats\":{\"patk\":2,\"matk\":8,\"pdef\":1,\"mdef\":3},\"resources\":{\"hp\":{\"current\":27,\"max\":27},\"sp\":{\"current\":10,\"max\":10},\"mp\":{\"current\":22,\"max\":22}},\"skills\":[\"fantasy-basic:monster/curse\",\"fantasy-basic:monster/dark-bolt\",\"fantasy-basic:monster/shadow-veil\"],\"equipment\":{\"weapon\":\"fantasy-basic:gear/staff\",\"outer\":\"fantasy-basic:gear/robe\"},\"accessories\":[],\"restraints\":[],\"statuses\":[],\"items\":{},\"aiProfile\":\"fantasy-basic:ai/cultist\"}\n- enemies fantasy-basic:enemy/ogre 山地食人魔；建议模板 {\"side\":\"enemy\",\"row\":\"front\",\"col\":1,\"stats\":{\"patk\":11,\"matk\":0,\"pdef\":5,\"mdef\":2},\"resources\":{\"hp\":{\"current\":70,\"max\":70},\"sp\":{\"current\":24,\"max\":24},\"mp\":{\"current\":0,\"max\":0}},\"skills\":[\"fantasy-basic:monster/sweep\",\"fantasy-basic:monster/heavy-blow\",\"fantasy-basic:monster/rock\"],\"equipment\":{\"weapon\":\"fantasy-basic:gear/mace\",\"outer\":\"fantasy-basic:gear/leather\"},\"accessories\":[],\"restraints\":[],\"statuses\":[],\"items\":{},\"aiProfile\":\"fantasy-basic:ai/brute\"}\n- enemies fantasy-basic:enemy/drake 幼年火龙；建议模板 {\"side\":\"enemy\",\"row\":\"front\",\"col\":1,\"stats\":{\"patk\":9,\"matk\":8,\"pdef\":5,\"mdef\":4},\"resources\":{\"hp\":{\"current\":66,\"max\":66},\"sp\":{\"current\":20,\"max\":20},\"mp\":{\"current\":20,\"max\":20}},\"skills\":[\"fantasy-basic:monster/flame-breath\",\"fantasy-basic:monster/acid-spit\",\"fantasy-basic:monster/claw\"],\"equipment\":{},\"accessories\":[],\"restraints\":[],\"statuses\":[],\"items\":{},\"aiProfile\":\"fantasy-basic:ai/drake\"}\n- aiProfiles fantasy-basic:ai/beast 野兽 AI\n- aiProfiles fantasy-basic:ai/raider 劫掠者 AI\n- aiProfiles fantasy-basic:ai/cultist 邪教徒 AI\n- aiProfiles fantasy-basic:ai/brute 巨怪 AI\n- aiProfiles fantasy-basic:ai/drake 幼龙 AI",
+      "constant": false,
+      "selective": false,
+      "selectiveLogic": 0,
+      "disable": false,
+      "order": 120,
+      "position": 0,
+      "probability": 100,
+      "useProbability": false,
+      "depth": 4,
+      "excludeRecursion": true,
+      "matchWholeWords": false
+    }
+  }
+}

@@ -193,10 +193,11 @@ function applyEffect(state, actor, targets, effect, defs, action) {
             log(state, `${actorName(target)}的${effect.resource} ${old}→${resource.current}`);
         } else if (effect.kind === 'status') {
             addStatus(target, effect.statusId, defs, actor.id);
-            log(state, `${actorName(target)}获得${defs.statuses.get(effect.statusId)?.name || effect.statusId}`);
+            log(state, `${actorName(target)}获得${defs.statuses.get(effect.statusId)?.name || effect.statusId}`, { contentId: effect.statusId, contentType: 'status' });
         } else if (effect.kind === 'removeStatus') {
+            const before = target.statuses.length;
             target.statuses = target.statuses.filter(x => x.id !== effect.statusId);
-            log(state, `${actorName(target)}解除${defs.statuses.get(effect.statusId)?.name || effect.statusId}`);
+            if (target.statuses.length < before) log(state, `${actorName(target)}解除${defs.statuses.get(effect.statusId)?.name || effect.statusId}`, { contentId: effect.statusId, contentType: 'status' });
         } else if (effect.kind === 'equipRestraint') {
             const eq = defs.equipment.get(effect.equipmentId);
             if (!eq || eq.slot !== 'restraint') continue;

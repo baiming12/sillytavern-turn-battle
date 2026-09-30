@@ -1,0 +1,268 @@
+{
+  "schema": "turn-battle-request/v1",
+  "scene": "边境道路：战士、射手和牧师遭遇荒原狼、掠夺者与邪教徒",
+  "actors": [
+    {
+      "id": "hero-warrior",
+      "name": "见习战士",
+      "row": "front",
+      "col": 1,
+      "stats": {
+        "patk": 9,
+        "matk": 0,
+        "pdef": 6,
+        "mdef": 3,
+        "accuracy": 5
+      },
+      "resources": {
+        "hp": {
+          "current": 52,
+          "max": 52
+        },
+        "sp": {
+          "current": 28,
+          "max": 28
+        },
+        "mp": {
+          "current": 0,
+          "max": 0
+        }
+      },
+      "skills": [
+        "fantasy-basic:martial/power-strike",
+        "fantasy-basic:martial/armor-break",
+        "fantasy-basic:martial/guard",
+        "fantasy-basic:martial/finish",
+        "fantasy-basic:warrior/steel-strike",
+        "fantasy-basic:warrior/shield-wall"
+      ],
+      "equipment": {
+        "weapon": "fantasy-basic:gear/sword",
+        "outer": "fantasy-basic:gear/chainmail"
+      },
+      "accessories": [],
+      "restraints": [],
+      "statuses": [
+        "fantasy-basic:status/warrior-passive",
+        "fantasy-basic:status/warrior-training"
+      ],
+      "side": "ally"
+    },
+    {
+      "id": "hero-archer",
+      "name": "见习射手",
+      "row": "back",
+      "col": 1,
+      "stats": {
+        "patk": 10,
+        "matk": 0,
+        "pdef": 2,
+        "mdef": 2,
+        "accuracy": 6
+      },
+      "resources": {
+        "hp": {
+          "current": 40,
+          "max": 40
+        },
+        "sp": {
+          "current": 30,
+          "max": 30
+        },
+        "mp": {
+          "current": 0,
+          "max": 0
+        }
+      },
+      "skills": [
+        "fantasy-basic:agile/disorient",
+        "fantasy-basic:archer/aim",
+        "fantasy-basic:archer/piercing-shot",
+        "fantasy-basic:archer/double-shot",
+        "fantasy-basic:archer/arrow-rain",
+        "fantasy-basic:archer/pinning-arrow"
+      ],
+      "equipment": {
+        "weapon": "fantasy-basic:gear/bow",
+        "outer": "fantasy-basic:gear/leather"
+      },
+      "accessories": [],
+      "restraints": [],
+      "statuses": [
+        "fantasy-basic:status/archer-passive",
+        "fantasy-basic:status/archer-footwork"
+      ],
+      "side": "ally"
+    },
+    {
+      "id": "hero-priest",
+      "name": "见习牧师",
+      "row": "back",
+      "col": 2,
+      "stats": {
+        "patk": 2,
+        "matk": 8,
+        "pdef": 2,
+        "mdef": 5
+      },
+      "resources": {
+        "hp": {
+          "current": 42,
+          "max": 42
+        },
+        "sp": {
+          "current": 14,
+          "max": 14
+        },
+        "mp": {
+          "current": 32,
+          "max": 32
+        }
+      },
+      "skills": [
+        "fantasy-basic:spell/magic-bolt",
+        "fantasy-basic:spell/holy-bolt",
+        "fantasy-basic:spell/heal",
+        "fantasy-basic:spell/group-heal",
+        "fantasy-basic:spell/bless",
+        "fantasy-basic:spell/purify",
+        "fantasy-basic:priest/holy-word"
+      ],
+      "equipment": {
+        "weapon": "fantasy-basic:gear/holy-symbol",
+        "outer": "fantasy-basic:gear/robe"
+      },
+      "accessories": [],
+      "restraints": [],
+      "statuses": [
+        "fantasy-basic:status/priest-passive",
+        "fantasy-basic:status/priest-liturgy"
+      ],
+      "side": "ally"
+    },
+    {
+      "id": "foe-wolf",
+      "name": "荒原狼",
+      "row": "front",
+      "col": 1,
+      "stats": {
+        "patk": 7,
+        "matk": 0,
+        "pdef": 2,
+        "mdef": 1
+      },
+      "resources": {
+        "hp": {
+          "current": 29,
+          "max": 29
+        },
+        "sp": {
+          "current": 16,
+          "max": 16
+        },
+        "mp": {
+          "current": 0,
+          "max": 0
+        }
+      },
+      "skills": [
+        "fantasy-basic:monster/howl",
+        "fantasy-basic:monster/claw",
+        "fantasy-basic:monster/bite"
+      ],
+      "equipment": {},
+      "accessories": [],
+      "restraints": [],
+      "statuses": [],
+      "aiProfile": "fantasy-basic:ai/beast",
+      "items": {},
+      "side": "enemy"
+    },
+    {
+      "id": "foe-goblin",
+      "name": "哥布林掠夺者",
+      "row": "front",
+      "col": 2,
+      "stats": {
+        "patk": 7,
+        "matk": 0,
+        "pdef": 3,
+        "mdef": 1
+      },
+      "resources": {
+        "hp": {
+          "current": 32,
+          "max": 32
+        },
+        "sp": {
+          "current": 18,
+          "max": 18
+        },
+        "mp": {
+          "current": 0,
+          "max": 0
+        }
+      },
+      "skills": [
+        "fantasy-basic:monster/net",
+        "fantasy-basic:monster/rock",
+        "fantasy-basic:monster/heavy-blow"
+      ],
+      "equipment": {
+        "weapon": "fantasy-basic:gear/mace",
+        "outer": "fantasy-basic:gear/leather"
+      },
+      "accessories": [],
+      "restraints": [],
+      "statuses": [],
+      "aiProfile": "fantasy-basic:ai/raider",
+      "items": {},
+      "side": "enemy"
+    },
+    {
+      "id": "foe-cultist",
+      "name": "邪教徒",
+      "row": "back",
+      "col": 1,
+      "stats": {
+        "patk": 2,
+        "matk": 8,
+        "pdef": 1,
+        "mdef": 3
+      },
+      "resources": {
+        "hp": {
+          "current": 27,
+          "max": 27
+        },
+        "sp": {
+          "current": 10,
+          "max": 10
+        },
+        "mp": {
+          "current": 22,
+          "max": 22
+        }
+      },
+      "skills": [
+        "fantasy-basic:monster/curse",
+        "fantasy-basic:monster/dark-bolt",
+        "fantasy-basic:monster/shadow-veil"
+      ],
+      "equipment": {
+        "weapon": "fantasy-basic:gear/staff",
+        "outer": "fantasy-basic:gear/robe"
+      },
+      "accessories": [],
+      "restraints": [],
+      "statuses": [],
+      "aiProfile": "fantasy-basic:ai/cultist",
+      "items": {},
+      "side": "enemy"
+    }
+  ],
+  "bag": {
+    "fantasy-basic:item/heal-potion": 2,
+    "fantasy-basic:item/mana-potion": 1
+  }
+}

@@ -62,6 +62,13 @@ test('手机设置页重绘后，打开面板按钮仍可唤起战斗界面', as
             for (let i = 0; i < 20 && !pattern.test(nodes[0].innerHTML); i++) await new Promise(resolve => setImmediate(resolve));
             assert.match(nodes[0].innerHTML, pattern);
         };
+        clickAction('fantasy-preview');
+        await waitFor(/基础西幻职业与怪物技能包/);
+        assert.match(nodes[0].innerHTML, /初始快照校验通过/);
+        clickAction('cancel-preview');
+        clickAction('load-fantasy-pack');
+        await waitFor(/暂存预览：基础西幻职业与怪物技能包/);
+        assert.doesNotMatch(nodes[0].innerHTML, /class="tb-errors"/);
         clickAction('sample-preview');
         await waitFor(/初始快照校验通过/);
         assert.doesNotMatch(nodes[0].innerHTML, /引用未知|无效/);

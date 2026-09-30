@@ -217,10 +217,21 @@ function resourceBars(actor) {
     return Object.entries(actor.resources || {}).map(([id, resource]) => `<span class="tb-resource">${escapeHtml(id)} ${escapeHtml(resource?.current)}/${escapeHtml(resource?.max)}</span>`).join('');
 }
 
+function statusSummary(actor, defs) {
+    const passives = [];
+    const temporary = [];
+    for (const value of actor.statuses || []) {
+        const id = typeof value === 'string' ? value : value.id;
+        const definition = defs.statuses.get(id);
+        (definition?.tags?.includes('passive') ? passives : temporary).push(definition?.name || id);
+    }
+    return [passives.length ? `被动：${passives.join('、')}` : '', temporary.length ? `状态：${temporary.join('、')}` : ''].filter(Boolean).join(' · ');
+}
+
 function renderBattle() {
     if (previewRequest) return renderPreview();
     const record = currentRecord();
-    if (!record) return `<div class="tb-empty">当前聊天还没有战斗。剧情 AI 输出战斗请求后，点击消息下方的“开始战斗”。<p><button data-action="sample-preview">载入示例战斗并预览</button><button data-action="manual-preview">手动粘贴战斗请求</button></p></div>`;
+    if (!record) return `<div class="tb-empty">当前聊天还没有战斗。剧情 AI 输出战斗请求后，点击消息下方的“开始战斗”。<p><button data-action="sample-preview">载入示例战斗并预览</button><button data-action="fantasy-preview">载入西幻示例战斗</button><button data-action="manual-preview">手动粘贴战斗请求</button></p></div>`;
     const state = record.state;
     const defs = collectDefinitions(state.definitions);
     const actor = state.actors.find(x => x.id === selectedActorId && x.side === 'ally' && x.ap > 0 && x.resources.hp.current > 0) || state.actors.find(x => x.side === 'ally' && x.ap > 0 && x.resources.hp.current > 0);
@@ -249,10 +260,10 @@ function renderBattle() {
         actions = `<section class="tb-command"><label>行动者 <select id="tb-actor">${actorOptions}</select></label><div class="tb-command-grid">${menus}</div><div class="tb-choice-grid">${choiceList}</div>${targetControl}${landing}${moves}<button data-action="execute" class="tb-execute" ${canExecute ? '' : 'disabled'}>确认行动</button></section>`;
     }
     if (state.status === 'active' && state.phase === 'ally') actions += `<section class="tb-phase-controls">${actor ? '' : '<p>玩家方本阶段已无行动点，请结束阶段让敌方行动。</p>'}<button data-action="end-phase">结束玩家阶段，让敌方行动</button></section>`;
-    const combatants = ['ally', 'enemy'].map(side => `<div class="tb-side"><h3>${side === 'ally' ? '玩家方' : '敌方'}</h3>${['front', 'back'].map(row => `<div class="tb-row"><b>${row === 'front' ? '前排' : '后排'}</b>${Array.from({ length: state.limits[`${side}${row === 'front' ? 'Front' : 'Back'}`] }, (_, i) => { const x = state.actors.find(a => (a.zone || a.side) === side && a.row === row && a.col === i + 1 && a.resources.hp.current > 0); return `<div class="tb-slot">${x ? `<strong>${escapeHtml(x.name)}</strong>${resourceBars(x)}<small>AP ${x.ap} · ${(x.statuses || []).map(s => escapeHtml(defs.statuses.get(s.id)?.name || s.id)).join('、')}${(x.restraints || []).map(r => escapeHtml(defs.equipment.get(r.id)?.name || r.id)).join('、')}</small>` : '空位'}</div>`; }).join('')}</div>`).join('')}</div>`).join('');
+    const combatants = ['ally', 'enemy'].map(side => `<div class="tb-side"><h3>${side === 'ally' ? '玩家方' : '敌方'}</h3>${['front', 'back'].map(row => `<div class="tb-row"><b>${row === 'front' ? '前排' : '后排'}</b>${Array.from({ length: state.limits[`${side}${row === 'front' ? 'Front' : 'Back'}`] }, (_, i) => { const x = state.actors.find(a => (a.zone || a.side) === side && a.row === row && a.col === i + 1 && a.resources.hp.current > 0); return `<div class="tb-slot">${x ? `<strong>${escapeHtml(x.name)}</strong>${resourceBars(x)}<small>AP ${x.ap}${statusSummary(x, defs) ? ` · ${escapeHtml(statusSummary(x, defs))}` : ''}${(x.restraints || []).length ? ` · 拘束：${(x.restraints || []).map(r => escapeHtml(defs.equipment.get(r.id)?.name || r.id)).join('、')}` : ''}</small>` : '空位'}</div>`; }).join('')}</div>`).join('')}</div>`).join('');
     const livingEnemies = state.actors.filter(x => x.side === 'enemy' && x.resources.hp.current > 0).length;
     const report = state.status === 'ended'
-        ? `<section class="tb-report"><h3>战斗结束：${escapeHtml(state.result)}</h3><button data-action="copy-short">复制简要报告</button><button data-action="copy-full">复制完整报告</button><button data-action="close">返回聊天</button><textarea readonly>${escapeHtml(battleReport(state, false))}</textarea>${renderLoot(state, defs)}<button data-action="sample-preview" class="tb-secondary">重新试玩示例战斗</button></section>`
+        ? `<section class="tb-report"><h3>战斗结束：${escapeHtml(state.result)}</h3><button data-action="copy-short">复制简要报告</button><button data-action="copy-full">复制完整报告</button><button data-action="close">返回聊天</button><textarea readonly>${escapeHtml(battleReport(state, false))}</textarea>${renderLoot(state, defs)}<button data-action="sample-preview" class="tb-secondary">试玩基础示例</button><button data-action="fantasy-preview" class="tb-secondary">试玩西幻示例</button></section>`
         : `<section class="tb-end-options"><p>敌方仍有 ${livingEnemies} 名单位未倒下。全部倒下后会自动判定胜利。</p>${interruptPending ? '<p>提前中断会立即结束战斗并生成“中断”报告，即使敌人仍有生命。</p><button data-action="confirm-interrupt">确认中断战斗</button><button data-action="cancel-interrupt" class="tb-secondary">继续战斗</button>' : '<details><summary>提前结束这场战斗</summary><button data-action="request-interrupt" class="tb-secondary">中断并生成报告</button></details>'}</section>`;
     const roster = state.actors.filter(x => x.side === 'enemy').map(x => `<span>${escapeHtml(x.name)} ${x.resources.hp.current}/${x.resources.hp.max}</span>`).join('');
     const battlefield = `<details class="tb-battlefield"><summary>查看双方站位与资源</summary><div class="tb-field">${combatants}</div></details>`;
@@ -271,12 +282,12 @@ function renderPreview() {
     const errors = requestErrors(request);
     const differences = snapshotDifferences(request);
     const actors = (Array.isArray(request.actors) ? request.actors : []).filter(x => x && typeof x === 'object').map(x => `<div class="tb-preview-actor"><b>${escapeHtml(x.name)} · ${x.side === 'ally' ? '玩家方' : '敌方'} ${escapeHtml(x.row)} ${escapeHtml(x.col)}</b>${resourceBars(x)}<small>属性：${escapeHtml(JSON.stringify(x.stats || {}))}<br>技能：${escapeHtml((Array.isArray(x.skills) ? x.skills : []).join('、') || '无')}<br>装备：${escapeHtml(JSON.stringify(x.equipment || {}))}<br>饰品：${escapeHtml(JSON.stringify(x.accessories || []))}<br>拘束：${escapeHtml(JSON.stringify(x.restraints || []))}<br>状态：${escapeHtml(JSON.stringify(x.statuses || []))}<br>个人道具：${escapeHtml(JSON.stringify(x.items || {}))}</small></div>`).join('');
-    return `<div><h2>开战预览</h2><p>${escapeHtml(request.scene || '')}</p>${previewPacks ? '<p>示例战斗已临时载入基础测试包，不修改当前角色卡绑定。</p>' : ''}<div class="tb-preview-list">${actors}</div><p>玩家共用背包：${escapeHtml(JSON.stringify(request.bag || {}))}</p>${differences.length ? `<section class="tb-pack"><h3>与上次结算不同 · 本次 AI 快照将覆盖</h3>${differences.map(x => `<div>${escapeHtml(x)}</div>`).join('')}</section>` : ''}${errors.length ? `<div class="tb-errors">${errors.map(x => `<div>${escapeHtml(x)}</div>`).join('')}</div>` : '<p class="tb-ok">初始快照校验通过</p>'}<details><summary>编辑完整初始快照 JSON</summary><textarea id="tb-preview-json">${escapeHtml(JSON.stringify(request, null, 2))}</textarea><button data-action="apply-preview-json">应用修改</button></details><button data-action="confirm-battle" ${errors.length ? 'disabled' : ''}>确认开战</button><button data-action="cancel-preview" class="tb-secondary">取消</button></div>`;
+    return `<div><h2>开战预览</h2><p>${escapeHtml(request.scene || '')}</p>${previewPacks ? `<p>示例战斗已临时载入${escapeHtml(previewPacks.at(-1)?.name || '内容包')}，不修改当前角色卡绑定。</p>` : ''}<div class="tb-preview-list">${actors}</div><p>玩家共用背包：${escapeHtml(JSON.stringify(request.bag || {}))}</p>${differences.length ? `<section class="tb-pack"><h3>与上次结算不同 · 本次 AI 快照将覆盖</h3>${differences.map(x => `<div>${escapeHtml(x)}</div>`).join('')}</section>` : ''}${errors.length ? `<div class="tb-errors">${errors.map(x => `<div>${escapeHtml(x)}</div>`).join('')}</div>` : '<p class="tb-ok">初始快照校验通过</p>'}<details><summary>编辑完整初始快照 JSON</summary><textarea id="tb-preview-json">${escapeHtml(JSON.stringify(request, null, 2))}</textarea><button data-action="apply-preview-json">应用修改</button></details><button data-action="confirm-battle" ${errors.length ? 'disabled' : ''}>确认开战</button><button data-action="cancel-preview" class="tb-secondary">取消</button></div>`;
 }
 
 function renderPacks() {
     const packs = settings().packs;
-    return `<div><h2>内容包</h2><p>内容包在全局安装，角色卡可分别启用整包或部分条目。</p>${packs.map(pack => `<div class="tb-pack"><h3>${escapeHtml(pack.name)} <small>${escapeHtml(pack.id)} · ${escapeHtml(pack.version)}</small></h3><p>${CONTENT_TYPES.map(type => `${CONTENT_TYPE_NAMES[type]} ${(pack[type] || []).length}`).join(' · ')}</p><button data-action="export-pack" data-pack="${escapeHtml(pack.id)}">导出 JSON</button>${pack.id !== 'core' ? `<button data-action="remove-pack" data-pack="${escapeHtml(pack.id)}" class="tb-secondary">移除</button>` : ''}</div>`).join('')}<p><button data-action="load-sample-pack">载入基础测试包并预览</button><button data-tab="import">批量导入</button><button data-tab="editor">可视化创建</button></p></div>`;
+    return `<div><h2>内容包</h2><p>内容包在全局安装，角色卡可分别启用整包或部分条目。</p>${packs.map(pack => `<div class="tb-pack"><h3>${escapeHtml(pack.name)} <small>${escapeHtml(pack.id)} · ${escapeHtml(pack.version)}</small></h3><p>${CONTENT_TYPES.map(type => `${CONTENT_TYPE_NAMES[type]} ${(pack[type] || []).length}`).join(' · ')}</p><button data-action="export-pack" data-pack="${escapeHtml(pack.id)}">导出 JSON</button>${pack.id !== 'core' ? `<button data-action="remove-pack" data-pack="${escapeHtml(pack.id)}" class="tb-secondary">移除</button>` : ''}</div>`).join('')}<p><button data-action="load-sample-pack">载入基础测试包并预览</button><button data-action="load-fantasy-pack">载入西幻职业包并预览</button><button data-tab="import">批量导入</button><button data-tab="editor">可视化创建</button></p></div>`;
 }
 
 function renderBinding() {
@@ -289,7 +300,7 @@ function renderImport() {
     const errors = importErrors.map(error => `<div>${escapeHtml(error)}</div>`).join('');
     const currentPack = settings().packs.find(pack => pack.id === importData?.id);
     const entryStatus = (type, entry) => { const old = (currentPack?.[type] || []).find(value => value.id === entry?.id); return !old ? '新增' : JSON.stringify(old) === JSON.stringify(entry) ? '未变' : '更新'; };
-    const summary = importData ? `<div class="tb-import-summary"><h3>暂存预览：${escapeHtml(importData.name || importData.id)}</h3>${CONTENT_TYPES.map(type => { const entries = Array.isArray(importData[type]) ? importData[type] : []; return `<div><b>${CONTENT_TYPE_NAMES[type]}：${entries.length}</b>${entries.map(entry => `<div>${escapeHtml(entry?.id || '?')} · ${escapeHtml(entry?.name || '?')} · ${entryStatus(type, entry)}</div>`).join('')}</div>`; }).join('')}<p><label>同 ID 处理 <select id="tb-import-mode"><option value="replace">更新现有内容包</option><option value="skip">跳过同 ID 内容包</option></select></label></p><button data-action="commit-import" ${importErrors.length ? 'disabled' : ''}>确认整批导入</button></div>` : '';
+    const summary = importData ? `<div class="tb-import-summary"><h3>暂存预览：${escapeHtml(importData.name || importData.id)}</h3><p>${CONTENT_TYPES.map(type => `${CONTENT_TYPE_NAMES[type]} ${Array.isArray(importData[type]) ? importData[type].length : 0}`).join(' · ')}</p><label>同 ID 处理 <select id="tb-import-mode"><option value="replace">更新现有内容包</option><option value="skip">跳过同 ID 内容包</option></select></label><button data-action="commit-import" ${importErrors.length ? 'disabled' : ''}>确认整批导入</button>${CONTENT_TYPES.map(type => { const entries = Array.isArray(importData[type]) ? importData[type] : []; return `<details><summary>${CONTENT_TYPE_NAMES[type]}：${entries.length}</summary>${entries.map(entry => `<div>${escapeHtml(entry?.id || '?')} · ${escapeHtml(entry?.name || '?')} · ${entryStatus(type, entry)}</div>`).join('')}</details>`; }).join('')}</div>` : '';
     return `<div><h2>批量导入</h2><p>写卡助手可按导出的世界书生成 <code>${PACK_SCHEMA}</code> JSON。先校验，确认后整包导入。</p><label>上传 JSON 文件 <input type="file" id="tb-import-file" accept=".json,application/json"></label><textarea id="tb-import-text" placeholder="粘贴内容包 JSON">${escapeHtml(importDraft)}</textarea><button data-action="check-import">校验并预览</button>${errors ? `<div class="tb-errors">${errors}</div>` : ''}${summary}</div>`;
 }
 
@@ -397,7 +408,7 @@ function renderUnitEditorFields(entry, type) {
     const resources = entry?.resources || { hp: { current: 30, max: 30 }, sp: { current: 20, max: 20 }, mp: { current: 0, max: 0 } };
     const equipment = UNIT_EQUIPMENT_SLOTS.map(slot => `<label>${SLOT_NAMES[slot]} ${namedSelect('equipment', entry?.equipment?.[slot], value => value.slot === slot, true, `tb-ed-eq-${slot}`)}</label>`).join('');
     const enemyFields = ally ? '<p>我方道具使用战斗快照中的共用背包，不给单个角色设置个人道具。</p>' : `<label>敌方 AI 策略 ${namedSelect('aiProfiles', entry?.aiProfile, () => true, true, 'tb-ed-ai-profile')}</label><fieldset class="tb-reference-list" id="tb-ed-items"><legend>个人道具数量</legend>${namedEntries('items').map(item => `<label>${escapeHtml(item.displayName)} <input class="tb-item-count" data-id="${escapeHtml(item.id)}" type="number" min="0" value="${inputValue(entry?.items?.[item.id] ?? 0)}"></label>`).join('') || '<p>还没有可选道具。</p>'}</fieldset>`;
-    return `<p>${ally ? '我方角色' : '敌人'}预设提供建议初始值；每场实际资源和装备仍由剧情 AI 提交并在开战预览中确认。</p><div class="tb-grid"><label>建议排位 <select id="tb-ed-unit-row">${option('front', '前排', entry?.row || 'front')}${option('back', '后排', entry?.row)}</select></label><label>建议位置 <input id="tb-ed-unit-col" type="number" min="1" value="${inputValue(entry?.col ?? 1)}"></label></div><label>属性（每行 属性=数值）<textarea id="tb-ed-stats" placeholder="patk=8">${escapeHtml(formatStats(entry?.stats))}</textarea></label><label>资源（每行 资源=当前/上限）<textarea id="tb-ed-resources">${escapeHtml(formatResources(resources))}</textarea></label>${namedChecklist('tb-ed-skills', '固有技能', 'skills', entry?.skills)}<details class="tb-unit-details" open><summary>装备、饰品、拘束与状态</summary><div class="tb-grid">${equipment}</div>${namedChecklist('tb-ed-accessories', '饰品（最多 5 件）', 'equipment', entry?.accessories, value => value.slot === 'accessory')}${namedChecklist('tb-ed-restraints', '初始拘束', 'equipment', entry?.restraints, value => value.slot === 'restraint')}${namedChecklist('tb-ed-unit-statuses', '初始 Buff / Debuff', 'statuses', entry?.statuses)}</details>${enemyFields}`;
+    return `<p>${ally ? '我方角色' : '敌人'}预设提供建议初始值；每场实际资源和装备仍由剧情 AI 提交并在开战预览中确认。</p><div class="tb-grid"><label>建议排位 <select id="tb-ed-unit-row">${option('front', '前排', entry?.row || 'front')}${option('back', '后排', entry?.row)}</select></label><label>建议位置 <input id="tb-ed-unit-col" type="number" min="1" value="${inputValue(entry?.col ?? 1)}"></label></div><label>属性（每行 属性=数值）<textarea id="tb-ed-stats" placeholder="patk=8">${escapeHtml(formatStats(entry?.stats))}</textarea></label><label>资源（每行 资源=当前/上限）<textarea id="tb-ed-resources">${escapeHtml(formatResources(resources))}</textarea></label>${namedChecklist('tb-ed-skills', '固有技能', 'skills', entry?.skills)}<details class="tb-unit-details" open><summary>装备、饰品、拘束与状态</summary><div class="tb-grid">${equipment}</div>${namedChecklist('tb-ed-accessories', '饰品（最多 5 件）', 'equipment', entry?.accessories, value => value.slot === 'accessory')}${namedChecklist('tb-ed-restraints', '初始拘束', 'equipment', entry?.restraints, value => value.slot === 'restraint')}${namedChecklist('tb-ed-unit-statuses', '初始状态（含常驻被动）', 'statuses', entry?.statuses)}</details>${enemyFields}`;
 }
 
 function renderAiEditorFields(entry) {
@@ -559,21 +570,21 @@ function checkImport() {
     render();
 }
 
-async function loadSamplePack() {
-    const response = await fetch(new URL('./examples/基础测试内容包.json', import.meta.url));
-    if (!response.ok) throw new Error(`测试包加载失败：HTTP ${response.status}`);
+async function loadBundledPack(fileName) {
+    const response = await fetch(new URL(`./examples/${fileName}`, import.meta.url));
+    if (!response.ok) throw new Error(`内容包加载失败：HTTP ${response.status}`);
     importData = await response.json();
     importDraft = JSON.stringify(importData, null, 2);
     importErrors = validatePack(importData, settings().packs);
     tab = 'import'; render();
 }
 
-async function loadSampleBattle() {
+async function loadBundledBattle(packFile, requestFile) {
     const [packResponse, requestResponse] = await Promise.all([
-        fetch(new URL('./examples/基础测试内容包.json', import.meta.url)),
-        fetch(new URL('./examples/基础测试开战快照.json', import.meta.url)),
+        fetch(new URL(`./examples/${packFile}`, import.meta.url)),
+        fetch(new URL(`./examples/${requestFile}`, import.meta.url)),
     ]);
-    if (!packResponse.ok) throw new Error(`测试包加载失败：HTTP ${packResponse.status}`);
+    if (!packResponse.ok) throw new Error(`内容包加载失败：HTTP ${packResponse.status}`);
     if (!requestResponse.ok) throw new Error(`示例快照加载失败：HTTP ${requestResponse.status}`);
     const [pack, request] = await Promise.all([packResponse.json(), requestResponse.json()]);
     const errors = validatePack(pack, [CORE_PACK]);
@@ -657,8 +668,10 @@ async function handlePanelClick(event) {
         } else if (action === 'save-binding') { await saveBinding(getBindingFromUi()); render(); notice('角色卡绑定已保存'); }
         else if (action === 'copy-catalog') await copy(catalogText(resolveActive().packs));
         else if (action === 'check-import') checkImport();
-        else if (action === 'load-sample-pack') await loadSamplePack();
-        else if (action === 'sample-preview') await loadSampleBattle();
+        else if (action === 'load-sample-pack') await loadBundledPack('基础测试内容包.json');
+        else if (action === 'load-fantasy-pack') await loadBundledPack('基础西幻职业技能包.json');
+        else if (action === 'sample-preview') await loadBundledBattle('基础测试内容包.json', '基础测试开战快照.json');
+        else if (action === 'fantasy-preview') await loadBundledBattle('基础西幻职业技能包.json', '基础西幻开战快照.json');
         else if (action === 'commit-import') commitImport();
         else if (action === 'add-condition') addCondition();
         else if (action === 'add-effect') addEffect();
