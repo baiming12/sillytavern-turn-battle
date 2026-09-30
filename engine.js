@@ -115,10 +115,11 @@ export function legalTargets(state, actor, skill, defs) {
     const side = rule.side === 'self' ? actor.side : rule.side === 'ally' ? actor.side : actor.side === 'ally' ? 'enemy' : 'ally';
     const guarded = rule.side === 'enemy' && rule.guard !== false && state.actors.some(a => alive(a) && a.side === side && a.row === 'front');
     const infiltrated = (actor.zone || actor.side) === side;
+    const closeMelee = rule.side === 'enemy' && infiltrated && actor.row === 'front' && (skill.tags || []).includes('melee');
     return state.actors.filter(target => {
         if (!alive(target) || target.side !== side) return false;
         if (rule.side === 'self' && target.id !== actor.id) return false;
-        if (rule.row && rule.row !== 'any' && target.row !== rule.row) return false;
+        if (rule.row && rule.row !== 'any' && target.row !== rule.row && !(closeMelee && rule.row === 'front' && target.row === 'back')) return false;
         if (target.row === 'back' && guarded && !infiltrated) return false;
         if ((skill.effects || []).some(effect => effect.kind === 'resource' && !target.resources?.[effect.resource])) return false;
         if (meetsRequirements(state, actor, skill, target, defs)) return false;

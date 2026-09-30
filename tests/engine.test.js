@@ -166,6 +166,21 @@ test('玩家前排可占据空出的敌方前排，持续遮蔽我方后排并�
     assert.equal(returned.actors[0].zone, 'ally');
 });
 
+test('原本只能打前排的近战技能，进入敌方前排后可以攻击后排', () => {
+    const hero = actor('hero', 'ally', 'front', 1, { skills: ['core:clear-wind-first'], equipment: { weapon: 'core:sword' } });
+    const enemy = actor('enemy', 'enemy', 'back', 1);
+    const state = createBattle(request(hero, enemy), [CORE_PACK], limits, 11);
+    const defs = collectDefinitions([CORE_PACK]);
+    const skill = defs.skills.get('core:clear-wind-first');
+    assert.deepEqual(legalTargets(state, state.actors[0], skill, defs), []);
+    const entered = executeAction(state, { type: 'move', actorId: 'hero', zone: 'enemy', row: 'front', col: 1 });
+    assert.deepEqual(legalTargets(entered, entered.actors[0], skill, defs).map(x => x.id), ['enemy']);
+    const next = endAllyPhase(entered);
+    assert.equal(next.actors[0].zone, 'enemy');
+    const attacked = executeAction(next, { type: 'skill', actorId: 'hero', id: 'core:clear-wind-first', targetId: 'enemy' });
+    assert.ok(attacked.actors[1].resources.hp.current < 30);
+});
+
 test('敌方前排仍有人时不能占据，玩家占据后敌方后排不能前移或突入', () => {
     const pack = structuredClone(CORE_PACK);
     pack.skills.push({ id: 'core:enemy-leap', name: '突入', tags: [], cost: {}, target: { side: 'enemy', row: 'any', count: 'single', guard: false }, effects: [{ kind: 'infiltrate', returnAt: 'phaseEnd' }] });
