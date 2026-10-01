@@ -3,10 +3,25 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { CORE_PACK, collectDefinitions, validatePack, validateBattleRequest } from '../content.js';
 import { createBattle, executeAction, endAllyPhase, stat, battleReport } from '../engine.js';
+import { generateWriterWorldbook } from '../worldbook.js';
 
 const pack = JSON.parse(readFileSync(new URL('../examples/基础西幻职业技能包.json', import.meta.url), 'utf8'));
 const request = JSON.parse(readFileSync(new URL('../examples/基础西幻开战快照.json', import.meta.url), 'utf8'));
 const limits = { allyFront: 2, allyBack: 2, enemyFront: 2, enemyBack: 2 };
+
+test('写卡助手世界书包含完整技能、Buff 和装备规则，且可按名称或 ID 查找', () => {
+    const book = generateWriterWorldbook([pack]);
+    const entries = Object.values(book.entries);
+    assert.ok(entries.some(value => value.comment === '已启用内容包索引' && value.constant && value.content.includes(pack.id)));
+    assert.equal(entries.length, 8 + ['skills', 'statuses', 'equipment', 'items', 'allies', 'enemies', 'aiProfiles'].reduce((sum, type) => sum + pack[type].length, 0));
+    for (const [type, id] of [['skills', 'fantasy-basic:martial/armor-break'], ['statuses', 'fantasy-basic:status/armor-broken'], ['equipment', 'fantasy-basic:gear/sword']]) {
+        const definition = pack[type].find(value => value.id === id);
+        const detail = entries.find(value => value.key.includes(id));
+        assert.ok(detail.key.includes(definition.name));
+        assert.ok(detail.content.includes(JSON.stringify(definition)));
+    }
+    assert.match(entries[0].content, /世界书由插件从通过校验的同一份内容包导出/);
+});
 
 test('西幻职业包与示例战斗可直接导入和预览', () => {
     assert.deepEqual(validatePack(pack, [CORE_PACK]), []);

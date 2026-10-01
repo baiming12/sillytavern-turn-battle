@@ -287,7 +287,7 @@ function renderPreview() {
 
 function renderPacks() {
     const packs = settings().packs;
-    return `<div><h2>内容包</h2><p>内容包在全局安装，角色卡可分别启用整包或部分条目。</p>${packs.map(pack => `<div class="tb-pack"><h3>${escapeHtml(pack.name)} <small>${escapeHtml(pack.id)} · ${escapeHtml(pack.version)}</small></h3><p>${CONTENT_TYPES.map(type => `${CONTENT_TYPE_NAMES[type]} ${(pack[type] || []).length}`).join(' · ')}</p><button data-action="export-pack" data-pack="${escapeHtml(pack.id)}">导出 JSON</button>${pack.id !== 'core' ? `<button data-action="remove-pack" data-pack="${escapeHtml(pack.id)}" class="tb-secondary">移除</button>` : ''}</div>`).join('')}<p><button data-action="load-sample-pack">载入基础测试包并预览</button><button data-action="load-fantasy-pack">载入西幻职业包并预览</button><button data-tab="import">批量导入</button><button data-tab="editor">可视化创建</button></p></div>`;
+    return `<div><h2>内容包</h2><p>内容包在全局安装，角色卡可分别启用整包或部分条目。每个包可分别导出插件内容 JSON 和写卡助手世界书 JSON。</p>${packs.map(pack => `<div class="tb-pack"><h3>${escapeHtml(pack.name)} <small>${escapeHtml(pack.id)} · ${escapeHtml(pack.version)}</small></h3><p>${CONTENT_TYPES.map(type => `${CONTENT_TYPE_NAMES[type]} ${(pack[type] || []).length}`).join(' · ')}</p><button data-action="export-pack" data-pack="${escapeHtml(pack.id)}">导出内容包 JSON</button><button data-action="export-pack-worldbook" data-pack="${escapeHtml(pack.id)}">导出本包世界书</button>${pack.id !== 'core' ? `<button data-action="remove-pack" data-pack="${escapeHtml(pack.id)}" class="tb-secondary">移除</button>` : ''}</div>`).join('')}<p><button data-action="load-sample-pack">载入基础测试包并预览</button><button data-action="load-fantasy-pack">载入西幻职业包并预览</button><button data-tab="import">批量导入</button><button data-tab="editor">可视化创建</button></p></div>`;
 }
 
 function renderBinding() {
@@ -300,8 +300,8 @@ function renderImport() {
     const errors = importErrors.map(error => `<div>${escapeHtml(error)}</div>`).join('');
     const currentPack = settings().packs.find(pack => pack.id === importData?.id);
     const entryStatus = (type, entry) => { const old = (currentPack?.[type] || []).find(value => value.id === entry?.id); return !old ? '新增' : JSON.stringify(old) === JSON.stringify(entry) ? '未变' : '更新'; };
-    const summary = importData ? `<div class="tb-import-summary"><h3>暂存预览：${escapeHtml(importData.name || importData.id)}</h3><p>${CONTENT_TYPES.map(type => `${CONTENT_TYPE_NAMES[type]} ${Array.isArray(importData[type]) ? importData[type].length : 0}`).join(' · ')}</p><label>同 ID 处理 <select id="tb-import-mode"><option value="replace">更新现有内容包</option><option value="skip">跳过同 ID 内容包</option></select></label><button data-action="commit-import" ${importErrors.length ? 'disabled' : ''}>确认整批导入</button>${CONTENT_TYPES.map(type => { const entries = Array.isArray(importData[type]) ? importData[type] : []; return `<details><summary>${CONTENT_TYPE_NAMES[type]}：${entries.length}</summary>${entries.map(entry => `<div>${escapeHtml(entry?.id || '?')} · ${escapeHtml(entry?.name || '?')} · ${entryStatus(type, entry)}</div>`).join('')}</details>`; }).join('')}</div>` : '';
-    return `<div><h2>批量导入</h2><p>写卡助手可按导出的世界书生成 <code>${PACK_SCHEMA}</code> JSON。先校验，确认后整包导入。</p><label>上传 JSON 文件 <input type="file" id="tb-import-file" accept=".json,application/json"></label><textarea id="tb-import-text" placeholder="粘贴内容包 JSON">${escapeHtml(importDraft)}</textarea><button data-action="check-import">校验并预览</button>${errors ? `<div class="tb-errors">${errors}</div>` : ''}${summary}</div>`;
+    const summary = importData ? `<div class="tb-import-summary"><h3>暂存预览：${escapeHtml(importData.name || importData.id)}</h3><p>${CONTENT_TYPES.map(type => `${CONTENT_TYPE_NAMES[type]} ${Array.isArray(importData[type]) ? importData[type].length : 0}`).join(' · ')}</p><label>同 ID 处理 <select id="tb-import-mode"><option value="replace">更新现有内容包</option><option value="skip">跳过同 ID 内容包</option></select></label><button data-action="commit-import" ${importErrors.length ? 'disabled' : ''}>确认整批导入</button><button data-action="export-preview-worldbook" ${importErrors.length ? 'disabled' : ''}>导出此包世界书</button>${CONTENT_TYPES.map(type => { const entries = Array.isArray(importData[type]) ? importData[type] : []; return `<details><summary>${CONTENT_TYPE_NAMES[type]}：${entries.length}</summary>${entries.map(entry => `<div>${escapeHtml(entry?.id || '?')} · ${escapeHtml(entry?.name || '?')} · ${entryStatus(type, entry)}</div>`).join('')}</details>`; }).join('')}</div>` : '';
+    return `<div><h2>批量导入</h2><p>写卡助手只需生成一份 <code>${PACK_SCHEMA}</code> 内容包 JSON。校验后可导入插件，并从同一份数据导出写卡助手世界书。</p><label>上传 JSON 文件 <input type="file" id="tb-import-file" accept=".json,application/json"></label><textarea id="tb-import-text" placeholder="粘贴内容包 JSON">${escapeHtml(importDraft)}</textarea><button data-action="check-import">校验并预览</button>${errors ? `<div class="tb-errors">${errors}</div>` : ''}${summary}</div>`;
 }
 
 const EDITOR_TYPES = [['skills', '技能'], ['items', '道具'], ['equipment', '装备'], ['statuses', 'Buff / Debuff'], ['allies', '我方角色预设'], ['enemies', '敌人预设'], ['aiProfiles', '敌方 AI 策略']];
@@ -417,7 +417,7 @@ function renderAiEditorFields(entry) {
 
 function renderSettings() {
     const limits = settings().limits;
-    return `<div><h2>设置与提示词</h2><div class="tb-grid">${Object.entries(limits).map(([key, value]) => `<label>${escapeHtml(key)} <input class="tb-limit" data-key="${key}" type="number" min="1" max="12" value="${value}"></label>`).join('')}</div><button data-action="save-limits">保存位置上限</button><h3>剧情 AI 开战提示词</h3><p>把下方提示词放进当前剧情预设；内容目录包含此角色卡绑定的条目及其引用。</p><textarea readonly id="tb-story-prompt">${escapeHtml(buildStoryPrompt(catalogText(resolveActive().packs)))}</textarea><button data-action="copy-prompt">复制提示词</button><h3>写卡助手世界书</h3><p>按照当前导入格式生成可导入酒馆的 World Info JSON。</p><button data-action="export-worldbook">导出世界书 JSON</button><button data-action="copy-worldbook">复制世界书 JSON</button><h3>手动开战</h3><button data-action="sample-preview">载入示例战斗并预览</button><button data-action="manual-preview">粘贴初始快照并预览</button></div>`;
+    return `<div><h2>设置与提示词</h2><div class="tb-grid">${Object.entries(limits).map(([key, value]) => `<label>${escapeHtml(key)} <input class="tb-limit" data-key="${key}" type="number" min="1" max="12" value="${value}"></label>`).join('')}</div><button data-action="save-limits">保存位置上限</button><h3>剧情 AI 开战提示词</h3><p>把下方提示词放进当前剧情预设；内容目录包含此角色卡绑定的条目及其引用。</p><textarea readonly id="tb-story-prompt">${escapeHtml(buildStoryPrompt(catalogText(resolveActive().packs)))}</textarea><button data-action="copy-prompt">复制提示词</button><h3>写卡助手世界书</h3><p>根据此角色卡当前启用的条目，导出名称目录和逐条完整规则；导入后挂载到写卡助手聊天。新增补充包或修改绑定后需重新导出。</p><button data-action="export-worldbook">导出世界书 JSON</button><button data-action="copy-worldbook">复制世界书 JSON</button><h3>手动开战</h3><button data-action="sample-preview">载入示例战斗并预览</button><button data-action="manual-preview">粘贴初始快照并预览</button></div>`;
 }
 
 function list(value) { return String(value || '').split(/[,，\n]/).map(x => x.trim()).filter(Boolean); }
@@ -655,7 +655,7 @@ async function handlePanelClick(event) {
         if (action === 'close') hidePanel();
         else if (action === 'copy-prompt') await copy(buildStoryPrompt(catalogText(resolveActive().packs)));
         else if (action === 'export-worldbook' || action === 'copy-worldbook') {
-            const data = JSON.stringify(generateWriterWorldbook(catalogText(resolveActive().packs)), null, 2);
+            const data = JSON.stringify(generateWriterWorldbook(resolveActive().packs), null, 2);
             if (action === 'copy-worldbook') await copy(data); else download('回合战斗-写卡助手世界书.json', data);
         } else if (action === 'save-limits') {
             for (const input of panel.querySelectorAll('.tb-limit')) settings().limits[input.dataset.key] = Math.max(1, Math.min(12, Number(input.value) || 1));
@@ -663,6 +663,12 @@ async function handlePanelClick(event) {
         } else if (action === 'export-pack') {
             const pack = settings().packs.find(x => x.id === button.dataset.pack);
             if (pack) download(`${pack.id}-${pack.version}.json`, JSON.stringify(pack, null, 2));
+        } else if (action === 'export-pack-worldbook') {
+            const pack = settings().packs.find(x => x.id === button.dataset.pack);
+            if (pack) download(`${pack.id}-${pack.version}-写卡助手世界书.json`, JSON.stringify(generateWriterWorldbook([pack]), null, 2));
+        } else if (action === 'export-preview-worldbook') {
+            if (!importData || importErrors.length) throw new Error('请先通过内容包校验');
+            download(`${importData.id}-${importData.version}-写卡助手世界书.json`, JSON.stringify(generateWriterWorldbook([importData]), null, 2));
         } else if (action === 'remove-pack') {
             settings().packs = settings().packs.filter(x => x.id !== button.dataset.pack); saveSettings(); render();
         } else if (action === 'save-binding') { await saveBinding(getBindingFromUi()); render(); notice('角色卡绑定已保存'); }

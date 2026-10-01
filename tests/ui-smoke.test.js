@@ -7,6 +7,7 @@ test('手机设置页重绘后，打开面板按钮仍可唤起战斗界面', as
     const documentListeners = new Map();
     const panelListeners = new Map();
     const nodes = [];
+    const downloads = [];
     let selectedLoot = [];
     const originalFetch = globalThis.fetch;
     globalThis.document = {
@@ -21,6 +22,7 @@ test('手机设置页重绘后，打开面板按钮仍可唤起战斗界面', as
                 matches(selector) { return selector === ':popover-open' && this.popoverOpen; },
                 showPopover() { this.popoverOpen = true; },
                 hidePopover() { this.popoverOpen = false; },
+                click() { downloads.push({ name: this.download, url: this.href }); },
             };
         },
         querySelector(selector) { return selector === '#extensions_settings2' ? { insertAdjacentHTML() {} } : null; },
@@ -28,6 +30,7 @@ test('手机设置页重绘后，打开面板按钮仍可唤起战斗界面', as
     };
     const context = {
         extensionSettings: {},
+        saveSettingsDebounced() {},
         event_types: { APP_READY: 'app-ready' },
         eventSource: { on(name, listener) { events.set(name, listener); } },
         renderExtensionTemplateAsync: async () => '<button id="tb-open">打开面板</button>',
@@ -69,6 +72,17 @@ test('手机设置页重绘后，打开面板按钮仍可唤起战斗界面', as
         clickAction('load-fantasy-pack');
         await waitFor(/暂存预览：基础西幻职业与怪物技能包/);
         assert.doesNotMatch(nodes[0].innerHTML, /class="tb-errors"/);
+        assert.match(nodes[0].innerHTML, /data-action="export-preview-worldbook"/);
+        await clickAction('export-preview-worldbook');
+        assert.match(downloads.at(-1).name, /fantasy-basic-1\.0\.0-写卡助手世界书\.json/);
+        const exportedBook = await (await originalFetch(downloads.at(-1).url)).json();
+        assert.ok(Object.values(exportedBook.entries).some(value => value.key.includes('fantasy-basic:spell/fireball') && value.content.includes('"power":6')));
+        await clickAction('commit-import');
+        await waitFor(/data-action="export-pack-worldbook" data-pack="fantasy-basic"/);
+        await clickButton({ action: 'export-pack-worldbook', pack: 'fantasy-basic' });
+        assert.match(downloads.at(-1).name, /fantasy-basic-1\.0\.0-写卡助手世界书\.json/);
+        await clickButton({ action: 'export-pack', pack: 'fantasy-basic' });
+        assert.equal(downloads.at(-1).name, 'fantasy-basic-1.0.0.json');
         clickAction('sample-preview');
         await waitFor(/初始快照校验通过/);
         assert.doesNotMatch(nodes[0].innerHTML, /引用未知|无效/);
